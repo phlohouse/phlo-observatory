@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Audit log</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./theme.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+
+<div class="{{themeClass}}" style="width: 1440px; height: 960px">
+
+<dc-import name="Sidebar" active="settings" incident="none" env="prod" variant="standard" theme="{{th}}" on-theme="{{pickTheme}}" hint-size="248px,960px"></dc-import>
+
+<main class="panel">
+  <header class="topbar">
+    <a class="crumb" href="Settings.dc.html">Settings</a>
+    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" style="color: var(--faint)"><path d="M6 4l4 4-4 4"></path></svg>
+    <span class="title-sm">Audit log</span>
+    <div style="margin-left: auto; display: flex; align-items: center; gap: 10px">
+      <span class="c-green" style="display: flex; align-items: center; gap: 6px; font-size: 13px"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5l5 2v4c0 3.2-2.2 5.6-5 7-2.8-1.4-5-3.8-5-7v-4z"></path><path d="M5.5 8l1.8 1.8L10.5 6.5"></path></svg>Hash chain verified 09:50</span>
+      <button class="btn">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8"></path><path d="M4.5 6.5L8 10l3.5-3.5"></path><path d="M3 13h10"></path></svg>
+        Export
+      </button>
+    </div>
+  </header>
+
+  <div style="flex-grow: 1; display: flex; min-height: 0">
+    <nav aria-label="Settings sections" class="br" style="width: 196px; flex-shrink: 0; box-sizing: border-box; padding: 16px 10px; display: flex; flex-direction: column; gap: 2px">
+      <div class="meta" style="font-size: 12px; padding: 0 10px 6px">Workspace</div>
+      <a class="subnav-link" href="Settings.dc.html">Lakehouse</a>
+      <a class="subnav-link" href="Members.dc.html">Members</a>
+      <a class="subnav-link" href="Members.dc.html">Service accounts</a>
+      <a class="subnav-link on" href="AuditLog.dc.html">Audit log</a>
+      <div class="meta" style="font-size: 12px; padding: 16px 10px 6px">Environments</div>
+      <a class="subnav-link" href="Overview.dc.html">prod</a>
+      <a class="subnav-link" href="OverviewStaging.dc.html">staging</a>
+    </nav>
+
+    <section style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column">
+      <div class="bb" style="display: flex; align-items: center; gap: 8px; padding: 12px 20px">
+        <button class="chip on">Last 7 days</button>
+        <button class="chip dashed">+ Actor</button>
+        <button class="chip dashed">+ Action</button>
+        <button class="chip dashed">Signed only</button>
+        <span class="meta" style="margin-left: auto">1,284 events</span>
+      </div>
+      <div class="audit-row" style="min-height: 36px; background: var(--raised)"><div class="th">When</div><div class="th">Who</div><div class="th">What</div><div class="th">Signature</div></div>
+      <sc-for list="{{events}}" as="e" hint-placeholder-count="9">
+        <div class="audit-row" style="background: {{e.bg}}">
+          <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13.5px">{{e.time}}</span><span class="meta" style="font-size: 12px">{{e.day}}</span></div>
+          <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13.5px">{{e.actor}}</span><span class="meta" style="font-size: 12px">{{e.kind}}</span></div>
+          <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0"><span style="font-size: 13.5px">{{e.action}}</span><span class="mono meta" style="font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{e.object}}</span></div>
+          <div>
+            <sc-if value="{{e.signed}}" hint-placeholder-val="{{ false }}">
+              <span class="pill p-green">{{e.sig}}</span>
+            </sc-if>
+            <sc-if value="{{e.denied}}" hint-placeholder-val="{{ false }}">
+              <span class="pill p-red">Blocked</span>
+            </sc-if>
+          </div>
+        </div>
+      </sc-for>
+    </section>
+
+    <aside aria-label="Selected event" class="bl" style="width: 340px; flex-shrink: 0; box-sizing: border-box; padding: 20px 22px; display: flex; flex-direction: column; gap: 18px; background: var(--raised)">
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <div class="eyebrow">Event a9e4d10</div>
+        <div style="font-size: 16px; font-weight: 500">Merged branch into main</div>
+        <div class="meta"><span class="mono" style="font-size: 12px">fix/telemetry-schema</span> → <span class="mono" style="font-size: 12px">main</span></div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <div class="meta-key">Reason</div>
+        <div class="meta-value" style="line-height: 1.5">Historian upgrade renamed the dissolved oxygen column. Contract updated to do_sat_pct and 184,212 rows backfilled from the 07:26 watermark.</div>
+      </div>
+      <div style="padding: 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--panel); display: grid; grid-template-columns: 96px 1fr; row-gap: 9px">
+        <div class="eyebrow" style="grid-column: 1 / 3; padding-bottom: 2px">Signature manifest</div>
+        <div class="meta-key">Signed by</div><div class="meta-value">Gareth</div>
+        <div class="meta-key">Meaning</div><div class="meta-value">Approved</div>
+        <div class="meta-key">Time (UTC)</div><div class="meta-value mono" style="font-size: 12.5px">2026-09-24 08:48:12</div>
+        <div class="meta-key">Method</div><div class="meta-value">Password re-entry</div>
+        <div class="meta-key">Change rec.</div><div class="meta-value mono" style="font-size: 12.5px">[CHANGE_RECORD_ID]</div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <div class="meta-key">Linked</div>
+        <a href="Main.dc.html" style="font-size: 13.5px">Incident #214</a>
+        <a href="Branches.dc.html" style="font-size: 13.5px">2 commits · 2 tables</a>
+      </div>
+      <div style="margin-top: auto; display: flex; flex-direction: column; gap: 4px">
+        <div class="meta-key">Record hash</div>
+        <div class="mono" style="font-size: 11.5px; color: var(--text-3); word-break: break-all">sha256:4c1f…9be2 · prev 77ad…03c1</div>
+      </div>
+    </aside>
+  </div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { theme: null };
+this.onStorage = this.onStorage.bind(this);
+}
+componentDidMount() {
+try { var t = window.localStorage.getItem('phlo-theme'); if (t === 'light' || t === 'dark') this.setState({ theme: t }); } catch (e) {}
+try { window.addEventListener('storage', this.onStorage); } catch (e) {}
+}
+componentWillUnmount() {
+try { window.removeEventListener('storage', this.onStorage); } catch (e) {}
+}
+onStorage(e) {
+if (e && e.key === 'phlo-theme' && (e.newValue === 'light' || e.newValue === 'dark')) this.setState({ theme: e.newValue });
+}
+setTheme(t) {
+this.setState({ theme: t });
+try { window.localStorage.setItem('phlo-theme', t); } catch (e) {}
+}
+renderVals() {
+var self = this;
+var th = this.state.theme || this.props.theme || 'light';
+var list = [
+['09:48', 'Today', 'Gareth', 'Person', 'Merged branch into main', 'fix/telemetry-schema → main · a9e4d10', 'Approved', true],
+['09:42', 'Today', 'Gareth', 'Person', 'Resolved incident #214', 'bronze.bioreactor_telemetry', '', false],
+['09:32', 'Today', 'dagster', 'Service', 'Committed snapshot', 'bronze.bioreactor_telemetry @ fix/telemetry-schema', '', false],
+['09:23', 'Today', 'Gareth', 'Person', 'Changed schema contract', 'sources/historian.py · do_pct → do_sat_pct', '', false],
+['09:19', 'Today', 'Gareth', 'Person', 'Created branch', 'fix/telemetry-schema from main@8f3c21a', '', false],['18:02', 'Mon', 'Sam R.', 'QA', 'Created release tag', 'release/BR-2026-118 → c42e9b0', 'Approved', true],
+['17:40', 'Mon', 'Gareth', 'Person', 'Reviewed release tag', 'release/BR-2026-118', 'Reviewed', true],
+['11:40', 'Mon', 'Gareth', 'Person', 'Changed setting', 'Snapshot expiry 5 → 7 days', '', false],
+['09:15', 'Mon', 'transform_silver', 'Service', 'Direct write to main', 'silver.qc_results · protected ref', 'deny', false]
+];
+var events = list.map(function (e, i) {
+return {
+time: e[0], day: e[1], actor: e[2], kind: e[3], action: e[4], object: e[5],
+sig: e[6], signed: e[7], denied: e[6] === 'deny',
+bg: i === 0 ? 'var(--accent-soft)' : 'transparent'
+};
+});
+return {
+themeClass: 'phlo shell theme-' + th,
+th: th, pickTheme: function (t) { self.setTheme(t); },
+events: events
+};
+}
+}
+</script>
+</body>
+</html>

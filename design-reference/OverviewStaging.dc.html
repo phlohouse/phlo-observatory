@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Overview · staging</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./theme.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+
+<div class="{{themeClass}}" style="width: 1440px; height: 960px">
+
+<dc-import name="Sidebar" active="overview" incident="none" env="staging" variant="standard" theme="{{th}}" on-theme="{{pickTheme}}" env-open="{{popOpen}}" on-env="{{togglePop}}" hint-size="248px,960px"></dc-import>
+
+<sc-if value="{{popOpen}}" hint-placeholder-val="{{ true }}">
+  <div class="env-popover" role="menu" aria-label="Environments">
+    <div style="padding: 10px 14px 6px" class="eyebrow">Switch environment</div>
+    <div style="padding: 0 6px; display: flex; flex-direction: column; gap: 2px">
+      <a class="env-option" role="menuitem" href="Overview.dc.html">
+        <span class="dot md" style="margin-top: 6px; background: var(--text-3)"></span>
+        <div style="display: flex; flex-direction: column; gap: 2px; flex-grow: 1">
+          <div style="display: flex; align-items: center; gap: 8px"><span style="font-size: 14px; font-weight: 500">prod</span><span class="pill p-red" style="font-size: 11px; padding: 1px 6px">5 open</span></div>
+          <div class="meta" style="font-size: 12.5px">Production · 148 tables · deploy v1.41</div>
+        </div>
+      </a>
+      <div class="env-option on" role="menuitem" aria-current="true">
+        <span class="dot md bg-amber" style="margin-top: 6px"></span>
+        <div style="display: flex; flex-direction: column; gap: 2px; flex-grow: 1">
+          <div style="display: flex; align-items: center; gap: 8px"><span style="font-size: 14px; font-weight: 500">staging</span><span class="pill p-amber" style="font-size: 11px; padding: 1px 6px">4 to promote</span></div>
+          <div class="meta" style="font-size: 12.5px">Nightly copy of prod · deploy v1.42</div>
+        </div>
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 3px; color: var(--accent)"><path d="M3 8.5l3 3 7-7"></path></svg>
+      </div>
+    </div>
+    <div class="bt" style="margin-top: 6px; padding: 10px 14px; display: flex; align-items: center; gap: 8px; font-size: 13px">
+      <span class="meta" style="font-size: 12.5px">Colour stripe = not prod</span>
+      <a href="Settings.dc.html" style="margin-left: auto">Manage</a>
+    </div>
+  </div>
+</sc-if>
+
+<main class="panel">
+  <div class="env-stripe"></div>
+  <header class="topbar">
+    <span class="title-sm">Overview</span>
+    <span class="pill p-amber">staging</span>
+    <span class="meta">Copy of prod data from 02:10 today · changes here never reach prod until promoted</span>
+    <div style="margin-left: auto; display: flex; align-items: center; gap: 10px">
+      <button class="btn">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13 5.5A5.5 5.5 0 0 0 3.2 5"></path><path d="M3 2.5V5.2h2.7"></path><path d="M3 10.5A5.5 5.5 0 0 0 12.8 11"></path><path d="M13 13.5v-2.7h-2.7"></path></svg>
+        Re-sync from prod
+      </button>
+      <a class="btn-primary" href="Merge.dc.html">Promote 2 ready changes</a>
+    </div>
+  </header>
+
+  <div style="flex-grow: 1; padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; min-height: 0">
+
+    <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px">
+      <div class="card kpi">
+        <div class="eyebrow">Differs from prod</div>
+        <div style="display: flex; align-items: baseline; gap: 6px"><span class="kpi-value">9</span><span class="meta">changes waiting</span></div>
+        <div class="meta">3 jobs · 2 contracts · 2 audits · 2 configs</div>
+      </div>
+      <div class="card kpi">
+        <div class="eyebrow">Staging runs · since sync</div>
+        <div style="display: flex; align-items: baseline; gap: 6px"><span class="kpi-value">86</span><span class="c-red" style="font-size: 13px">2 failed</span></div>
+        <div class="meta">Both failures in new job <span class="mono" style="font-size: 12px">qc_potency_v2</span></div>
+      </div>
+      <div class="card kpi">
+        <div class="eyebrow">Audits</div>
+        <div style="display: flex; align-items: baseline; gap: 6px"><span class="kpi-value">441</span><span class="meta">of 443 passing</span></div>
+        <div class="meta">12 new audits, 10 passing</div>
+      </div>
+      <div class="card kpi">
+        <div class="eyebrow">Data copy</div>
+        <div style="display: flex; align-items: baseline; gap: 6px"><span class="kpi-value">02:10</span><span class="meta">7 h 31 m old</span></div>
+        <div class="meta">1.8 TB · 3 columns masked</div>
+      </div>
+    </div>
+
+    <div style="flex-grow: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 16px">
+
+      <section class="card" style="padding: 16px 20px; display: flex; flex-direction: column; min-height: 0; overflow: hidden">
+        <div style="display: flex; align-items: center; gap: 10px">
+          <div style="font-size: 15px; font-weight: 500">Differences from prod</div>
+          <div style="margin-left: auto; display: flex; align-items: center; gap: 6px" class="meta">
+            <span class="pill p-grey mono" style="font-size: 11.5px">prod v1.41</span>
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10"></path><path d="M9 4l4 4-4 4"></path></svg>
+            <span class="pill p-amber mono" style="font-size: 11.5px">staging v1.42</span>
+          </div>
+        </div>
+        <div style="overflow-y: auto; min-height: 0; margin-top: 4px">
+          <sc-for list="{{groups}}" as="g" hint-placeholder-count="4">
+            <div class="diff-group"><span class="eyebrow">{{g.title}}</span><span class="mono meta" style="font-size: 11.5px">{{g.count}}</span></div>
+            <sc-for list="{{g.items}}" as="d" hint-placeholder-count="3">
+              <div class="diff-row">
+                <span class="{{d.tileCls}}" style="font-size: 11px; font-weight: 600">{{d.sign}}</span>
+                <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+                  <div style="font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis"><span class="mono" style="font-size: 12.5px">{{d.name}}</span></div>
+                  <div class="meta" style="font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{d.detail}}</div>
+                </div>
+                <span class="{{d.pillCls}}">{{d.status}}</span>
+              </div>
+            </sc-for>
+          </sc-for>
+        </div>
+      </section>
+
+      <div style="display: flex; flex-direction: column; gap: 16px; min-height: 0">
+        <section id="promote" class="card" style="padding: 16px 20px; display: flex; flex-direction: column; min-height: 0; flex-grow: 1; overflow: hidden">
+          <div style="display: flex; align-items: baseline; gap: 10px">
+            <div style="font-size: 15px; font-weight: 500">Promote to prod</div>
+            <div class="meta">Each promotion is a signed merge into prod main</div>
+          </div>
+          <div style="overflow-y: auto; min-height: 0">
+            <sc-for list="{{promos}}" as="p" hint-placeholder-count="4">
+              <div class="promo-row">
+                <div style="display: flex; align-items: center; gap: 10px">
+                  <span class="dot md" style="background: {{p.dot}}"></span>
+                  <span style="font-size: 14px; font-weight: 500">{{p.title}}</span>
+                  <span class="meta" style="margin-left: auto; font-size: 12.5px">{{p.who}}</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px; padding-left: 18px; flex-wrap: wrap">
+                  <sc-for list="{{p.checks}}" as="c" hint-placeholder-count="3">
+                    <span class="check-mark"><span style="color: {{c.color}}; font-weight: 600">{{c.mark}}</span>{{c.label}}</span>
+                  </sc-for>
+                  <sc-if value="{{p.ready}}" hint-placeholder-val="{{ true }}">
+                    <a class="btn" href="Merge.dc.html" style="margin-left: auto; height: 28px; font-size: 13px">Promote…</a>
+                  </sc-if>
+                  <sc-if value="{{p.blocked}}" hint-placeholder-val="{{ false }}">
+                    <span class="meta" style="margin-left: auto; font-size: 12.5px">{{p.why}}</span>
+                  </sc-if>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+
+        <section class="card" style="padding: 16px 20px; display: flex; flex-direction: column; gap: 10px; flex-shrink: 0">
+          <div style="display: flex; align-items: baseline; gap: 10px">
+            <div style="font-size: 15px; font-weight: 500">Where staging data comes from</div>
+            <a href="Settings.dc.html" style="margin-left: auto; font-size: 13px">Sync settings</a>
+          </div>
+          <div style="display: grid; grid-template-columns: 130px minmax(0, 1fr); row-gap: 8px; font-size: 13.5px">
+            <span class="k" style="font-size: 13.5px">Source</span><span class="v" style="font-size: 13.5px">Zero-copy branch of prod <span class="mono meta" style="font-size: 12px">main@a41f09c</span></span>
+            <span class="k" style="font-size: 13.5px">Schedule</span><span class="v" style="font-size: 13.5px">Nightly at 02:10 · next in 16 h 29 m</span>
+            <span class="k" style="font-size: 13.5px">Masked</span><span class="v" style="font-size: 13.5px"><span class="token mono">operator_name</span><span class="token mono">analyst_email</span><span class="token mono">donor_id</span></span>
+            <span class="k" style="font-size: 13.5px">Writes</span><span class="v" style="font-size: 13.5px">Stay in staging · re-sync wipes them</span>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"switcher":{"editor":"enum","options":["open","closed"],"default":"open"},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { theme: null, pop: null };
+this.onStorage = this.onStorage.bind(this);
+}
+componentDidMount() {
+try { var t = window.localStorage.getItem('phlo-theme'); if (t === 'light' || t === 'dark') this.setState({ theme: t }); } catch (e) {}
+try { window.addEventListener('storage', this.onStorage); } catch (e) {}
+}
+componentWillUnmount() {
+try { window.removeEventListener('storage', this.onStorage); } catch (e) {}
+}
+onStorage(e) {
+if (e && e.key === 'phlo-theme' && (e.newValue === 'light' || e.newValue === 'dark')) this.setState({ theme: e.newValue });
+}
+setTheme(t) {
+this.setState({ theme: t });
+try { window.localStorage.setItem('phlo-theme', t); } catch (e) {}
+}
+renderVals() {
+var self = this;
+var th = this.state.theme || this.props.theme || 'light';
+var open = this.state.pop !== null ? this.state.pop : (this.props.switcher || 'open') === 'open';
+var TILE = { add: 'tile t-green', chg: 'tile t-amber', del: 'tile t-red' };
+var PILL = { ok: 'pill p-green', warn: 'pill p-amber', bad: 'pill p-red', info: 'pill p-grey' };
+function item(kind, sign, name, detail, st, status) {
+return { tileCls: kind === 'add' ? 'tile t-blue' : TILE[kind], sign: sign, name: name, detail: detail, pillCls: PILL[st], status: status };
+}
+var groups = [
+{ title: 'Jobs only in staging', items: [
+item('add', '+', 'qc_potency_v2', 'Recomputes potency with a curve-fit gate · replaces qc_potency', 'bad', '2 of 6 failed'),
+item('add', '+', 'elisa_4pl_refit', 'Refits standard curves nightly with 4-parameter logistic', 'ok', '6 of 6 ok'),
+item('add', '+', 'lims_sample_backfill', 'One-off: back-fills 2024 samples missing plate IDs', 'ok', 'Ran once')
+] },
+{ title: 'Contract changes', items: [
+item('chg', '~', 'bronze.elisa_plate_reads', 'Adds dilution_factor (double) · same change as #213 in prod', 'warn', 'Needs sign-off'),
+item('chg', '~', 'silver.bioreactor_runs_1min', 'Renames do_pct → do_sat_pct · fixes the cause of #214', 'ok', 'Approved')
+] },
+{ title: 'Audits changed', items: [
+item('add', '+', 'curve_r2 >= 0.98  on silver.qc_results', 'Blocks bad standard curves before potency is used · would have caught #211', 'ok', 'Passing'),
+item('chg', '~', 'range(potency_pct, 50, 150)', 'Warn instead of block when only one plate fails', 'warn', 'Needs sign-off')
+] },
+{ title: 'Config', items: [
+item('chg', '~', 'freshness: bronze.bioreactor_telemetry', 'Pause SLA during historian maintenance windows', 'ok', 'Approved'),
+item('del', '−', 'schedule: legacy_lims_extract', 'Removes the old hourly extract · replaced by dlt LIMS source', 'info', 'Draft')
+] }
+];
+groups.forEach(function (g) { g.count = g.items.length; });
+var G = 'var(--green-text)', R = 'var(--red-text)', A = 'var(--amber-ink)', M = 'var(--faint)';
+function ck(ok, label) { var m = ok === 1 ? '✓' : ok === 0 ? '✕' : ok === 2 ? '!' : '○'; var c = ok === 1 ? G : ok === 0 ? R : ok === 2 ? A : M; return { mark: m, color: c, label: label }; }
+var promos = [
+{ title: 'Fix #214: telemetry column rename', who: 'Gareth · 2 changes', dot: 'var(--green)', ready: true, blocked: false, why: '',
+checks: [ck(1, 'Runs'), ck(1, 'Audits'), ck(1, 'Contract approved')] },
+{ title: 'Curve-fit audit for QC results', who: 'Jo K. · 1 change', dot: 'var(--green)', ready: true, blocked: false, why: '',
+checks: [ck(1, 'Runs'), ck(1, 'Audits'), ck(1, 'QA reviewed')] },
+{ title: 'qc_potency_v2', who: 'Jo K. · 2 changes', dot: 'var(--red)', ready: false, blocked: true, why: 'Fix failing runs first',
+checks: [ck(0, '2 runs failed'), ck(1, 'Audits'), ck(2, 'Bound change unsigned')] },
+{ title: 'Plate reader dilution_factor', who: 'Assay Dev · 1 change', dot: 'var(--amber)', ready: false, blocked: true, why: 'Waiting on QA sign-off',
+checks: [ck(1, 'Runs'), ck(1, 'Audits'), ck(2, 'Contract sign-off')] }
+];
+return {
+themeClass: 'phlo shell theme-' + th,
+th: th, pickTheme: function (t) { self.setTheme(t); },
+popOpen: open, popExpanded: open ? 'true' : 'false',
+togglePop: function () { self.setState({ pop: !open }); },
+groups: groups, promos: promos
+};
+}
+}
+</script>
+</body>
+</html>

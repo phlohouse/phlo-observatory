@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mobile · #214</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./theme.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+
+<div class="{{themeClass}}" style="width: 390px; height: 844px; display: flex; flex-direction: column; overflow: hidden; position: relative; background: var(--bg)">
+
+<header class="bb" style="flex-shrink: 0; display: flex; align-items: center; gap: 8px; height: 56px; padding: 0 6px 0 6px; box-sizing: border-box; background: var(--panel)">
+  <a href="MobileIncidents.dc.html" style="display: inline-flex; align-items: center; gap: 4px; height: 44px; padding: 0 10px 0 6px; font-size: 15px">
+    <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3.5L5.5 8l4.5 4.5"></path></svg>
+    Incidents
+  </a>
+  <span class="mono meta" style="margin-left: auto">#214</span>
+  <span class="env">prod</span>
+  <button type="button" aria-label="{{themeLabel}}" onClick="{{toggleTheme}}" style="width: 44px; height: 44px; border: none; border-radius: 10px; background: transparent; color: var(--text-3); display: flex; align-items: center; justify-content: center; cursor: pointer">
+    <sc-if value="{{isDark}}" hint-placeholder-val="{{ false }}">
+      <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="3"></circle><path d="M8 1.5v1.5M8 13v1.5M1.5 8H3M13 8h1.5M3.4 3.4l1 1M11.6 11.6l1 1M3.4 12.6l1-1M11.6 4.4l1-1"></path></svg>
+    </sc-if>
+    <sc-if value="{{isLight}}" hint-placeholder-val="{{ true }}">
+      <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M13 9.5A5.5 5.5 0 0 1 6.5 3a5.5 5.5 0 1 0 6.5 6.5Z"></path></svg>
+    </sc-if>
+  </button>
+</header>
+
+<main style="flex-grow: 1; min-height: 0; overflow-y: auto; padding: 16px 16px 20px; display: flex; flex-direction: column; gap: 22px">
+
+  <!-- Title -->
+  <section aria-label="Incident summary" style="flex-shrink: 0; display: flex; flex-direction: column; gap: 10px">
+    <div style="display: flex; align-items: center; gap: 8px">
+      <span class="tile lg t-teal"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="8" cy="8" r="6"></circle><path d="M8 4.5V8l2.5 1.5"></path></svg></span>
+      <span class="pill lg p-red" style="display: flex; align-items: center; gap: 6px"><svg width="11" height="11" viewBox="0 0 16 16" style="fill: var(--red-text)"><rect x="1" y="10" width="3" height="4" rx="1"></rect><rect x="6.5" y="6" width="3" height="8" rx="1"></rect><rect x="12" y="2" width="3" height="12" rx="1"></rect></svg>High</span>
+      <span class="pill lg p-amber" style="display: flex; align-items: center; gap: 6px"><span class="ring"></span>Investigating</span>
+      <span class="meta" style="margin-left: auto; font-size: 12.5px">Gareth</span>
+    </div>
+    <h1 style="margin: 0; font-size: 22px; line-height: 1.25; font-weight: 600; letter-spacing: -0.01em">Stale table: bioreactor telemetry</h1>
+    <div style="display: flex; align-items: center; gap: 8px; font-size: 14.5px">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" style="color: var(--red-text)"><circle cx="8" cy="8" r="6"></circle><path d="M8 4.5V8l2.5 1.5"></path></svg>
+      <span class="c-red" style="font-weight: 500; white-space: nowrap">Stale 2 h 14 m</span>
+      <span class="meta" style="font-size: 13.5px; white-space: nowrap">· SLA 60 m · 52 min ago</span>
+    </div>
+    <div class="mono meta" style="font-size: 12.5px">bronze.bioreactor_telemetry</div>
+  </section>
+
+  <!-- Freshness sparkline -->
+  <section aria-label="Freshness lag" class="card" style="flex-shrink: 0; padding: 12px 14px 10px; display: flex; flex-direction: column; gap: 8px">
+    <div style="display: flex; align-items: baseline; justify-content: space-between">
+      <div class="eyebrow">Freshness lag · 24 h</div>
+      <div class="c-red" style="font-size: 17px; font-weight: 500">134 min</div>
+    </div>
+    <svg width="328" height="88" viewBox="0 0 328 88" role="img" aria-label="Freshness lag stayed near 15 minutes for most of the day, then climbed past the 60 minute SLA to 134 minutes.">
+      <line x1="0" y1="70" x2="328" y2="70" stroke-width="1" style="stroke: var(--grid)"></line>
+      <line x1="0" y1="43.6" x2="328" y2="43.6" stroke-width="1.2" stroke-dasharray="3 4" style="stroke: var(--red)"></line>
+      <text x="0" y="38" font-size="10.5" font-family="Geist Mono, monospace" style="fill: var(--red-text)">SLA 60 m</text>
+      <path d="M0 63.4 L18 64.2 L36 62.8 L54 63.7 L72 64.5 L90 63 L108 63.3 L126 64.1 L144 63.6 L162 62.7 L180 63.4 L198 64.3 L216 63.8 L234 62.9 L252 63.5 L270 63.2 L288 63.9 L294 63.6" fill="none" stroke-width="1.8" stroke-linejoin="round" style="stroke: var(--chart-line)"></path>
+      <path d="M294 63.6 L320 11" fill="none" stroke-width="2" stroke-linecap="round" style="stroke: var(--red)"></path>
+      <circle cx="320" cy="11" r="3.5" stroke-width="2" style="fill: var(--red); stroke: var(--panel)"></circle>
+      <text x="0" y="86" font-size="10.5" font-family="Geist Mono, monospace" style="fill: var(--muted)">−24 h</text>
+      <text x="164" y="86" text-anchor="middle" font-size="10.5" font-family="Geist Mono, monospace" style="fill: var(--muted)">−12 h</text>
+      <text x="328" y="86" text-anchor="end" font-size="10.5" font-family="Geist Mono, monospace" style="fill: var(--muted)">now</text>
+    </svg>
+  </section>
+
+  <!-- What happened -->
+  <section aria-labelledby="what-h" style="flex-shrink: 0; display: flex; flex-direction: column; gap: 8px">
+    <h2 id="what-h" style="margin: 0; font-size: 15px; font-weight: 500">What happened</h2>
+    <p style="margin: 0; font-size: 14.5px; line-height: 1.55; color: var(--text-2)">The process historian was upgraded and renamed a column: <span class="mono" style="font-size: 13px">do_pct</span> is now <span class="mono" style="font-size: 13px">do_sat_pct</span>. Our dlt contract spotted the change and rejected the last 3 loads.</p>
+    <div class="note-green" style="display: flex; align-items: flex-start; gap: 10px; font-size: 14px">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px"><path d="M3 8.5l3 3 7-7"></path></svg>
+      <span>Nothing bad was written. The table just stopped updating.</span>
+    </div>
+  </section>
+
+  <!-- Impact -->
+  <section aria-labelledby="impact-h" style="flex-shrink: 0; display: flex; flex-direction: column; gap: 8px">
+    <h2 id="impact-h" style="margin: 0; font-size: 15px; font-weight: 500">Impact</h2>
+    <div class="card" style="overflow: hidden">
+      <a href="MobileAssets.dc.html" class="rowline" style="display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 8px 12px 8px 14px; box-sizing: border-box; color: var(--text)">
+        <span class="dot md bg-red"></span>
+        <span style="font-size: 14.5px; flex-grow: 1">6 downstream tables stale</span>
+        <span class="meta" style="font-size: 12.5px">3 silver · 3 gold</span>
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="flex-shrink: 0; color: var(--faint)"><path d="M6 4l4 4-4 4"></path></svg>
+      </a>
+      <div style="display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px">
+        <span class="sw lg bg-gold" style="margin-top: 4px"></span>
+        <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0; flex-grow: 1">
+          <span class="mono" style="font-size: 13px">gold.batch_release_metrics</span>
+          <span class="meta">Feeds batch release. Numbers are 2 h behind.</span>
+        </div>
+        <span class="pill p-red" style="flex-shrink: 0">QA told</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Activity -->
+  <section aria-labelledby="act-h" style="flex-shrink: 0; display: flex; flex-direction: column; gap: 12px">
+    <div style="display: flex; align-items: center">
+      <h2 id="act-h" style="margin: 0; font-size: 15px; font-weight: 500">Latest</h2>
+      <a href="Main.dc.html" style="display: inline-flex; align-items: center; height: 44px; margin: -10px 0 -10px auto; padding: 0 4px; font-size: 13.5px">All activity</a>
+    </div>
+    <div style="display: flex; gap: 12px; align-items: flex-start">
+      <span class="mono meta" style="width: 48px; flex-shrink: 0; font-size: 12px; padding-top: 2px">12 min</span>
+      <span class="avatar">GP</span>
+      <span style="font-size: 14px; line-height: 1.5; color: var(--text-2)"><span style="color: var(--text)">Gareth:</span> patching the contract on the branch. Backfill from the last good load, then merge.</span>
+    </div>
+    <div style="display: flex; gap: 12px; align-items: flex-start">
+      <span class="mono meta" style="width: 48px; flex-shrink: 0; font-size: 12px; padding-top: 2px">22 min</span>
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="flex-shrink: 0; margin: 3px 3px 0; color: var(--purple)"><circle cx="4.5" cy="3.5" r="1.5"></circle><circle cx="4.5" cy="12.5" r="1.5"></circle><circle cx="11.5" cy="5" r="1.5"></circle><path d="M4.5 5v6"></path><path d="M11.5 6.5c0 3-3.5 2.6-6.6 4.7"></path></svg>
+      <span style="font-size: 14px; line-height: 1.5; color: var(--text-2)">Branch <span class="mono" style="font-size: 12.5px; color: var(--text)">fix/telemetry-schema</span> made from main</span>
+    </div>
+    <div style="display: flex; gap: 12px; align-items: flex-start">
+      <span class="mono meta" style="width: 48px; flex-shrink: 0; font-size: 12px; padding-top: 2px">45 min</span>
+      <span class="tl-dot bg-faint" style="margin: 4px 4px 0; border-color: var(--bg)"></span>
+      <span style="font-size: 14px; line-height: 1.5; color: var(--text-2)">3 runs of <span class="mono" style="font-size: 12.5px">ingest_bioreactor</span> failed at normalize. No partial writes.</span>
+    </div>
+    <div style="display: flex; gap: 12px; align-items: flex-start">
+      <span class="mono meta" style="width: 48px; flex-shrink: 0; font-size: 12px; padding-top: 2px">52 min</span>
+      <span class="tl-dot bg-red" style="margin: 4px 4px 0; border-color: var(--bg)"></span>
+      <span style="font-size: 14px; line-height: 1.5; color: var(--text-2)">Freshness SLA missed. 6 downstream tables now stale.</span>
+    </div>
+  </section>
+</main>
+
+<!-- Pinned actions -->
+<div class="bt" style="flex-shrink: 0; background: var(--panel); padding: 12px 16px; display: flex; flex-direction: column; gap: 8px">
+  <sc-if value="{{isIdle}}" hint-placeholder-val="{{ true }}">
+    <button type="button" class="btn-primary" onClick="{{askRerun}}" style="width: 100%; height: 48px; justify-content: center; font-size: 15px; border-radius: 10px">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M13 8a5 5 0 1 1-1.5-3.6"></path><path d="M13 2.5v2.8h-2.8"></path></svg>
+      Re-run with patched contract
+    </button>
+  </sc-if>
+
+  <sc-if value="{{isConfirm}}" hint-placeholder-val="{{ false }}">
+    <div role="alertdialog" aria-labelledby="confirm-t" style="display: flex; flex-direction: column; gap: 12px; padding: 14px; border-radius: 12px; border: 1px solid var(--purple-line); background: var(--purple-soft)">
+      <div style="display: flex; align-items: flex-start; gap: 10px">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" style="flex-shrink: 0; margin-top: 2px; color: var(--purple)"><circle cx="4.5" cy="3.5" r="1.5"></circle><circle cx="4.5" cy="12.5" r="1.5"></circle><circle cx="11.5" cy="5" r="1.5"></circle><path d="M4.5 5v6"></path><path d="M11.5 6.5c0 3-3.5 2.6-6.6 4.7"></path></svg>
+        <div style="display: flex; flex-direction: column; gap: 4px">
+          <div id="confirm-t" style="font-size: 15px; font-weight: 500; line-height: 1.4">This runs on branch <span class="mono" style="font-size: 13.5px">fix/telemetry-schema</span>, not main</div>
+          <div class="meta">Main stays as it is. You merge once the audits pass. Takes about 2 min.</div>
+        </div>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+        <button type="button" class="btn" onClick="{{cancelRerun}}" style="height: 48px; justify-content: center; font-size: 15px; border-radius: 10px">Cancel</button>
+        <button type="button" class="btn-primary" onClick="{{confirmRerun}}" style="height: 48px; justify-content: center; font-size: 15px; border-radius: 10px">Confirm</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{isStarted}}" hint-placeholder-val="{{ false }}">
+    <div role="status" style="display: flex; flex-direction: column; justify-content: center; gap: 8px; min-height: 48px; padding: 10px 14px; box-sizing: border-box; border-radius: 10px; border: 1px solid var(--accent-line); background: var(--accent-soft); color: var(--accent-ink)">
+      <div style="display: flex; align-items: center; gap: 8px; font-size: 14px">
+        <span>Re-running on <span class="mono" style="font-size: 12.5px">fix/telemetry-schema</span></span>
+        <span style="margin-left: auto; font-size: 12.5px">just now</span>
+      </div>
+      <div class="progress"><div class="progress-stripe" style="width: 35%"></div></div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{showMore}}" hint-placeholder-val="{{ true }}">
+    <button type="button" class="btn" onClick="{{togglePause}}" aria-pressed="{{pausePressed}}" style="width: 100%; height: 44px; justify-content: center; font-size: 15px; border-radius: 10px">
+      <sc-if value="{{notPaused}}" hint-placeholder-val="{{ true }}">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 3.5v9"></path><path d="M10 3.5v9"></path></svg>
+      </sc-if>
+      <sc-if value="{{paused}}" hint-placeholder-val="{{ false }}">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M5 3.5l7 4.5-7 4.5z"></path></svg>
+      </sc-if>
+      {{pauseLabel}}
+    </button>
+    <a class="btn" href="Main.dc.html" style="width: 100%; height: 44px; justify-content: center; font-size: 15px; border-radius: 10px">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="2.5" width="13" height="8.5" rx="1.2"></rect><path d="M6 14h4"></path><path d="M8 11v3"></path></svg>
+      Open on desktop
+    </a>
+  </sc-if>
+</div>
+
+<nav aria-label="Main" style="flex-shrink: 0; height: 64px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--line); background: var(--panel)">
+  <a href="MobileHome.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 11.5px; color: var(--muted)">
+    <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7L8 2.5 13.5 7"></path><path d="M4 6v7.5h3v-4h2v4h3V6"></path></svg>
+    <span>Home</span>
+  </a>
+  <a href="MobileIncidents.dc.html" aria-current="page" aria-label="Incidents, 5 open" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 11.5px; font-weight: 500; color: var(--accent); box-shadow: inset 0 2px 0 var(--accent)">
+    <span style="position: relative; display: flex">
+      <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5L14 13H2z"></path><path d="M8 6.5v3"></path><path d="M8 11.3v.2"></path></svg>
+      <span style="position: absolute; top: -5px; left: 13px; min-width: 16px; height: 16px; padding: 0 4px; box-sizing: border-box; border-radius: 8px; background: var(--red); color: #ffffff; font-size: 10.5px; font-weight: 600; line-height: 16px; text-align: center">5</span>
+    </span>
+    <span>Incidents</span>
+  </a>
+  <a href="MobileAssets.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 11.5px; color: var(--muted)">
+    <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="8" cy="4" rx="5" ry="1.8"></ellipse><path d="M3 4v8c0 1 2.2 1.8 5 1.8s5-.8 5-1.8V4"></path><path d="M3 8c0 1 2.2 1.8 5 1.8s5-.8 5-1.8"></path></svg>
+    <span>Assets</span>
+  </a>
+  <a href="MobilePipelines.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 11.5px; color: var(--muted)">
+    <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="2.5" width="5" height="4" rx="1"></rect><rect x="9.5" y="9.5" width="5" height="4" rx="1"></rect><path d="M4 6.5v2.5a2 2 0 0 0 2 2h3.5"></path></svg>
+    <span>Pipelines</span>
+  </a>
+</nav>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { theme: null, rerun: 'idle', paused: false };
+this.onStorage = this.onStorage.bind(this);
+}
+componentDidMount() {
+try { var t = window.localStorage.getItem('phlo-theme'); if (t === 'light' || t === 'dark') this.setState({ theme: t }); } catch (e) {}
+try { window.addEventListener('storage', this.onStorage); } catch (e) {}
+}
+componentWillUnmount() {
+try { window.removeEventListener('storage', this.onStorage); } catch (e) {}
+}
+onStorage(e) {
+if (e && e.key === 'phlo-theme' && (e.newValue === 'light' || e.newValue === 'dark')) this.setState({ theme: e.newValue });
+}
+setTheme(t) {
+this.setState({ theme: t });
+try { window.localStorage.setItem('phlo-theme', t); } catch (e) {}
+}
+renderVals() {
+var self = this;
+var th = this.state.theme || this.props.theme || 'light';
+var rr = this.state.rerun;
+var paused = !!this.state.paused;
+return {
+themeClass: 'phlo theme-' + th,
+isDark: th === 'dark', isLight: th !== 'dark',
+themeLabel: th === 'dark' ? 'Switch to light theme' : 'Switch to dark theme',
+toggleTheme: function () { self.setTheme(th === 'dark' ? 'light' : 'dark'); },
+isIdle: rr === 'idle', isConfirm: rr === 'confirm', isStarted: rr === 'started',
+showMore: rr !== 'confirm',
+askRerun: function () { self.setState({ rerun: 'confirm' }); },
+cancelRerun: function () { self.setState({ rerun: 'idle' }); },
+confirmRerun: function () { self.setState({ rerun: 'started' }); },
+paused: paused, notPaused: !paused,
+pausePressed: paused ? 'true' : 'false',
+pauseLabel: paused ? 'Downstream paused · Resume' : 'Pause downstream schedules',
+togglePause: function () { self.setState({ paused: !paused }); }
+};
+}
+}
+</script>
+</body>
+</html>

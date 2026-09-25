@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Overview</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./theme.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+
+<div class="{{themeClass}}" style="width: 1440px; height: 960px">
+
+<dc-import name="Sidebar" active="overview" incident="none" env="prod" variant="standard" theme="{{th}}" on-theme="{{pickTheme}}" hint-size="248px,960px"></dc-import>
+
+<main class="panel">
+  <header class="topbar">
+    <span class="title-sm">Overview</span>
+    <span class="meta">Refreshed {{refreshedAt}} · auto every 60 s</span>
+    <div style="margin-left: auto; display: flex; align-items: center; gap: 10px">
+      <div class="seg" role="group" aria-label="Time range">
+        <sc-for list="{{ranges}}" as="r" hint-placeholder-count="3">
+          <button type="button" class="{{r.cls}}" aria-pressed="{{r.pressed}}" onClick="{{r.pick}}">{{r.label}}</button>
+        </sc-for>
+      </div>
+      <button class="btn" type="button" onClick="{{refresh}}">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13 5.5A5.5 5.5 0 0 0 3.2 5"></path><path d="M3 2.5V5.2h2.7"></path><path d="M3 10.5A5.5 5.5 0 0 0 12.8 11"></path><path d="M13 13.5v-2.7h-2.7"></path></svg>
+        Refresh
+      </button>
+    </div>
+  </header>
+
+  <div style="flex-grow: 1; padding: 24px; display: flex; flex-direction: column; gap: 20px; min-height: 0">
+
+    <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px">
+      <div class="card kpi">
+        <div class="eyebrow">Asset freshness</div>
+        <div style="display: flex; align-items: baseline; gap: 6px"><span class="kpi-value">95.3%</span><span class="meta">141 of 148 fresh</span></div>
+        <div style="display: flex; gap: 2px; height: 5px"><div class="bg-green" style="flex-grow: 141; border-radius: 2px"></div><div class="bg-red" style="flex-grow: 7; border-radius: 2px"></div></div>
+      </div>
+      <div class="card kpi">
+        <div class="eyebrow">Dagster runs</div>
+        <div style="display: flex; align-items: baseline; gap: 6px"><span class="kpi-value">312</span><span class="c-red" style="font-size: 13px">4 failed</span></div>
+        <div class="meta">98.7% success · median 3 m 12 s</div>
+      </div>
+      <div class="card kpi">
+        <div class="eyebrow">Audits</div>
+        <div style="display: flex; align-items: baseline; gap: 6px"><span class="kpi-value">425</span><span class="meta">of 431 passing</span></div>
+        <div class="meta">6 failing on 2 models</div>
+      </div>
+      <a class="card kpi" href="Incidents.dc.html" style="color: var(--text)">
+        <div class="eyebrow">Open incidents</div>
+        <div style="display: flex; align-items: baseline; gap: 6px"><span class="kpi-value">5</span><span class="c-red" style="font-size: 13px">2 high</span></div>
+        <div class="meta">Oldest opened 3 d ago</div>
+      </a>
+    </div>
+
+    <div class="card" style="padding: 18px 20px; display: flex; flex-direction: column; gap: 14px">
+      <div style="display: flex; align-items: baseline; gap: 10px">
+        <div style="font-size: 15px; font-weight: 500">Data flow</div>
+        <div class="meta">Sources through each layer, as of the last materialization</div>
+      </div>
+      <div style="display: flex; align-items: stretch; gap: 10px">
+        <div class="well" style="width: 230px; flex-shrink: 0; padding: 14px; display: flex; flex-direction: column; gap: 9px">
+          <div class="eyebrow">Sources · dlt</div>
+          <div class="source-line"><span class="dot bg-red"></span>Process historian<span class="mono c-red" style="color: var(--red-text)">2 h late</span></div>
+          <div class="source-line"><span class="dot bg-amber"></span>LIMS<span class="mono">slow</span></div>
+          <div class="source-line"><span class="dot bg-green"></span>Plate readers<span class="mono">8 min</span></div>
+          <div class="source-line"><span class="dot bg-green"></span>ERP batches<span class="mono">14 min</span></div>
+        </div>
+        <svg class="flow-arrow" width="24" height="24" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10"></path><path d="M9 4l4 4-4 4"></path></svg>
+        <div class="layer-card">
+          <div style="display: flex; align-items: center; gap: 8px"><span class="sw lg bg-bronze"></span><span style="font-size: 14px; font-weight: 500">Bronze</span><span class="meta" style="margin-left: auto">raw, append-only</span></div>
+          <div style="display: flex; align-items: baseline; gap: 6px"><span style="font-size: 24px; font-weight: 500">52</span><span class="meta">tables</span></div>
+          <div style="display: flex; gap: 2px; height: 5px"><div class="bg-green" style="flex-grow: 49; border-radius: 2px"></div><div class="bg-red" style="flex-grow: 3; border-radius: 2px"></div></div>
+          <div class="meta"><span class="c-red">3 stale</span> · 1.6 TB · 41 k snapshots</div>
+        </div>
+        <svg class="flow-arrow" width="24" height="24" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10"></path><path d="M9 4l4 4-4 4"></path></svg>
+        <div class="layer-card">
+          <div style="display: flex; align-items: center; gap: 8px"><span class="sw lg bg-silver"></span><span style="font-size: 14px; font-weight: 500">Silver</span><span class="meta" style="margin-left: auto">cleaned, conformed</span></div>
+          <div style="display: flex; align-items: baseline; gap: 6px"><span style="font-size: 24px; font-weight: 500">61</span><span class="meta">tables</span></div>
+          <div style="display: flex; gap: 2px; height: 5px"><div class="bg-green" style="flex-grow: 59; border-radius: 2px"></div><div class="bg-red" style="flex-grow: 2; border-radius: 2px"></div></div>
+          <div class="meta"><span class="c-red">2 stale</span> · 1 audit failing · 620 GB</div>
+        </div>
+        <svg class="flow-arrow" width="24" height="24" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10"></path><path d="M9 4l4 4-4 4"></path></svg>
+        <div class="layer-card">
+          <div style="display: flex; align-items: center; gap: 8px"><span class="sw lg bg-gold"></span><span style="font-size: 14px; font-weight: 500">Gold</span><span class="meta" style="margin-left: auto">business-ready</span></div>
+          <div style="display: flex; align-items: baseline; gap: 6px"><span style="font-size: 24px; font-weight: 500">35</span><span class="meta">tables</span></div>
+          <div style="display: flex; gap: 2px; height: 5px"><div class="bg-green" style="flex-grow: 33; border-radius: 2px"></div><div class="bg-red" style="flex-grow: 2; border-radius: 2px"></div></div>
+          <div class="meta"><span class="c-red">2 stale</span> · feeds batch release · 180 GB</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="flex-grow: 1; display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 16px; min-height: 0">
+      <div class="card" style="padding: 18px 20px; display: flex; flex-direction: column; gap: 14px">
+        <div style="display: flex; align-items: baseline; gap: 10px">
+          <div style="font-size: 15px; font-weight: 500">Runs by hour</div>
+          <div class="meta" style="margin-left: auto; display: flex; align-items: center; gap: 14px">
+            <span style="display: flex; align-items: center; gap: 6px"><span class="sw" style="background: var(--bar)"></span>Succeeded</span>
+            <span style="display: flex; align-items: center; gap: 6px"><span class="sw bg-red"></span>Failed</span>
+          </div>
+        </div>
+        <div style="flex-grow: 1; display: flex; align-items: flex-end; gap: 6px; border-bottom: 1px solid var(--grid); min-height: 180px">
+          <sc-for list="{{hours}}" as="h" hint-placeholder-count="24">
+            <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; height: {{h.total}}px" title="{{h.label}}">
+              <sc-if value="{{h.hasFail}}" hint-placeholder-val="{{ false }}">
+                <div class="bg-red" style="height: {{h.failH}}px; border-radius: 3px"></div>
+              </sc-if>
+              <div style="height: {{h.okH}}px; background: var(--bar); border-radius: 3px"></div>
+            </div>
+          </sc-for>
+        </div>
+        <div class="mono meta" style="display: flex; justify-content: space-between; font-size: 11px"><span>10:00 yesterday</span><span>16:00</span><span>22:00</span><span>04:00</span><span>now</span></div>
+      </div>
+
+      <div class="card" style="padding: 18px 20px; display: flex; flex-direction: column; gap: 14px">
+        <div style="display: flex; align-items: baseline">
+          <div style="font-size: 15px; font-weight: 500">Recent activity</div>
+          <a href="Incidents.dc.html" style="margin-left: auto; font-size: 13px">All incidents</a>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 14px">
+          <div class="feed-item"><span class="dot md bg-red"></span><div style="display: flex; flex-direction: column; gap: 2px"><div style="font-size: 14px; line-height: 1.45"><a href="Main.dc.html">#214</a> Freshness SLA breached on <span class="mono" style="font-size: 12.5px">bronze.bioreactor_telemetry</span></div><div class="meta">52 min ago</div></div></div>
+          <div class="feed-item"><span class="dot md bg-purple"></span><div style="display: flex; flex-direction: column; gap: 2px"><div style="font-size: 14px; line-height: 1.45">Branch <span class="mono" style="font-size: 12.5px">fix/telemetry-schema</span> created by Gareth</div><div class="meta">22 min ago</div></div></div>
+          <div class="feed-item"><span class="dot md bg-amber"></span><div style="display: flex; flex-direction: column; gap: 2px"><div style="font-size: 14px; line-height: 1.45">#213 New column <span class="mono" style="font-size: 12.5px">dilution_factor</span> in plate reader export</div><div class="meta">1 h ago</div></div></div>
+          <div class="feed-item"><span class="dot md bg-green"></span><div style="display: flex; flex-direction: column; gap: 2px"><div style="font-size: 14px; line-height: 1.45">Compaction finished on <span class="mono" style="font-size: 12.5px">silver.elisa_results</span> · 412 → 18 files</div><div class="meta">2 h ago</div></div></div>
+          <div class="feed-item"><span class="dot md bg-green"></span><div style="display: flex; flex-direction: column; gap: 2px"><div style="font-size: 14px; line-height: 1.45"><span class="mono" style="font-size: 12.5px">feat/elisa-4pl-curves</span> merged into main</div><div class="meta">5 h ago</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { theme: null, range: '24h', refreshed: false };
+this.onStorage = this.onStorage.bind(this);
+}
+componentDidMount() {
+try { var t = window.localStorage.getItem('phlo-theme'); if (t === 'light' || t === 'dark') this.setState({ theme: t }); } catch (e) {}
+try { window.addEventListener('storage', this.onStorage); } catch (e) {}
+}
+componentWillUnmount() {
+try { window.removeEventListener('storage', this.onStorage); } catch (e) {}
+}
+onStorage(e) {
+if (e && e.key === 'phlo-theme' && (e.newValue === 'light' || e.newValue === 'dark')) this.setState({ theme: e.newValue });
+}
+setTheme(t) {
+this.setState({ theme: t });
+try { window.localStorage.setItem('phlo-theme', t); } catch (e) {}
+}
+renderVals() {
+var self = this;
+var th = this.state.theme || this.props.theme || 'light';
+var ok = [13,12,14,11,13,15,12,14,13,12,11,13,14,12,13,15,14,12,13,12,11,13,12,14];
+var fail = [0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0];
+var hours = ok.map(function (n, i) {
+var okH = n * 11;
+var failH = fail[i] * 11;
+return { okH: okH, failH: failH, hasFail: fail[i] > 0, total: okH + failH + (fail[i] > 0 ? 2 : 0), label: (n + fail[i]) + ' runs, ' + fail[i] + ' failed' };
+});
+var range = this.state.range || '24h';
+var ranges = [['24h', '24 h'], ['7d', '7 d'], ['30d', '30 d']].map(function (r) {
+var on = r[0] === range;
+return { label: r[1], cls: on ? 'on' : '', pressed: on ? 'true' : 'false', pick: function () { self.setState({ range: r[0] }); } };
+});
+return {
+themeClass: 'phlo shell theme-' + th,
+th: th, pickTheme: function (t) { self.setTheme(t); },
+ranges: ranges,
+refreshedAt: this.state.refreshed ? 'just now' : '09:41',
+refresh: function () { self.setState({ refreshed: true }); },
+hours: hours
+};
+}
+}
+</script>
+</body>
+</html>

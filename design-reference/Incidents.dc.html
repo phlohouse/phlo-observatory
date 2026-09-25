@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Incidents</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./theme.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+
+<div class="{{themeClass}}" style="width: 1440px; height: 960px">
+
+<dc-import name="Sidebar" active="incidents" incident="none" env="prod" variant="standard" theme="{{th}}" on-theme="{{pickTheme}}" hint-size="248px,960px"></dc-import>
+
+<main class="panel">
+  <header class="topbar">
+    <span class="title-sm">Incidents</span>
+    <div class="seg">
+      <button class="on">Open · 5</button>
+      <button>Resolved · 23</button>
+      <button>All</button>
+    </div>
+    <div style="margin-left: auto; display: flex; align-items: center; gap: 10px">
+      <a class="btn-primary" href="NewIncident.dc.html">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 3v10"></path><path d="M3 8h10"></path></svg>
+        New incident
+      </a>
+    </div>
+  </header>
+
+  <section aria-label="Triage stats" class="bb" style="flex-shrink: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr))">
+    <div class="triage-cell br">
+      <div class="eyebrow">Open</div>
+      <div style="display: flex; align-items: baseline; gap: 6px"><span style="font-size: 24px; font-weight: 500">5</span><span class="c-red" style="font-size: 13.5px">2 high</span></div>
+    </div>
+    <div class="triage-cell br">
+      <div class="eyebrow">Time to acknowledge · 30 d</div>
+      <div style="display: flex; align-items: baseline; gap: 6px"><span style="font-size: 24px; font-weight: 500">6 min</span><span class="meta">median</span></div>
+    </div>
+    <div class="triage-cell br">
+      <div class="eyebrow">Time to resolve · 30 d</div>
+      <div style="display: flex; align-items: baseline; gap: 6px"><span style="font-size: 24px; font-weight: 500">3 h 40 min</span><span class="meta">median</span></div>
+    </div>
+    <div class="triage-cell">
+      <div class="eyebrow">Opened this month</div>
+      <div style="display: flex; align-items: baseline; gap: 6px"><span style="font-size: 24px; font-weight: 500">12</span><span class="c-green" style="font-size: 13.5px">↓ 5 vs August</span></div>
+    </div>
+  </section>
+
+  <div class="bb" style="display: flex; align-items: center; gap: 8px; padding: 12px 20px">
+    <button class="chip dashed">+ Severity</button>
+    <button class="chip dashed">+ Kind</button>
+    <button class="chip dashed">+ Layer</button>
+    <button class="chip dashed">+ Owner</button>
+    <span class="meta" style="margin-left: auto">Sorted by severity, then age</span>
+  </div>
+
+  <div class="incident-row" style="height: 36px; background: var(--raised)">
+    <div class="th">ID</div><div class="th">Incident</div><div class="th">Layer</div><div class="th">Severity</div><div class="th">Status</div><div class="th">Owner</div><div class="th" style="text-align: right">Opened</div>
+  </div>
+
+  <div style="flex-grow: 1; overflow: hidden">
+    <sc-for list="{{open}}" as="r" hint-placeholder-count="5">
+      <a class="incident-row" href="{{r.href}}">
+        <span class="mono meta" style="font-size: 12.5px">{{r.id}}</span>
+        <span style="display: flex; align-items: center; gap: 10px; min-width: 0">
+          <span class="{{r.tileCls}}"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{r.icon}}"></path></svg></span>
+          <span style="font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{r.title}}</span>
+          <span class="meta" style="white-space: nowrap">{{r.kind}}</span>
+        </span>
+        <span class="c-text2" style="display: flex; align-items: center; gap: 6px; font-size: 13.5px"><span class="sw" style="background: {{r.layerColor}}"></span>{{r.layer}}</span>
+        <span style="font-size: 13.5px; color: {{r.sevColor}}">{{r.sev}}</span>
+        <span class="c-text2" style="display: flex; align-items: center; gap: 7px; font-size: 13.5px"><span class="ring" style="border-color: {{r.statusColor}}"></span>{{r.status}}</span>
+        <span class="c-text2" style="font-size: 13.5px">{{r.owner}}</span>
+        <span class="meta" style="text-align: right">{{r.age}}</span>
+      </a>
+    </sc-for>
+
+    <div class="eyebrow" style="padding: 18px 20px 8px">Resolved this week</div>
+    <sc-for list="{{resolved}}" as="r" hint-placeholder-count="3">
+      <a class="incident-row past" href="{{r.href}}">
+        <span class="mono meta" style="font-size: 12.5px">{{r.id}}</span>
+        <span style="display: flex; align-items: center; gap: 10px; min-width: 0">
+          <span class="tile lg t-grey"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3 3 7-7"></path></svg></span>
+          <span style="font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{r.title}}</span>
+          <span class="meta" style="white-space: nowrap">{{r.kind}}</span>
+        </span>
+        <span style="display: flex; align-items: center; gap: 6px; font-size: 13.5px"><span class="sw" style="background: {{r.layerColor}}"></span>{{r.layer}}</span>
+        <span style="font-size: 13.5px">{{r.sev}}</span>
+        <span style="display: flex; align-items: center; gap: 7px; font-size: 13.5px"><span class="dot md bg-green"></span>{{r.status}}</span>
+        <span style="font-size: 13.5px">{{r.owner}}</span>
+        <span class="meta" style="text-align: right">{{r.age}}</span>
+      </a>
+    </sc-for>
+  </div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { theme: null };
+this.onStorage = this.onStorage.bind(this);
+}
+componentDidMount() {
+try { var t = window.localStorage.getItem('phlo-theme'); if (t === 'light' || t === 'dark') this.setState({ theme: t }); } catch (e) {}
+try { window.addEventListener('storage', this.onStorage); } catch (e) {}
+}
+componentWillUnmount() {
+try { window.removeEventListener('storage', this.onStorage); } catch (e) {}
+}
+onStorage(e) {
+if (e && e.key === 'phlo-theme' && (e.newValue === 'light' || e.newValue === 'dark')) this.setState({ theme: e.newValue });
+}
+setTheme(t) {
+this.setState({ theme: t });
+try { window.localStorage.setItem('phlo-theme', t); } catch (e) {}
+}
+renderVals() {
+var self = this;
+var th = this.state.theme || this.props.theme || 'light';
+var L = { Bronze: 'var(--bronze)', Silver: 'var(--silver)', Gold: 'var(--gold)', Catalog: 'var(--purple)' };
+var K = {
+Freshness: ['tile lg t-teal', 'M8 2a6 6 0 1 0 0.01 0Z M8 4.5V8l2.5 1.5'],
+Schema: ['tile lg t-amber', 'M3 3h10v10H3z M3 8h10 M8 3v10'],
+Audit: ['tile lg t-red', 'M4 4l8 8 M12 4l-8 8'],
+Catalog: ['tile lg t-purple', 'M4.5 2v12 M11.5 4v4c0 2-3 2.5-7 3.8'],
+Performance: ['tile lg t-blue', 'M2 12l4-4 3 3 5-6']
+};
+var SV = { High: 'var(--red-text)', Medium: 'var(--amber-ink)', Low: 'var(--text-3)' };
+var ST = { Investigating: 'var(--amber)', Triage: 'var(--faint)', 'In progress': 'var(--accent-solid)', Blocked: 'var(--red)', Monitoring: 'var(--blue)' };
+var open = [
+['#214', 'Stale table: bioreactor telemetry', 'Freshness', 'Bronze', 'High', 'Investigating', 'Gareth', '52 min', 'Main.dc.html'],
+['#211', 'Audit failed: silver.qc_results', 'Audit', 'Silver', 'High', 'In progress', 'QC Analytics', '5 h', 'Incident211.dc.html'],
+['#213', 'Schema drift: elisa_plate_reads', 'Schema', 'Bronze', 'Medium', 'Triage', 'Assay Dev', '1 h', 'Incident213.dc.html'],
+['#209', 'Merge conflict on main', 'Catalog', 'Catalog', 'Medium', 'Blocked', 'QC Analytics', '1 d', 'Incident209.dc.html'],
+['#207', 'Slow load: LIMS extract', 'Performance', 'Bronze', 'Low', 'Monitoring', 'Gareth', '3 d', 'Incident207.dc.html']
+].map(function (r) {
+var k = K[r[2]];
+return { id: r[0], title: r[1], kind: r[2], layer: r[3], layerColor: L[r[3]], sev: r[4], sevColor: SV[r[4]], status: r[5], statusColor: ST[r[5]], owner: r[6], age: r[7], href: r[8], tileCls: k[0], icon: k[1] };
+});
+var resolved = [
+['#205', 'Snapshot expiry overdue', 'Maintenance', 'Silver', 'Low', 'Resolved in 1 h 10 m', 'Gareth', '2 d', 'IncidentResolved.dc.html'],
+['#202', 'Postgres catalog lag', 'Performance', 'Catalog', 'Medium', 'Resolved in 42 min', 'Gareth', '4 d', 'IncidentResolved.dc.html'],
+['#198', 'Duplicate batch_ids in qc_results', 'Audit', 'Silver', 'High', 'Resolved in 3 h 12 m', 'QC Analytics', '5 d', 'IncidentResolved.dc.html']
+].map(function (r) {
+return { id: r[0], title: r[1], kind: r[2], layer: r[3], layerColor: L[r[3]], sev: r[4], status: r[5], owner: r[6], age: r[7], href: r[8] };
+});
+return {
+themeClass: 'phlo shell theme-' + th,
+th: th, pickTheme: function (t) { self.setTheme(t); },
+open: open, resolved: resolved
+};
+}
+}
+</script>
+</body>
+</html>

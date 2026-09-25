@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Incident #211</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./theme.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+
+<div class="{{themeClass}}" style="width: 1440px; height: 960px">
+
+<dc-import name="Sidebar" active="incidents" incident="211" env="prod" variant="standard" theme="{{th}}" on-theme="{{pickTheme}}" hint-size="248px,960px"></dc-import>
+
+<main class="panel">
+  <header class="topbar">
+    <a class="crumb" href="Incidents.dc.html">Incidents</a>
+    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" style="color: var(--faint)"><path d="M6 4l4 4-4 4"></path></svg>
+    <span class="title-sm">#211 Audit failed: silver.qc_results</span>
+    <div style="margin-left: auto; display: flex; align-items: center; gap: 10px">
+      <div style="display: flex"><span class="avatar lg teal">JK</span><span class="avatar lg teal" style="margin-left: -8px">SR</span></div>
+      <button class="btn">Subscribed</button>
+      <button class="icon-btn" aria-label="More actions">···</button>
+    </div>
+  </header>
+
+  <div style="flex-grow: 1; display: flex; min-height: 0">
+    <section class="br" style="width: 480px; flex-shrink: 0; box-sizing: border-box; display: flex; flex-direction: column; overflow-y: auto">
+      <div style="padding: 22px 28px 18px; display: flex; flex-direction: column; gap: 10px">
+        <div style="display: flex; align-items: center; gap: 8px">
+          <span class="tile lg t-red"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8"></path><path d="M12 4l-8 8"></path></svg></span>
+          <span class="mono meta">#211</span>
+          <span class="pill lg p-red" style="margin-left: 6px">High</span>
+          <span class="pill lg p-blue" style="display: flex; align-items: center; gap: 6px"><span class="dot md" style="background: var(--accent-solid)"></span>In progress</span>
+        </div>
+        <h1 style="margin: 0; font-size: 22px; line-height: 1.25; font-weight: 600; letter-spacing: -0.01em">Potency results out of range</h1>
+        <p style="margin: 0; font-size: 14px; line-height: 1.55; color: var(--text-3)">37 potency results failed the range check this morning. The audit is blocking, so batch BR-2026-119 is held back from batch release. Other batches are flowing normally.</p>
+      </div>
+
+      <div style="padding: 0 28px 18px; display: grid; grid-template-columns: 120px 1fr; row-gap: 12px; align-items: center">
+        <div class="k">Asset</div>
+        <div class="v"><span class="mono" style="font-size: 13px">silver.qc_results</span></div>
+        <div class="k">Audit</div>
+        <div class="v"><span class="mono" style="font-size: 12.5px">range(potency_pct, 50, 150)</span></div>
+        <div class="k">When it fails</div>
+        <div class="v"><span class="pill p-red">Blocks downstream</span></div>
+        <div class="k">Assignee</div>
+        <div class="v"><span class="avatar teal">JK</span>Jo K. · Assay Dev</div>
+        <div class="k">Team</div>
+        <div class="v">QC Analytics</div>
+      </div>
+
+      <div style="padding: 0 28px 20px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+        <div class="stat"><div class="eyebrow">Rows failing</div><div class="c-red" style="font-size: 15px; font-weight: 500">37 of 4,812</div></div>
+        <div class="stat"><div class="eyebrow">Held back</div><div style="font-size: 15px; font-weight: 500">1 batch</div></div>
+        <div class="stat"><div class="eyebrow">First failed</div><div style="font-size: 15px; font-weight: 500">04:31 · 5 h ago</div></div>
+        <div class="stat"><div class="eyebrow">Other batches</div><div class="c-green" style="font-size: 15px; font-weight: 500">Flowing</div></div>
+      </div>
+
+      <div class="divider" style="margin: 0 28px"></div>
+
+      <div style="padding: 16px 28px 20px; display: flex; flex-direction: column; gap: 12px">
+        <div class="eyebrow">Activity</div>
+        <div style="display: flex; align-items: center; gap: 12px; font-size: 13.5px" class="c-text2"><span class="mono meta" style="width: 44px; font-size: 12px">04:31</span><span class="dot md bg-red"></span>Audit failed · BR-2026-119 held</div>
+        <div style="display: flex; align-items: center; gap: 12px; font-size: 13.5px" class="c-text2"><span class="mono meta" style="width: 44px; font-size: 12px">07:58</span><span class="dot md bg-faint"></span>Sam R. (QA) notified, since it touches batch release</div>
+        <div style="display: flex; align-items: flex-start; gap: 12px; font-size: 13.5px; line-height: 1.45" class="c-text2"><span class="mono meta" style="width: 44px; font-size: 12px; flex-shrink: 0">08:40</span><span class="dot md bg-accent" style="margin-top: 5px"></span><span><span class="hl">Jo K.</span>: All from one plate. The standard curve on P-4471 looks off. Checking with the lab before we exclude anything.</span></div>
+      </div>
+    </section>
+
+    <section style="flex-grow: 1; min-width: 0; overflow-y: auto; padding: 20px 24px; display: flex; flex-direction: column; gap: 20px">
+      <div style="display: flex; flex-direction: column; gap: 10px">
+        <div style="display: flex; align-items: baseline; gap: 10px">
+          <div style="font-size: 15px; font-weight: 500">Failing rows</div>
+          <div class="meta">37 rows · showing 8</div>
+          <a class="btn" href="Query.dc.html" style="margin-left: auto; height: 30px">Open in Query</a>
+        </div>
+        <div class="box">
+          <div class="dgrid" style="grid-template-columns: 110px 124px 84px 96px 44px 104px minmax(0, 1fr)">
+            <div class="h">sample_id</div>
+            <div class="h">batch_id</div>
+            <div class="h">plate_id</div>
+            <div class="h">test_code</div>
+            <div class="h" style="justify-content: flex-end">rep</div>
+            <div class="h" style="justify-content: flex-end">potency_pct</div>
+            <div class="h" style="border-right: none; justify-content: flex-end">curve_r2</div>
+            <sc-for list="{{fails}}" as="f" hint-placeholder-count="8">
+              <div class="c">{{f.sid}}</div>
+              <div class="c">BR-2026-119</div>
+              <div class="c">P-4471</div>
+              <div class="c">POT-ELISA</div>
+              <div class="c num">{{f.rep}}</div>
+              <div class="c num" style="color: var(--red-text)">{{f.pot}}</div>
+              <div class="c num" style="border-right: none; color: var(--amber-ink)">0.912</div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <div style="font-size: 15px; font-weight: 500; padding-bottom: 4px">Where the failures come from</div>
+        <div class="breakdown-row"><span class="meta">Plate</span><div class="track"><div class="track-fill bg-red" style="width: 100%"></div></div><span class="mono" style="font-size: 12px; text-align: right">P-4471</span></div>
+        <div class="breakdown-row"><span class="meta">Batch</span><div class="track"><div class="track-fill bg-red" style="width: 100%"></div></div><span class="mono" style="font-size: 12px; text-align: right">1 of 6</span></div>
+        <div class="breakdown-row"><span class="meta">Analyst run</span><div class="track"><div class="track-fill bg-red" style="width: 100%"></div></div><span class="mono" style="font-size: 12px; text-align: right">04:10</span></div>
+        <div class="breakdown-row"><span class="meta">Curve fit R²</span><div class="track"><div class="track-fill" style="width: 91%; background: var(--amber-bar)"></div><div style="position: absolute; left: 98%; top: -2px; bottom: -2px; width: 2px; background: var(--text)"></div></div><span class="mono" style="font-size: 12px; text-align: right">0.912</span></div>
+        <div class="note-blue" style="margin-top: 8px">Every failing row is on plate P-4471, and that plate's standard curve fit (R² 0.912) is below the 0.98 the assay needs. The results aren't wrong so much as unusable. This looks like a lab issue, not a pipeline one.</div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 10px">
+        <div style="font-size: 15px; font-weight: 500">What to do</div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap">
+          <button class="btn-primary lg" style="padding: 0 16px">Quarantine plate P-4471</button>
+          <button class="btn lg">Wait for re-assay</button>
+          <button class="btn lg">Accept as valid…</button>
+        </div>
+        <div class="fhelp">Quarantine keeps the rows but excludes them from silver and gold, and releases BR-2026-119 once a re-assay lands. Accepting needs an Approver's signature and a reason.</div>
+      </div>
+    </section>
+  </div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { theme: null };
+this.onStorage = this.onStorage.bind(this);
+}
+componentDidMount() {
+try { var t = window.localStorage.getItem('phlo-theme'); if (t === 'light' || t === 'dark') this.setState({ theme: t }); } catch (e) {}
+try { window.addEventListener('storage', this.onStorage); } catch (e) {}
+}
+componentWillUnmount() {
+try { window.removeEventListener('storage', this.onStorage); } catch (e) {}
+}
+onStorage(e) {
+if (e && e.key === 'phlo-theme' && (e.newValue === 'light' || e.newValue === 'dark')) this.setState({ theme: e.newValue });
+}
+setTheme(t) {
+this.setState({ theme: t });
+try { window.localStorage.setItem('phlo-theme', t); } catch (e) {}
+}
+renderVals() {
+var self = this;
+var th = this.state.theme || this.props.theme || 'light';
+var pot = ['38.2', '41.7', '164.9', '36.5', '171.3', '44.0', '158.6', '39.8'];
+var fails = pot.map(function (p, i) {
+return { sid: 'S-88' + (412 + Math.floor(i / 2)), rep: (i % 2) + 1, pot: p };
+});
+return {
+themeClass: 'phlo shell theme-' + th,
+th: th, pickTheme: function (t) { self.setTheme(t); },
+fails: fails
+};
+}
+}
+</script>
+</body>
+</html>

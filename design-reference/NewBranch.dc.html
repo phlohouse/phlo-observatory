@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>New branch</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./theme.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+
+<div class="{{themeClass}}" style="width: 1440px; height: 960px">
+
+  <div aria-hidden="true" style="width: 248px; flex-shrink: 0; box-sizing: border-box; padding: 20px 18px; display: flex; flex-direction: column; gap: 14px">
+    <div class="sk" style="width: 110px; height: 20px"></div>
+    <div class="sk" style="height: 34px; background: var(--panel); border: 1px solid var(--border)"></div>
+    <div class="sk" style="width: 150px; height: 14px"></div><div class="sk" style="width: 130px; height: 14px"></div><div class="sk" style="width: 140px; height: 14px"></div>
+    <div class="sk" style="width: 120px; height: 14px; background: var(--border-strong)"></div><div class="sk" style="width: 150px; height: 14px"></div>
+  </div>
+  <div aria-hidden="true" class="panel">
+    <div class="topbar title-sm">Branches</div>
+    <div style="display: flex; flex-grow: 1">
+      <div class="br" style="width: 340px; padding: 20px; display: flex; flex-direction: column; gap: 22px"><div class="sk" style="height: 38px"></div><div class="sk" style="height: 38px"></div><div class="sk" style="height: 38px"></div><div class="sk" style="height: 38px"></div></div>
+      <div style="flex-grow: 1; padding: 24px 28px; display: flex; flex-direction: column; gap: 18px"><div class="sk" style="width: 260px; height: 22px"></div><div class="sk soft" style="height: 90px"></div><div class="sk soft" style="height: 260px"></div></div>
+    </div>
+  </div>
+
+  <div class="scrim" style="align-items: center; justify-content: center">
+    <form class="dialog" role="dialog" aria-modal="true" aria-labelledby="nb-title" style="width: 600px; margin: 0">
+      <div class="bb" style="padding: 20px 24px 16px; display: flex; align-items: center; gap: 10px">
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="color: var(--purple)"><circle cx="4.5" cy="3.5" r="1.5"></circle><circle cx="4.5" cy="12.5" r="1.5"></circle><circle cx="11.5" cy="5" r="1.5"></circle><path d="M4.5 5v6"></path><path d="M11.5 6.5c0 3-3.5 2.6-6.6 4.7"></path></svg>
+        <h2 id="nb-title" style="margin: 0; font-size: 17px; font-weight: 600">New branch</h2>
+        <a href="Branches.dc.html" aria-label="Close" style="margin-left: auto; width: 30px; height: 30px; border-radius: 7px; display: flex; align-items: center; justify-content: center; color: var(--text-3)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 4l8 8"></path><path d="M12 4l-8 8"></path></svg></a>
+      </div>
+
+      <div style="padding: 18px 24px 20px; display: flex; flex-direction: column; gap: 18px">
+        <div class="fgroup">
+          <span class="flabel" id="nb-purpose">Purpose</span>
+          <div class="choice-row" role="radiogroup" aria-labelledby="nb-purpose">
+            <sc-for list="{{purposes}}" as="p" hint-placeholder-count="3">
+              <label class="{{p.cls}}"><input type="radio" name="purpose" checked="{{p.on}}" onChange="{{p.pick}}">{{p.label}}</label>
+            </sc-for>
+          </div>
+          <span class="fhelp">{{purposeHelp}}</span>
+        </div>
+
+        <div class="fgroup">
+          <label class="flabel" for="nb-name">Name</label>
+          <div class="prefix-input"><span>{{prefix}}</span><input id="nb-name" type="text" value="elisa-dilution-factor"></div>
+          <span class="fhelp">Lowercase letters, numbers and hyphens</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px">
+          <div class="fgroup">
+            <span class="flabel">Start from</span>
+            <button type="button" class="select"><span class="mono" style="font-size: 13px">main</span><span class="meta mono" style="font-size: 12px">@ 8f3c21a</span><svg class="caret" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"></path></svg></button>
+            <span class="fhelp">Or pick a tag or a point in time</span>
+          </div>
+          <div class="fgroup">
+            <span class="flabel">Linked incident <span class="opt-tag">optional</span></span>
+            <button type="button" class="select"><span class="tile t-amber"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h10v10H3z"></path><path d="M3 8h10"></path><path d="M8 3v10"></path></svg></span>#213 Schema drift<svg class="caret" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"></path></svg></button>
+          </div>
+        </div>
+
+        <div class="note-blue" style="display: flex; gap: 10px; align-items: flex-start">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" style="flex-shrink: 0; margin-top: 2px"><circle cx="8" cy="8" r="6.5"></circle><path d="M8 7.5v4"></path><path d="M8 5v.1"></path></svg>
+          <span>Branches are zero-copy. Nothing is duplicated until you write to a table on the branch, and <span class="mono" style="font-size: 12.5px">main</span> is never changed until you merge.</span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <label class="checkline"><input type="checkbox" checked="{{ true }}">Run audits on every commit to this branch</label>
+          <label class="checkline"><input type="checkbox" checked="{{ true }}">Delete the branch 7 days after it's merged</label>
+        </div>
+      </div>
+
+      <div class="bt" style="padding: 14px 24px; display: flex; align-items: center; gap: 10px; background: var(--raised)">
+        <span class="meta">Creates <span class="mono" style="font-size: 12px">{{prefix}}elisa-dilution-factor</span></span>
+        <a class="btn lg" href="Branches.dc.html" style="margin-left: auto; background: var(--panel)">Cancel</a>
+        <a class="btn-primary lg" href="Branches.dc.html" style="padding: 0 16px">Create branch</a>
+      </div>
+    </form>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { theme: null, purpose: 'Fix' };
+this.onStorage = this.onStorage.bind(this);
+}
+componentDidMount() {
+try { var t = window.localStorage.getItem('phlo-theme'); if (t === 'light' || t === 'dark') this.setState({ theme: t }); } catch (e) {}
+try { window.addEventListener('storage', this.onStorage); } catch (e) {}
+}
+componentWillUnmount() {
+try { window.removeEventListener('storage', this.onStorage); } catch (e) {}
+}
+onStorage(e) {
+if (e && e.key === 'phlo-theme' && (e.newValue === 'light' || e.newValue === 'dark')) this.setState({ theme: e.newValue });
+}
+renderVals() {
+var self = this;
+var th = this.state.theme || this.props.theme || 'light';
+var P = { Fix: ['fix/', 'Repairs data or a pipeline. Must be merged with a signed approval.'], Feature: ['feat/', 'New tables or models. Merged after review and audits.'], Sandbox: ['dev/', 'For exploring. Can never be merged into main.'] };
+var purposes = ['Fix', 'Feature', 'Sandbox'].map(function (p) {
+var on = self.state.purpose === p;
+return { label: p, on: on, cls: on ? 'choice on' : 'choice', pick: function () { self.setState({ purpose: p }); } };
+});
+return {
+themeClass: 'phlo shell theme-' + th,
+purposes: purposes, prefix: P[this.state.purpose][0], purposeHelp: P[this.state.purpose][1]
+};
+}
+}
+</script>
+</body>
+</html>

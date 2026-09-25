@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Run timeline</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./theme.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+
+<div class="{{themeClass}}" style="width: 1440px; height: 960px">
+
+<dc-import name="Sidebar" active="pipelines" incident="none" env="prod" variant="scale" theme="{{th}}" on-theme="{{pickTheme}}" hint-size="248px,960px"></dc-import>
+
+<main class="panel">
+  <header class="topbar">
+    <a class="crumb" href="PipelinesScale.dc.html">Pipelines</a>
+    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" style="color: var(--faint)"><path d="M6 4l4 4-4 4"></path></svg>
+    <span class="title-sm">Run timeline</span>
+    <span class="meta">104 jobs · last 24 h · each square is 30 minutes</span>
+    <div style="margin-left: auto; display: flex; align-items: center; gap: 10px">
+      <div class="seg"><button class="on">24 h</button><button>7 d</button></div>
+      <div class="seg"><a href="PipelinesScale.dc.html" style="display: flex; align-items: center; height: 26px; padding: 0 10px; font-size: 13px; color: var(--text-3)">List</a><button class="on">Timeline</button></div>
+    </div>
+  </header>
+
+  <div style="flex-grow: 1; display: flex; min-height: 0">
+    <section style="flex-grow: 1; min-width: 0; padding: 16px 20px; display: flex; flex-direction: column; gap: 4px; overflow: hidden">
+      <!-- Axis + event band -->
+      <div class="timeline-row" style="height: 20px">
+        <span></span>
+        <div style="position: relative; height: 20px">
+          <div class="mono meta" style="position: absolute; left: 0; top: 2px; font-size: 11px">10:00</div>
+          <div class="mono meta" style="position: absolute; left: 25%; top: 2px; font-size: 11px">16:00</div>
+          <div class="mono meta" style="position: absolute; left: 50%; top: 2px; font-size: 11px">22:00</div>
+          <div class="mono meta" style="position: absolute; left: 75%; top: 2px; font-size: 11px">04:00</div>
+          <div class="mono meta" style="position: absolute; right: 0; top: 2px; font-size: 11px">now</div>
+        </div>
+      </div>
+      <div class="timeline-row" style="height: 18px; margin-bottom: 6px">
+        <span class="meta" style="font-size: 11.5px">Events</span>
+        <div class="cell-row" style="height: 16px">
+          <sc-for list="{{events}}" as="e" hint-placeholder-count="48"><span style="background: {{e.bg}}"></span></sc-for>
+        </div>
+      </div>
+
+      <sc-for list="{{groups}}" as="g" hint-placeholder-count="5">
+        <div style="display: flex; flex-direction: column; gap: 2px; margin-bottom: 6px">
+          <div class="group-head"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color: var(--faint)"><path d="{{g.chev}}"></path></svg>{{g.name}}<span class="meta">{{g.meta}}</span></div>
+          <sc-for list="{{g.rows}}" as="r" hint-placeholder-count="6">
+            <div class="timeline-row">
+              <span class="timeline-label"style="color: {{r.color}}">{{r.name}}</span>
+              <div class="cell-row"><sc-for list="{{r.cells}}" as="c" hint-placeholder-count="48"><span style="background: {{c.bg}}; border: 1px solid {{c.b}}"></span></sc-for></div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-for>
+
+      <div class="meta" style="margin-top: auto; display: flex; align-items: center; gap: 14px; font-size: 12px">
+        <span style="display: flex; align-items: center; gap: 5px"><span style="width: 10px; height: 10px; border-radius: 2px; background: var(--sla-ok)"></span>Succeeded</span>
+        <span style="display: flex; align-items: center; gap: 5px"><span style="width: 10px; height: 10px; border-radius: 2px; background: var(--amber-bar)"></span>Slow</span>
+        <span style="display: flex; align-items: center; gap: 5px"><span class="bg-red" style="width: 10px; height: 10px; border-radius: 2px"></span>Failed</span>
+        <span style="display: flex; align-items: center; gap: 5px"><span style="width: 10px; height: 10px; border-radius: 2px; box-sizing: border-box; border: 1px solid var(--skip-line)"></span>Skipped</span>
+        <span style="display: flex; align-items: center; gap: 5px"><span style="width: 10px; height: 10px; border-radius: 2px; background: var(--purple-soft)"></span>Planned maintenance</span>
+        <span style="margin-left: auto">Showing 21 of 104 jobs · the other 83 are healthy and folded</span>
+      </div>
+    </section>
+
+    <aside aria-label="Patterns" class="bl" style="width: 300px; flex-shrink: 0; box-sizing: border-box; padding: 18px 22px; display: flex; flex-direction: column; background: var(--raised)">
+      <div class="eyebrow">Patterns across jobs</div>
+      <div class="pattern-note">
+        <b><span class="dot md bg-red"></span>One cause, three failures</b>
+        <span>Every job reading the process historian skipped during maintenance (07:30–09:00), then failed once it came back. Linked to <a href="Main.dc.html">#214</a>.</span>
+      </div>
+      <div class="pattern-note">
+        <b><span class="dot md" style="background: var(--amber-bar)"></span>LIMS slow since 02:00</b>
+        <span>4 jobs downstream of the LIMS API slowed at the same time. Their own code didn't change, so the source is the likely cause (<a href="Incident207.dc.html">#207</a>).</span>
+      </div>
+      <div class="pattern-note">
+        <b><span class="dot md" style="background: var(--purple)"></span>02:00 is crowded</b>
+        <span>Compaction and 6 nightly loads start together, and cold-chain temps queue behind them. Moving compaction to 03:30 would clear it.</span>
+      </div>
+      <div class="pattern-note" style="border-bottom: none">
+        <b><span class="dot md bg-green"></span>92 jobs need nothing</b>
+        <span>They stay folded until something changes, so the page scales by problems, not by job count.</span>
+      </div>
+    </aside>
+  </div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { theme: null };
+this.onStorage = this.onStorage.bind(this);
+}
+componentDidMount() {
+try { var t = window.localStorage.getItem('phlo-theme'); if (t === 'light' || t === 'dark') this.setState({ theme: t }); } catch (e) {}
+try { window.addEventListener('storage', this.onStorage); } catch (e) {}
+}
+componentWillUnmount() {
+try { window.removeEventListener('storage', this.onStorage); } catch (e) {}
+}
+onStorage(e) {
+if (e && e.key === 'phlo-theme' && (e.newValue === 'light' || e.newValue === 'dark')) this.setState({ theme: e.newValue });
+}
+setTheme(t) {
+this.setState({ theme: t });
+try { window.localStorage.setItem('phlo-theme', t); } catch (e) {}
+}
+renderVals() {
+var self = this;
+var th = this.state.theme || this.props.theme || 'light';
+var C = {
+s: ['var(--sla-ok)', 'var(--sla-ok)'], w: ['var(--amber-bar)', 'var(--amber-bar)'], f: ['var(--red)', 'var(--red)'],
+k: ['transparent', 'var(--skip-line)'], n: ['transparent', 'transparent'], p: ['var(--soft)', 'var(--soft)']
+};
+function build(spec) {
+var out = [];
+for (var i = 0; i < 48; i++) {
+var ch = 'n';
+if (spec.every && i % spec.every === (spec.offset || 0)) ch = 's';
+if (spec.at && spec.at.indexOf(i) >= 0) ch = 's';
+if (spec.slowFrom !== undefined && i >= spec.slowFrom && ch === 's') ch = 'w';
+if (spec.skip && i >= spec.skip[0] && i <= spec.skip[1] && ch !== 'n') ch = 'k';
+if (spec.fail && i >= spec.fail) ch = 'f';
+if (spec.slowAt && spec.slowAt.indexOf(i) >= 0) ch = 'w';
+if (spec.paused !== undefined && i >= spec.paused) ch = 'p';
+out.push({ bg: C[ch][0], b: C[ch][1] });
+}
+return out;
+}
+function row(name, spec, color) { return { name: name, cells: build(spec), color: color || 'var(--text-2)' }; }
+var bad = 'var(--red-text)', slow = 'var(--amber-ink)';
+var groups = [
+{ name: 'Bioreactor', meta: '14 jobs · 3 failing', chev: 'M4 6l4 4 4-4', rows: [
+row('ingest_bioreactor', { every: 1, skip: [43, 45], fail: 46 }, bad),
+row('ingest_bioreactor_offgas', { every: 1, skip: [43, 45], fail: 46 }, bad),
+row('ingest_bioreactor_feeds', { every: 2, skip: [43, 45], fail: 46 }, bad),
+row('transform_bioreactor_1min', { every: 1, skip: [43, 47] }),
+row('transform_run_summaries', { every: 2, skip: [43, 47] }),
+row('gold_cpp_trends', { every: 4, offset: 2, skip: [43, 47] })
+] },
+{ name: 'QC & LIMS', meta: '22 jobs · 4 slow', chev: 'M4 6l4 4 4-4', rows: [
+row('ingest_lims', { every: 2, slowFrom: 32 }, slow),
+row('ingest_lims_results', { every: 2, offset: 1, slowFrom: 33 }, slow),
+row('transform_silver_qc', { every: 2, slowFrom: 33 }, slow),
+row('transform_gold_release', { every: 4, offset: 1, slowFrom: 33 }, slow),
+row('audits_qc', { every: 2, offset: 1 }),
+row('ingest_sample_lineage', { every: 2 })
+] },
+{ name: 'Environmental monitoring', meta: '16 jobs · 1 slow', chev: 'M4 6l4 4 4-4', rows: [
+row('ingest_env_monitoring', { every: 1, slowFrom: 30 }, slow),
+row('ingest_env_particles', { every: 1 }),
+row('ingest_env_pressure', { every: 1 }),
+row('transform_env_excursions', { every: 2 })
+] },
+{ name: 'Maintenance & ERP', meta: '21 jobs · 1 slow, 1 paused', chev: 'M4 6l4 4 4-4', rows: [
+row('iceberg_compact_bronze', { at: [32], slowAt: [32] }, slow),
+row('iceberg_expire_snapshots', { at: [32] }),
+row('ingest_cold_chain_temps', { every: 2, slowAt: [32, 33] }, slow),
+row('ingest_erp_batches', { every: 2, offset: 1 }),
+row('ingest_legacy_mes', { every: 4, paused: 0 }, 'var(--muted)')
+] },
+{ name: 'Assay · Reporting', meta: '31 jobs · all healthy, folded', chev: 'M6 4l4 4-4 4', rows: [] }
+];
+var events = [];
+for (var i = 0; i < 48; i++) {
+var bg = 'transparent';
+if (i >= 43 && i <= 45) bg = 'var(--purple-soft)';
+if (i === 32) bg = 'var(--purple-soft)';
+if (i >= 46) bg = 'var(--red-soft)';
+events.push({ bg: bg });
+}
+return {
+themeClass: 'phlo shell theme-' + th,
+th: th, pickTheme: function (t) { self.setTheme(t); },
+groups: groups, events: events
+};
+}
+}
+</script>
+</body>
+</html>

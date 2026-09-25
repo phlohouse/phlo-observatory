@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sidebar</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./theme.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+
+<nav aria-label="Primary" class="{{rootClass}}" style="height: 960px">
+  <div class="brand">
+    <sc-if value="{{hasEnvToggle}}" hint-placeholder-val="{{ false }}">
+      <button class="env-link" aria-haspopup="true" aria-expanded="{{envExpanded}}" onClick="{{envToggle}}">
+        <div class="brand-mark">φ</div>
+        <div style="font-size: 15px; font-weight: 600">phlo</div>
+        <div class="{{envCls}}">{{env}}</div>
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="margin-left: auto; color: var(--muted)"><path d="M4 6l4 4 4-4"></path></svg>
+      </button>
+    </sc-if>
+    <sc-if value="{{noEnvToggle}}" hint-placeholder-val="{{ true }}">
+      <a class="env-link" href="{{envHref}}" title="{{envTitle}}">
+        <div class="brand-mark">φ</div>
+        <div style="font-size: 15px; font-weight: 600">phlo</div>
+        <div class="{{envCls}}">{{env}}</div>
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="margin-left: auto; color: var(--muted)"><path d="M4 6l4 4 4-4"></path></svg>
+      </a>
+    </sc-if>
+  </div>
+
+  <a class="qa" href="QuickActions.dc.html">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"></circle><path d="M10.5 10.5L14 14"></path></svg>
+    <span>Quick actions</span>
+    <span class="kbd" style="margin-left: auto">⌘K</span>
+  </a>
+
+  <div class="stack">
+    <a class="{{nav.overview}}" href="{{href.overview}}"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="5" height="5" rx="1"></rect><rect x="9" y="2" width="5" height="5" rx="1"></rect><rect x="2" y="9" width="5" height="5" rx="1"></rect><rect x="9" y="9" width="5" height="5" rx="1"></rect></svg><span>Overview</span></a>
+    <a class="{{nav.incidents}}" href="Incidents.dc.html"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5L14 13H2L8 2.5Z"></path><path d="M8 6.5v3"></path><path d="M8 11.3v.1"></path></svg><span>Incidents</span>
+      <sc-if value="{{showIncidents}}" hint-placeholder-val="{{ true }}"><span class="count alert">5</span></sc-if>
+      <sc-if value="{{staging}}" hint-placeholder-val="{{ false }}"><span class="nav-tag">prod</span></sc-if>
+    </a>
+    <a class="{{nav.assets}}" href="Assets.dc.html"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="8" cy="4" rx="5" ry="2"></ellipse><path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4"></path><path d="M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"></path></svg><span>Assets</span>
+      <sc-if value="{{staging}}" hint-placeholder-val="{{ false }}"><span class="nav-tag">prod</span></sc-if>
+    </a>
+    <a class="{{nav.query}}" href="Query.dc.html"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2.5" width="12" height="11" rx="1.5"></rect><path d="M5 6.5l2 1.5-2 1.5"></path><path d="M8.5 10.5h2.5"></path></svg><span>Query</span>
+      <sc-if value="{{staging}}" hint-placeholder-val="{{ false }}"><span class="nav-tag">prod</span></sc-if>
+    </a>
+    <a class="{{nav.pipelines}}" href="{{href.pipelines}}"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="4.5" height="4.5" rx="1"></rect><rect x="9.5" y="9.5" width="4.5" height="4.5" rx="1"></rect><path d="M6.5 4.25H9a2.5 2.5 0 0 1 2.5 2.5V9.5"></path></svg><span>Pipelines</span>
+      <sc-if value="{{isScale}}" hint-placeholder-val="{{ false }}"><span class="count alert">3</span></sc-if>
+      <sc-if value="{{staging}}" hint-placeholder-val="{{ false }}"><span class="nav-tag">prod</span></sc-if>
+    </a>
+    <a class="{{nav.branches}}" href="Branches.dc.html"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="4.5" cy="3.5" r="1.5"></circle><circle cx="4.5" cy="12.5" r="1.5"></circle><circle cx="11.5" cy="5" r="1.5"></circle><path d="M4.5 5v6"></path><path d="M11.5 6.5c0 3-3.5 2.6-6.6 4.7"></path></svg><span>Branches</span>
+      <sc-if value="{{staging}}" hint-placeholder-val="{{ false }}"><span class="nav-tag">prod</span></sc-if>
+    </a>
+    <a class="{{nav.settings}}" href="Settings.dc.html"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 5h1.8M7.7 5h5.8M2.5 11h5.8M11.7 11h1.8"></path><circle cx="6" cy="5" r="1.7"></circle><circle cx="10" cy="11" r="1.7"></circle></svg><span>Settings</span></a>
+  </div>
+
+  <sc-if value="{{isCalm}}" hint-placeholder-val="{{ false }}">
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <div class="side-h" style="padding-bottom: 2px">Open incidents</div>
+      <div style="padding: 10px; font-size: 13.5px; color: var(--text-3); line-height: 1.5">None open. Last one closed 4 h ago.</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{showIncidents}}" hint-placeholder-val="{{ true }}">
+    <div class="stack">
+      <div class="side-h">Open incidents</div>
+      <a class="{{inc.i214}}" href="Main.dc.html"><span class="tile t-teal"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="8" cy="8" r="6"></circle><path d="M8 4.5V8l2.5 1.5"></path></svg></span><span>#214 Stale: bioreactor_telemetry</span></a>
+      <a class="{{inc.i213}}" href="Incident213.dc.html"><span class="tile t-amber"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h10v10H3z"></path><path d="M3 8h10"></path><path d="M8 3v10"></path></svg></span><span>#213 Schema drift: elisa_plate_reads</span></a>
+      <a class="{{inc.i211}}" href="Incident211.dc.html"><span class="tile t-red"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8"></path><path d="M12 4l-8 8"></path></svg></span><span>#211 Audit failed: qc_results</span></a>
+      <a class="{{inc.i209}}" href="Incident209.dc.html"><span class="tile t-purple"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="4.5" cy="3.5" r="1.5"></circle><circle cx="4.5" cy="12.5" r="1.5"></circle><path d="M4.5 5v6"></path><path d="M11.5 4v4c0 2-3 2.5-6 3.8"></path></svg></span><span>#209 Merge conflict on main</span></a>
+      <a class="{{inc.i207}}" href="Incident207.dc.html"><span class="tile t-blue"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 12l4-4 3 3 5-6"></path></svg></span><span>#207 Slow load: LIMS extract</span></a>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{staging}}" hint-placeholder-val="{{ false }}">
+    <div class="stack">
+      <div class="side-h">Blocking promotion</div>
+      <a class="inc" href="OverviewStaging.dc.html#promote"><span class="tile t-red"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8"></path><path d="M12 4l-8 8"></path></svg></span><span>qc_potency_v2 · 2 runs failed</span></a>
+      <a class="inc" href="OverviewStaging.dc.html#promote"><span class="tile t-amber"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h10v10H3z"></path><path d="M3 8h10"></path><path d="M8 3v10"></path></svg></span><span>Contract: elisa_plate_reads</span></a>
+      <div class="meta" style="font-size: 12px; padding: 6px 10px 0; line-height: 1.45">Pages marked <span class="nav-tag" style="margin: 0">prod</span> open the production view. Staging only has its own overview.</div>
+    </div>
+  </sc-if>
+
+  <div class="svc-box">
+    <div class="side-h" style="padding: 0">{{svcTitle}}</div>
+    <div class="svc"><span class="dot bg-green"></span>Dagster<span class="mono">up</span></div>
+    <div class="svc"><span class="dot bg-green"></span>Nessie catalog<span class="mono">up</span></div>
+    <div class="svc"><span class="dot bg-green"></span>Postgres<span class="mono">up</span></div>
+    <div class="svc"><span class="{{storeDot}}"></span>Object store<span class="mono">{{storeState}}</span></div>
+    <div class="theme-switch" role="group" aria-label="Theme">
+      <button class="{{lightCls}}" aria-pressed="{{lightPressed}}" onClick="{{setLight}}"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="8" cy="8" r="3"></circle><path d="M8 1.5v1.5M8 13v1.5M1.5 8H3M13 8h1.5M3.4 3.4l1 1M11.6 11.6l1 1M3.4 12.6l1-1M11.6 4.4l1-1"></path></svg>Light</button>
+      <button class="{{darkCls}}" aria-pressed="{{darkPressed}}" onClick="{{setDark}}"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M13 9.5A5.5 5.5 0 0 1 6.5 3a5.5 5.5 0 1 0 6.5 6.5Z"></path></svg>Dark</button>
+    </div>
+  </div>
+</nav>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"active":{"editor":"enum","options":["overview","incidents","assets","query","pipelines","branches","settings","none"],"default":"overview"},"incident":{"editor":"enum","options":["none","214","213","211","209","207"],"default":"none"},"env":{"editor":"enum","options":["prod","staging"],"default":"prod"},"variant":{"editor":"enum","options":["standard","scale","calm"],"default":"standard"},"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"envOpen":{"editor":null},"onTheme":{"editor":null},"onEnv":{"editor":null},"$preview":{"width":248,"height":960}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { theme: null };
+this.onStorage = this.onStorage.bind(this);
+}
+componentDidMount() {
+if (this.props.onTheme) return;
+try { var t = window.localStorage.getItem('phlo-theme'); if (t === 'light' || t === 'dark') this.setState({ theme: t }); } catch (e) {}
+try { window.addEventListener('storage', this.onStorage); } catch (e) {}
+}
+componentWillUnmount() {
+try { window.removeEventListener('storage', this.onStorage); } catch (e) {}
+}
+onStorage(e) {
+if (e && e.key === 'phlo-theme' && (e.newValue === 'light' || e.newValue === 'dark')) this.setState({ theme: e.newValue });
+}
+pickTheme(t) {
+if (this.props.onTheme) { this.props.onTheme(t); return; }
+this.setState({ theme: t });
+try { window.localStorage.setItem('phlo-theme', t); } catch (e) {}
+}
+renderVals() {
+var self = this;
+var p = this.props;
+var th = (p.onTheme ? p.theme : (this.state.theme || p.theme)) || 'light';
+var env = p.env === 'staging' ? 'staging' : 'prod';
+var staging = env === 'staging';
+var active = p.active || 'overview';
+var incident = p.incident || 'none';
+var keys = ['overview', 'incidents', 'assets', 'query', 'pipelines', 'branches', 'settings'];
+var nav = {};
+keys.forEach(function (k) { nav[k] = k === active ? 'nav on' : 'nav'; });
+var inc = {};
+['214', '213', '211', '209', '207'].forEach(function (k) { inc['i' + k] = k === incident ? 'inc on' : 'inc'; });
+var scale = p.variant === 'scale';
+var calm = p.variant === 'calm' && !staging;
+var allUp = staging || calm;
+return {
+rootClass: 'phlo side theme-' + th,
+env: env,
+envCls: staging ? 'env staging' : 'env',
+staging: staging,
+isProd: !staging,
+isCalm: calm,
+showIncidents: !staging && !calm,
+isScale: scale && !staging,
+hasEnvToggle: !!p.onEnv,
+noEnvToggle: !p.onEnv,
+envToggle: function () { if (p.onEnv) p.onEnv(); },
+envExpanded: p.envOpen ? 'true' : 'false',
+envHref: staging ? 'Overview.dc.html' : 'OverviewStaging.dc.html',
+envTitle: staging ? 'Switch to prod' : 'Switch to staging',
+nav: nav,
+inc: inc,
+href: {
+overview: staging ? 'OverviewStaging.dc.html' : 'Overview.dc.html',
+pipelines: scale ? 'PipelinesScale.dc.html' : 'Pipelines.dc.html'
+},
+svcTitle: staging ? 'Services · staging' : 'Services',
+storeDot: allUp ? 'dot bg-green' : 'dot bg-amber',
+storeState: allUp ? 'up' : 'slow',
+lightCls: th === 'light' ? 'on' : '', darkCls: th === 'dark' ? 'on' : '',
+lightPressed: th === 'light' ? 'true' : 'false', darkPressed: th === 'dark' ? 'true' : 'false',
+setLight: function () { self.pickTheme('light'); },
+setDark: function () { self.pickTheme('dark'); }
+};
+}
+}
+</script>
+</body>
+</html>

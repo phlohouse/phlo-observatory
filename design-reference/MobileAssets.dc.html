@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mobile · Assets</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./theme.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+
+<div class="{{themeClass}}" style="width: 390px; height: 844px; display: flex; flex-direction: column; overflow: hidden; position: relative; background: var(--bg)">
+
+<header class="bb" style="flex-shrink: 0; display: flex; align-items: center; gap: 10px; height: 56px; padding: 0 6px 0 16px; box-sizing: border-box; background: var(--panel)">
+  <span class="brand-mark" role="img" aria-label="phlo" style="width: 28px; height: 28px; border-radius: 7px; font-size: 15px; flex-shrink: 0">φ</span>
+  <h1 style="margin: 0; font-size: 18px; font-weight: 600; letter-spacing: -0.01em">Assets</h1>
+  <span class="env" style="margin-left: auto">prod</span>
+  <button type="button" aria-label="{{themeLabel}}" onClick="{{toggleTheme}}" style="width: 44px; height: 44px; border: none; border-radius: 10px; background: transparent; color: var(--text-3); display: flex; align-items: center; justify-content: center; cursor: pointer">
+    <sc-if value="{{isDark}}" hint-placeholder-val="{{ false }}">
+      <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="3"></circle><path d="M8 1.5v1.5M8 13v1.5M1.5 8H3M13 8h1.5M3.4 3.4l1 1M11.6 11.6l1 1M3.4 12.6l1-1M11.6 4.4l1-1"></path></svg>
+    </sc-if>
+    <sc-if value="{{isLight}}" hint-placeholder-val="{{ true }}">
+      <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M13 9.5A5.5 5.5 0 0 1 6.5 3a5.5 5.5 0 1 0 6.5 6.5Z"></path></svg>
+    </sc-if>
+  </button>
+</header>
+
+<!-- Search and filters (pinned) -->
+<div class="bb" style="flex-shrink: 0; padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; background: var(--panel)">
+  <div style="display: flex; flex-direction: column; gap: 6px">
+    <label for="m-asset-search" class="flabel">Find a table</label>
+    <div style="display: flex; align-items: center; gap: 8px; height: 44px; box-sizing: border-box; padding: 0 12px; border: 1px solid var(--border-strong); border-radius: 10px; background: var(--panel); color: var(--muted)">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" style="flex-shrink: 0"><circle cx="7" cy="7" r="4.5"></circle><path d="M10.5 10.5L14 14"></path></svg>
+      <input id="m-asset-search" type="search" placeholder="Name or owner" autocomplete="off" onChange="{{onSearch}}" style="border: none; background: transparent; outline: none; font-size: 16px; color: var(--text); flex-grow: 1; min-width: 0; height: 100%; padding: 0">
+    </div>
+  </div>
+  <div role="group" aria-label="Filter tables" style="display: flex; gap: 8px; overflow-x: auto; margin: 0 -16px; padding: 0 16px; scrollbar-width: none">
+    <sc-for list="{{chips}}" as="c" hint-placeholder-count="5">
+      <button type="button" class="{{c.cls}}" aria-pressed="{{c.pressed}}" onClick="{{c.pick}}" style="flex-shrink: 0; height: 44px; border-radius: 22px; padding: 0 14px; font-size: 14px">
+        <sc-if value="{{c.hasSw}}" hint-placeholder-val="{{ false }}"><span class="{{c.swCls}}"></span></sc-if>
+        <span>{{c.label}}</span>
+        <span class="mono" style="font-size: 12px">{{c.count}}</span>
+      </button>
+    </sc-for>
+  </div>
+</div>
+
+<main style="flex-grow: 1; min-height: 0; overflow-y: auto; padding: 12px 16px 20px; display: flex; flex-direction: column; gap: 10px">
+  <div style="flex-shrink: 0; display: flex; align-items: baseline">
+    <span class="eyebrow">{{countLabel}}</span>
+    <span class="meta" style="margin-left: auto; font-size: 12.5px">By freshness lag</span>
+  </div>
+
+  <sc-if value="{{hasRows}}" hint-placeholder-val="{{ true }}">
+    <div class="card" style="flex-shrink: 0; overflow: hidden">
+      <sc-for list="{{assets}}" as="a" hint-placeholder-count="11">
+        <div style="display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 10px 14px; box-sizing: border-box; border-bottom: {{a.border}}">
+          <span class="dot md" style="background: {{a.dot}}"></span>
+          <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0; flex-grow: 1">
+            <span class="mono" style="font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{a.name}}</span>
+            <span style="display: flex; align-items: center; gap: 6px; font-size: 12.5px; white-space: nowrap; overflow: hidden">
+              <span class="sw" style="background: {{a.layerColor}}"></span>
+              <span class="c-text2">{{a.layer}}</span>
+              <span class="mono" style="font-size: 12px; color: {{a.lagColor}}">{{a.lag}}</span>
+              <sc-if value="{{a.hasTag}}" hint-placeholder-val="{{ false }}">
+                <span class="{{a.tagCls}}" style="font-size: 11px; padding: 0 6px">{{a.tag}}</span>
+              </sc-if>
+            </span>
+          </div>
+          <div role="img" aria-label="{{a.daysLabel}}" style="display: flex; gap: 3px; flex-shrink: 0">
+            <sc-for list="{{a.days}}" as="d" hint-placeholder-count="7">
+              <span style="width: 9px; height: 14px; border-radius: 2px; background: {{d.c}}"></span>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{noRows}}" hint-placeholder-val="{{ false }}">
+    <div class="card" style="flex-shrink: 0; padding: 24px 16px; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center">
+      <div style="font-size: 15px; font-weight: 500">No tables match</div>
+      <div class="meta">Try another name, or pick All.</div>
+    </div>
+  </sc-if>
+
+  <div class="meta" style="flex-shrink: 0; display: flex; align-items: center; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; padding: 4px 2px 0">
+    <span>Last 7 days:</span>
+    <span style="display: flex; align-items: center; gap: 6px"><span class="sw lg" style="border-radius: 2px; background: var(--sla-ok)"></span>Met SLA</span>
+    <span style="display: flex; align-items: center; gap: 6px"><span class="sw lg" style="border-radius: 2px; background: var(--sla-late)"></span>Late</span>
+    <span style="display: flex; align-items: center; gap: 6px"><span class="sw lg bg-red" style="border-radius: 2px"></span>Breached</span>
+  </div>
+</main>
+
+<nav aria-label="Main" style="flex-shrink: 0; height: 64px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--line); background: var(--panel)">
+  <a href="MobileHome.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 11.5px; color: var(--muted)">
+    <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7L8 2.5 13.5 7"></path><path d="M4 6v7.5h3v-4h2v4h3V6"></path></svg>
+    <span>Home</span>
+  </a>
+  <a href="MobileIncidents.dc.html" aria-label="Incidents, 5 open" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 11.5px; color: var(--muted)">
+    <span style="position: relative; display: flex">
+      <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5L14 13H2z"></path><path d="M8 6.5v3"></path><path d="M8 11.3v.2"></path></svg>
+      <span style="position: absolute; top: -5px; left: 13px; min-width: 16px; height: 16px; padding: 0 4px; box-sizing: border-box; border-radius: 8px; background: var(--red); color: #ffffff; font-size: 10.5px; font-weight: 600; line-height: 16px; text-align: center">5</span>
+    </span>
+    <span>Incidents</span>
+  </a>
+  <a href="MobileAssets.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 11.5px; font-weight: 500; color: var(--accent); box-shadow: inset 0 2px 0 var(--accent)">
+    <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="8" cy="4" rx="5" ry="1.8"></ellipse><path d="M3 4v8c0 1 2.2 1.8 5 1.8s5-.8 5-1.8V4"></path><path d="M3 8c0 1 2.2 1.8 5 1.8s5-.8 5-1.8"></path></svg>
+    <span>Assets</span>
+  </a>
+  <a href="MobilePipelines.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 11.5px; color: var(--muted)">
+    <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="2.5" width="5" height="4" rx="1"></rect><rect x="9.5" y="9.5" width="5" height="4" rx="1"></rect><path d="M4 6.5v2.5a2 2 0 0 0 2 2h3.5"></path></svg>
+    <span>Pipelines</span>
+  </a>
+</nav>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { theme: null, filter: 'attention', q: '' };
+this.onStorage = this.onStorage.bind(this);
+}
+componentDidMount() {
+try { var t = window.localStorage.getItem('phlo-theme'); if (t === 'light' || t === 'dark') this.setState({ theme: t }); } catch (e) {}
+try { window.addEventListener('storage', this.onStorage); } catch (e) {}
+}
+componentWillUnmount() {
+try { window.removeEventListener('storage', this.onStorage); } catch (e) {}
+}
+onStorage(e) {
+if (e && e.key === 'phlo-theme' && (e.newValue === 'light' || e.newValue === 'dark')) this.setState({ theme: e.newValue });
+}
+setTheme(t) {
+this.setState({ theme: t });
+try { window.localStorage.setItem('phlo-theme', t); } catch (e) {}
+}
+renderVals() {
+var self = this;
+var th = this.state.theme || this.props.theme || 'light';
+var filter = this.state.filter || 'attention';
+var q = (this.state.q || '').toLowerCase().trim();
+var L = { Bronze: 'var(--bronze)', Silver: 'var(--silver)', Gold: 'var(--gold)' };
+var S = { stale: 'var(--red)', warn: 'var(--amber)', ok: 'var(--green)' };
+var D = { g: 'var(--sla-ok)', a: 'var(--sla-late)', r: 'var(--red)' };
+var DN = { g: 'met', a: 'late', r: 'breached' };
+var T = { stale: 'pill p-red', drift: 'pill p-amber', audit: 'pill p-red', compact: 'pill p-blue' };
+var rows = [
+['bronze.bioreactor_telemetry', 'Bronze', 'stale', '134 m / 60 m', 'Gareth', 'gggggar', 'stale', '#214'],
+['silver.bioreactor_runs_1min', 'Silver', 'stale', '131 m / 60 m', 'Gareth', 'gggggar', '', ''],
+['silver.feed_events', 'Silver', 'stale', '129 m / 60 m', 'Process Dev', 'ggggggr', '', ''],
+['silver.run_summaries', 'Silver', 'stale', '126 m / 120 m', 'Process Dev', 'ggggggr', '', ''],
+['gold.batch_release_metrics', 'Gold', 'stale', '118 m / 90 m', 'QC Analytics', 'gggaggr', '', ''],
+['gold.cpp_trends', 'Gold', 'stale', '117 m / 90 m', 'QC Analytics', 'ggggggr', '', ''],
+['gold.process_capability', 'Gold', 'stale', '1 d 2 h / 1 d', 'QC Analytics', 'gggggga', '', ''],
+['bronze.elisa_plate_reads', 'Bronze', 'warn', '8 m / 30 m', 'Assay Dev', 'gggggga', 'drift', '#213'],
+['silver.qc_results', 'Silver', 'warn', '19 m / 60 m', 'QC Analytics', 'ggaggga', 'audit', '#211'],
+['bronze.lims_samples', 'Bronze', 'warn', '41 m / 60 m', 'Gareth', 'gaagaaa', '', ''],
+['silver.elisa_results', 'Silver', 'warn', '9 m / 60 m', 'Assay Dev', 'ggggggg', 'compact', 'compact'],
+['bronze.erp_batches', 'Bronze', 'ok', '14 m / 60 m', 'Gareth', 'ggggggg', '', ''],
+['silver.sample_lineage', 'Silver', 'ok', '16 m / 60 m', 'QC Analytics', 'ggggggg', '', ''],
+['gold.qc_release_dashboard', 'Gold', 'ok', '22 m / 90 m', 'QC Analytics', 'ggggggg', '', '']
+];
+var picked = rows.filter(function (r) {
+if (filter === 'attention' && r[2] === 'ok') return false;
+if (filter === 'bronze' && r[1] !== 'Bronze') return false;
+if (filter === 'silver' && r[1] !== 'Silver') return false;
+if (filter === 'gold' && r[1] !== 'Gold') return false;
+if (q && r[0].toLowerCase().indexOf(q) < 0 && r[4].toLowerCase().indexOf(q) < 0) return false;
+return true;
+});
+var assets = picked.map(function (r, i) {
+var ds = r[5].split('');
+return {
+name: r[0], layer: r[1], layerColor: L[r[1]], dot: S[r[2]],
+lag: r[3], lagColor: r[2] === 'stale' ? 'var(--red-text)' : 'var(--text-2)',
+days: ds.map(function (k) { return { c: D[k] }; }),
+daysLabel: 'Last 7 days: ' + ds.map(function (k) { return DN[k]; }).join(', '),
+hasTag: !!r[6], tag: r[7], tagCls: r[6] ? T[r[6]] : '',
+border: i === picked.length - 1 ? 'none' : '1px solid var(--line-soft)'
+};
+});
+var totals = { all: 148, attention: 11, bronze: 52, silver: 61, gold: 35 };
+var chips = [['all', 'All', ''], ['attention', 'Needs attention', ''], ['bronze', 'Bronze', 'sw bg-bronze'], ['silver', 'Silver', 'sw bg-silver'], ['gold', 'Gold', 'sw bg-gold']].map(function (c) {
+var on = c[0] === filter;
+return { label: c[1], count: totals[c[0]], hasSw: !!c[2], swCls: c[2], cls: on ? 'chip on' : 'chip', pressed: on ? 'true' : 'false', pick: function () { self.setState({ filter: c[0] }); } };
+});
+return {
+themeClass: 'phlo theme-' + th,
+isDark: th === 'dark', isLight: th !== 'dark',
+themeLabel: th === 'dark' ? 'Switch to light theme' : 'Switch to dark theme',
+toggleTheme: function () { self.setTheme(th === 'dark' ? 'light' : 'dark'); },
+onSearch: function (e) { var v = e && e.target ? e.target.value : ''; self.setState({ q: v }); },
+chips: chips,
+assets: assets,
+hasRows: assets.length > 0, noRows: assets.length === 0,
+countLabel: 'Showing ' + assets.length + ' of ' + totals[filter]
+};
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Materialize</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./theme.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+
+<div class="{{themeClass}}" style="width: 1440px; height: 960px">
+
+  <div aria-hidden="true" style="width: 248px; flex-shrink: 0; box-sizing: border-box; padding: 20px 18px; display: flex; flex-direction: column; gap: 14px">
+    <div class="sk" style="width: 110px; height: 20px"></div>
+    <div class="sk" style="height: 34px; background: var(--panel); border: 1px solid var(--border)"></div>
+    <div class="sk" style="width: 150px; height: 14px"></div><div class="sk" style="width: 130px; height: 14px"></div><div class="sk" style="width: 140px; height: 14px; background: var(--border-strong)"></div>
+    <div class="sk" style="width: 120px; height: 14px"></div><div class="sk" style="width: 150px; height: 14px"></div>
+  </div>
+  <div aria-hidden="true" class="panel">
+    <div class="topbar"><span class="crumb">Assets</span><span class="mono" style="font-size: 13.5px">bronze.bioreactor_telemetry</span></div>
+    <div class="bb" style="padding: 22px 28px; display: flex; flex-direction: column; gap: 12px"><div class="sk" style="width: 300px; height: 22px"></div><div class="sk soft" style="width: 520px; height: 14px"></div><div class="sk soft" style="width: 380px; height: 28px"></div></div>
+    <div style="padding: 20px 28px; display: flex; flex-direction: column; gap: 14px"><div class="sk soft" style="height: 96px"></div><div class="sk soft" style="height: 34px"></div><div class="sk soft" style="height: 34px"></div></div>
+  </div>
+
+  <div class="scrim" style="align-items: center; justify-content: center">
+    <form class="dialog" role="dialog" aria-modal="true" aria-labelledby="mz-title" style="width: 620px; margin: 0">
+      <div class="bb" style="padding: 20px 24px 16px; display: flex; flex-direction: column; gap: 6px">
+        <div style="display: flex; align-items: center; gap: 10px">
+          <h2 id="mz-title" style="margin: 0; font-size: 17px; font-weight: 600">Materialize</h2>
+          <a href="AssetDetail.dc.html" aria-label="Close" style="margin-left: auto; width: 30px; height: 30px; border-radius: 7px; display: flex; align-items: center; justify-content: center; color: var(--text-3)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 4l8 8"></path><path d="M12 4l-8 8"></path></svg></a>
+        </div>
+        <div class="meta"><span class="mono hl" style="font-size: 12.5px">bronze.bioreactor_telemetry</span> · via <span class="mono" style="font-size: 12.5px">ingest_bioreactor</span></div>
+      </div>
+
+      <div style="padding: 18px 24px 20px; display: flex; flex-direction: column; gap: 18px">
+        <div class="fgroup">
+          <span class="flabel" id="mz-mode">What to load</span>
+          <div role="radiogroup" aria-labelledby="mz-mode" style="display: flex; flex-direction: column; gap: 8px">
+            <sc-for list="{{modes}}" as="m" hint-placeholder-count="3">
+              <label class="{{m.cls}}"><input type="radio" name="mode" checked="{{m.on}}" onChange="{{m.pick}}"><span><b>{{m.label}}</b><small>{{m.help}}</small></span></label>
+            </sc-for>
+          </div>
+        </div>
+
+        <sc-if value="{{isBackfill}}" hint-placeholder-val="{{ true }}">
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+            <div class="fgroup"><label class="flabel" for="mz-from">From</label><input id="mz-from" class="input mono" type="text" value="2026-09-24 07:26" style="font-size: 13.5px"></div>
+            <div class="fgroup"><label class="flabel" for="mz-to">To</label><input id="mz-to" class="input mono" type="text" value="now" style="font-size: 13.5px"></div>
+          </div>
+        </sc-if>
+
+        <div class="fgroup">
+          <span class="flabel">Write to</span>
+          <div class="seg" style="align-self: flex-start">
+            <sc-for list="{{targets}}" as="t" hint-placeholder-count="2">
+              <button type="button" class="{{t.cls}}" onClick="{{t.pick}}"><span class="mono" style="font-size: 12.5px">{{t.label}}</span></button>
+            </sc-for>
+          </div>
+          <sc-if value="{{isMain}}" hint-placeholder-val="{{ false }}">
+            <div class="fhelp c-amber" style="color: var(--amber-ink)">Writing straight to main is blocked by your audit settings. This will create a branch and ask for a signed merge afterwards.</div>
+          </sc-if>
+        </div>
+
+        <label class="checkline"><input type="checkbox" checked="{{ true }}">Also rebuild what depends on it: 3 silver and 3 gold tables</label>
+
+        <div class="estimate-grid">
+          <div class="stat"><div class="eyebrow">Rows</div><div style="font-size: 15px; font-weight: 500">~{{rows}}</div></div>
+          <div class="stat"><div class="eyebrow">Runs</div><div style="font-size: 15px; font-weight: 500">{{runs}}</div></div>
+          <div class="stat"><div class="eyebrow">Time</div><div style="font-size: 15px; font-weight: 500">~{{time}}</div></div>
+          <div class="stat"><div class="eyebrow">Compute</div><div style="font-size: 15px; font-weight: 500">{{cost}}</div></div>
+        </div>
+      </div>
+
+      <div class="bt" style="padding: 14px 24px; display: flex; align-items: center; gap: 10px; background: var(--raised)">
+        <span class="meta">Runs in Dagster as a tagged backfill</span>
+        <a class="btn lg" href="AssetDetail.dc.html" style="margin-left: auto; background: var(--panel)">Cancel</a>
+        <a class="btn-primary lg" href="Pipelines.dc.html" style="padding: 0 16px">{{cta}}</a>
+      </div>
+    </form>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { theme: null, mode: 'backfill', target: 'fix/telemetry-schema' };
+this.onStorage = this.onStorage.bind(this);
+}
+componentDidMount() {
+try { var t = window.localStorage.getItem('phlo-theme'); if (t === 'light' || t === 'dark') this.setState({ theme: t }); } catch (e) {}
+try { window.addEventListener('storage', this.onStorage); } catch (e) {}
+}
+componentWillUnmount() {
+try { window.removeEventListener('storage', this.onStorage); } catch (e) {}
+}
+onStorage(e) {
+if (e && e.key === 'phlo-theme' && (e.newValue === 'light' || e.newValue === 'dark')) this.setState({ theme: e.newValue });
+}
+renderVals() {
+var self = this;
+var th = this.state.theme || this.props.theme || 'light';
+var M = [
+['latest', 'Next increment only', 'Picks up from the last watermark (07:26). One run.', ['19 k', '1', '1 min', 'Small', 'Run now']],
+['backfill', 'Backfill a time range', 'Reloads a window from the source, split into 15-minute partitions.', ['184 k', '10', '6 min', 'Small', 'Start backfill']],
+['full', 'Full refresh', 'Drops and reloads the whole table from the historian. Rarely needed.', ['1.21 B', '312', '5 h', 'Large', 'Start full refresh']]
+];
+var cur = null;
+var modes = M.map(function (m) {
+var on = self.state.mode === m[0];
+if (on) cur = m;
+return { label: m[1], help: m[2], on: on, cls: on ? 'option-card on' : 'option-card', pick: function () { self.setState({ mode: m[0] }); } };
+});
+var targets = ['fix/telemetry-schema', 'main'].map(function (t) {
+var on = self.state.target === t;
+return { label: t, cls: on ? 'on' : '', pick: function () { self.setState({ target: t }); } };
+});
+var e = cur[3];
+return {
+themeClass: 'phlo shell theme-' + th,
+modes: modes, targets: targets,
+isBackfill: this.state.mode === 'backfill', isMain: this.state.target === 'main',
+rows: e[0], runs: e[1], time: e[2], cost: e[3], cta: e[4]
+};
+}
+}
+</script>
+</body>
+</html>

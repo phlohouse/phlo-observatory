@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Query</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./theme.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+
+<div class="{{themeClass}}" style="width: 1440px; height: 960px">
+
+<dc-import name="Sidebar" active="query" incident="none" env="prod" variant="standard" theme="{{th}}" on-theme="{{pickTheme}}" hint-size="248px,960px"></dc-import>
+
+<main class="panel">
+  <header class="topbar" style="gap: 10px">
+    <span class="title-sm" style="margin-right: 6px">Query</span>
+    <div role="tablist" aria-label="Open queries" style="display: flex; gap: 4px">
+      <button class="query-tab on" role="tab" aria-selected="true"><span class="dot md bg-accent"></span>DO trend · BR-2026-121</button>
+      <button class="query-tab" role="tab" aria-selected="false">Duplicate result check</button>
+      <button class="query-tab" aria-label="New query tab"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 3v10"></path><path d="M3 8h10"></path></svg></button>
+    </div>
+    <div style="margin-left: auto; display: flex; align-items: center; gap: 8px">
+      <button class="btn" aria-label="Branch: main">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" style="color: var(--purple)"><circle cx="4.5" cy="3.5" r="1.5"></circle><circle cx="4.5" cy="12.5" r="1.5"></circle><circle cx="11.5" cy="5" r="1.5"></circle><path d="M4.5 5v6"></path><path d="M11.5 6.5c0 3-3.5 2.6-6.6 4.7"></path></svg>
+        <span class="mono" style="font-size: 12.5px">main</span>
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color: var(--muted)"><path d="M4 6l4 4 4-4"></path></svg>
+      </button>
+      <button class="btn" aria-label="Engine: DuckDB">DuckDB<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color: var(--muted)"><path d="M4 6l4 4 4-4"></path></svg></button>
+      <button class="btn">Save</button>
+      <button class="btn-primary">
+        <svg width="12" height="12" viewBox="0 0 16 16" style="fill: currentColor"><path d="M4 2.5v11l9-5.5z"></path></svg>
+        Run
+        <span class="mono" style="font-size: 11px; opacity: .8">⌘↵</span>
+      </button>
+    </div>
+  </header>
+
+  <div style="flex-grow: 1; display: flex; min-height: 0">
+    <!-- Catalog browser -->
+    <aside aria-label="Catalog" class="br" style="width: 260px; flex-shrink: 0; box-sizing: border-box; padding: 12px 10px; display: flex; flex-direction: column; gap: 2px; overflow: hidden">
+      <label style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 10px; margin-bottom: 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--raised); color: var(--muted)">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"></circle><path d="M10.5 10.5L14 14"></path></svg>
+        <input type="text" placeholder="Find a table or column" aria-label="Find a table or column" style="border: none; background: transparent; outline: none; font-size: 13px; color: var(--text); flex-grow: 1; min-width: 0">
+      </label>
+      <div class="tree-item"><svg class="tree-chev" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"></path></svg><span class="sw bg-bronze"></span><span style="font-weight: 500; color: var(--text)">bronze</span><span class="tree-count">52</span></div>
+      <div class="tree-item on" style="padding-left: 22px"><svg class="tree-chev" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"></path></svg><span class="mono" style="font-size: 12.5px">bioreactor_telemetry</span><span class="dot bg-red" style="margin-left: auto"></span></div>
+      <div class="tree-item" style="padding-left: 44px"><span class="mono" style="font-size: 12px">ts</span><span class="tree-meta">timestamptz</span></div>
+      <div class="tree-item" style="padding-left: 44px"><span class="mono" style="font-size: 12px">vessel_id</span><span class="tree-meta">string</span></div>
+      <div class="tree-item" style="padding-left: 44px"><span class="mono" style="font-size: 12px">run_id</span><span class="tree-meta">string</span></div>
+      <div class="tree-item" style="padding-left: 44px"><span class="mono" style="font-size: 12px">ph</span><span class="tree-meta">double</span></div>
+      <div class="tree-item" style="padding-left: 44px"><span class="mono" style="font-size: 12px">do_pct</span><span class="tree-meta">double</span></div>
+      <div class="tree-item" style="padding-left: 44px"><span class="mono" style="font-size: 12px">temp_c</span><span class="tree-meta">double</span></div>
+      <div class="tree-item" style="padding-left: 44px"><span class="mono" style="font-size: 12px">agitation_rpm</span><span class="tree-meta">double</span></div>
+      <div class="tree-item" style="padding-left: 22px"><svg class="tree-chev" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4l4 4-4 4"></path></svg><span class="mono" style="font-size: 12.5px">elisa_plate_reads</span></div>
+      <div class="tree-item" style="padding-left: 22px"><svg class="tree-chev" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4l4 4-4 4"></path></svg><span class="mono" style="font-size: 12.5px">erp_batches</span></div>
+      <div class="tree-item" style="padding-left: 22px"><svg class="tree-chev" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4l4 4-4 4"></path></svg><span class="mono" style="font-size: 12.5px">lims_samples</span></div>
+      <div class="tree-item"><svg class="tree-chev" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4l4 4-4 4"></path></svg><span class="sw bg-silver"></span><span style="font-weight: 500; color: var(--text)">silver</span><span class="tree-count">61</span></div>
+      <div class="tree-item"><svg class="tree-chev" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4l4 4-4 4"></path></svg><span class="sw bg-gold"></span><span style="font-weight: 500; color: var(--text)">gold</span><span class="tree-count">35</span></div>
+
+      <div class="side-h" style="padding: 18px 8px 6px">Saved queries</div>
+      <div class="tree-item"><svg width="12" height="12" viewBox="0 0 16 16" style="fill: var(--amber); flex-shrink: 0"><path d="M8 1.5l1.9 4 4.4.5-3.3 3 .9 4.3L8 11.1l-3.9 2.2.9-4.3-3.3-3 4.4-.5z"></path></svg>DO trend by run</div>
+      <div class="tree-item"><span style="width: 12px"></span>Duplicate result check</div>
+      <div class="tree-item"><span style="width: 12px"></span>Batch release readiness</div>
+      <div class="tree-item"><span style="width: 12px"></span>Audit failures · last 7 d</div>
+    </aside>
+
+    <!-- Workspace -->
+    <section style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column">
+      <div class="editor" aria-label="SQL editor">
+        <div class="gut">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14</div>
+        <div class="src"><div><span class="cm">-- Dissolved oxygen per minute for one run</span></div><div><span class="kw">SELECT</span></div><div>  <span class="fn">date_trunc</span>(<span class="str">'minute'</span>, ts)  <span class="kw">AS</span> minute,</div><div>  vessel_id,</div><div>  <span class="fn">round</span>(<span class="fn">avg</span>(ph), <span class="nm">2</span>)          <span class="kw">AS</span> ph,</div><div>  <span class="fn">round</span>(<span class="fn">avg</span>(do_pct), <span class="nm">1</span>)      <span class="kw">AS</span> do_pct,</div><div>  <span class="fn">round</span>(<span class="fn">avg</span>(temp_c), <span class="nm">2</span>)      <span class="kw">AS</span> temp_c,</div><div>  <span class="fn">count</span>(*)                   <span class="kw">AS</span> n</div><div><span class="kw">FROM</span> bronze.bioreactor_telemetry</div><div><span class="kw">WHERE</span> vessel_id = <span class="str">'BR-V03'</span> <span class="kw">AND</span> run_id = <span class="str">'BR-2026-121'</span></div><div>  <span class="kw">AND</span> ts &gt;= <span class="fn">now</span>() - <span class="kw">INTERVAL</span> <span class="nm">6</span> <span class="kw">HOUR</span></div><div><span class="kw">GROUP BY ALL</span></div><div><span class="kw">ORDER BY</span> minute <span class="kw">DESC</span></div><div><span class="kw">LIMIT</span> <span class="nm">500</span>;<span class="caret-bar"></span></div></div>
+      </div>
+
+      <div class="status-bar" role="status">
+        <span class="c-green" style="display: flex; align-items: center; gap: 6px"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6.5"></circle><path d="M5 8.2l2 2 4-4"></path></svg>360 rows in 1.4 s</span>
+        <span class="status-sep"></span>
+        <span>Read 212 MB · 4 of 1,642 files</span>
+        <span class="status-sep"></span>
+        <span><span class="mono" style="font-size: 12px">main@8f3c21a</span> · snapshot <span class="mono" style="font-size: 12px">7702…0447</span></span>
+        <a href="Main.dc.html" class="c-amber" style="margin-left: auto; display: flex; align-items: center; gap: 6px; color: var(--amber-ink)"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5L14 13H2L8 2.5Z"></path><path d="M8 6.5v3"></path></svg>Newest row is 07:26 · table 2 h 14 m behind (#214)</a>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 4px; padding: 8px 16px" class="bb">
+        <div role="tablist" aria-label="Result views" style="display: flex; gap: 4px">
+          <sc-for list="{{tabs}}" as="t" hint-placeholder-count="3">
+            <button class="{{t.cls}}" role="tab" aria-selected="{{t.sel}}" onClick="{{t.pick}}">{{t.label}}</button>
+          </sc-for>
+        </div>
+        <div style="margin-left: auto; display: flex; gap: 8px">
+          <button class="btn" style="height: 30px">Pin to #214</button>
+          <button class="btn" style="height: 30px">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8"></path><path d="M4.5 6.5L8 10l3.5-3.5"></path><path d="M3 13h10"></path></svg>
+            CSV
+          </button>
+        </div>
+      </div>
+
+      <sc-if value="{{isResults}}" hint-placeholder-val="{{ true }}">
+        <div style="flex-grow: 1; overflow: hidden">
+          <div class="dgrid" style="grid-template-columns: 48px 170px 120px 110px 110px 110px 80px minmax(0, 1fr)">
+            <div class="h" style="justify-content: flex-end">#</div>
+            <div class="h">minute <span class="ty">timestamptz</span></div>
+            <div class="h">vessel_id <span class="ty">string</span></div>
+            <div class="h" style="justify-content: flex-end">ph <span class="ty">double</span></div>
+            <div class="h" style="justify-content: flex-end">do_pct <span class="ty">double</span></div>
+            <div class="h" style="justify-content: flex-end">temp_c <span class="ty">double</span></div>
+            <div class="h" style="justify-content: flex-end">n <span class="ty">int</span></div>
+            <div class="h" style="border-right: none"></div>
+            <sc-for list="{{rows}}" as="r" hint-placeholder-count="13">
+              <div class="c idx">{{r.i}}</div>
+              <div class="c">{{r.minute}}</div>
+              <div class="c">BR-V03</div>
+              <div class="c num">{{r.ph}}</div>
+              <div class="c num" style="color: {{r.doColor}}">{{r.dO}}</div>
+              <div class="c num">{{r.temp}}</div>
+              <div class="c num">6</div>
+              <div class="c" style="border-right: none"></div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{isChart}}" hint-placeholder-val="{{ false }}">
+        <div style="flex-grow: 1; padding: 18px 24px; display: flex; flex-direction: column; gap: 10px">
+          <div style="display: flex; align-items: baseline; gap: 12px">
+            <span style="font-size: 14px; font-weight: 500">do_pct by minute</span>
+            <span class="meta">BR-2026-121 · vessel BR-V03 · last 6 h of data</span>
+            <span class="meta" style="margin-left: auto; display: flex; align-items: center; gap: 6px"><span style="width: 16px; border-top: 1px dashed var(--muted)"></span>Setpoint 40%</span>
+          </div>
+          <svg width="876" height="380" viewBox="0 0 876 380" role="img" aria-label="Dissolved oxygen fell gradually from about 48 percent to 42 percent over six hours, with a short rise after the feed at 04:30. It stayed above the 40 percent setpoint.">
+            <g font-size="11" font-family="Geist Mono, monospace" style="fill: var(--muted)">
+              <text x="0" y="24">50</text><text x="0" y="124">45</text><text x="0" y="224">40</text><text x="0" y="324">35</text>
+              <text x="36" y="372">01:26</text><text x="304" y="372" text-anchor="middle">03:26</text><text x="572" y="372" text-anchor="middle">05:26</text><text x="840" y="372" text-anchor="end">07:26</text>
+            </g>
+            <g stroke-width="1" style="stroke: var(--line)">
+              <line x1="36" y1="20" x2="876" y2="20"></line><line x1="36" y1="120" x2="876" y2="120"></line><line x1="36" y1="320" x2="876" y2="320"></line>
+            </g>
+            <line x1="36" y1="220" x2="876" y2="220" stroke-width="1" stroke-dasharray="4 4" style="stroke: var(--muted)"></line>
+            <line x1="451" y1="20" x2="451" y2="340" stroke-width="1" stroke-dasharray="2 4" style="stroke: var(--purple)"></line>
+            <text x="457" y="34" font-size="11" style="fill: var(--purple)">Feed 04:30</text>
+            <path d="{{chartPath}}" fill="none" stroke-width="2" stroke-linejoin="round" style="stroke: var(--accent-solid)"></path>
+            <circle cx="840" cy="{{lastY}}" r="4" stroke-width="2" style="fill: var(--accent-solid); stroke: var(--panel)"></circle>
+          </svg>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{isPlan}}" hint-placeholder-val="{{ false }}">
+        <div style="flex-grow: 1; overflow: hidden">
+          <div class="query-plan">PROJECTION  minute, vessel_id, ph, do_pct, temp_c, n
+└─ ORDER BY  minute DESC · LIMIT 500
+   └─ HASH_GROUP_BY  groups: 360
+      └─ FILTER  run_id = 'BR-2026-121'
+         └─ ICEBERG_SCAN  bronze.bioreactor_telemetry
+               ref         main @ 8f3c21a
+               snapshot    7702914853210447
+               partitions  day(ts) in [2026-09-24] · vessel_id = 'BR-V03'
+               files       4 of 1,642 read · 1,638 pruned
+               bytes       212 MB of 842 GB
+               rows        2,160 scanned → 2,160 kept</div>
+          <div style="padding: 0 20px" class="meta">Partition pruning on <span class="mono" style="font-size: 12px">vessel_id</span> and <span class="mono" style="font-size: 12px">day(ts)</span> skipped 99.8% of files.</div>
+        </div>
+      </sc-if>
+    </section>
+  </div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"view":{"editor":"enum","options":["results","chart","plan"],"default":"results"},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { view: null, theme: null };
+this.onStorage = this.onStorage.bind(this);
+}
+componentDidMount() {
+try { var t = window.localStorage.getItem('phlo-theme'); if (t === 'light' || t === 'dark') this.setState({ theme: t }); } catch (e) {}
+try { window.addEventListener('storage', this.onStorage); } catch (e) {}
+}
+componentWillUnmount() {
+try { window.removeEventListener('storage', this.onStorage); } catch (e) {}
+}
+onStorage(e) {
+if (e && e.key === 'phlo-theme' && (e.newValue === 'light' || e.newValue === 'dark')) this.setState({ theme: e.newValue });
+}
+setTheme(t) {
+this.setState({ theme: t });
+try { window.localStorage.setItem('phlo-theme', t); } catch (e) {}
+}
+renderVals() {
+var self = this;
+var th = this.state.theme || this.props.theme || 'light';
+var cur = this.state.view || this.props.view || 'results';
+var tabs = [['results', 'Results · 360'], ['chart', 'Chart'], ['plan', 'Plan']].map(function (t) {
+var on = t[0] === cur;
+return { label: t[1], sel: on ? 'true' : 'false', cls: on ? 'tab on' : 'tab', pick: function () { self.setState({ view: t[0] }); } };
+});
+var ph = [7.02, 7.03, 7.02, 7.01, 7.02, 7.03, 7.03, 7.02, 7.01, 7.02, 7.02, 7.03, 7.02];
+var dO = [41.8, 41.9, 42.1, 42.0, 42.2, 42.3, 42.2, 42.4, 42.5, 42.4, 42.6, 42.7, 42.6];
+var tc = [36.98, 36.97, 36.98, 36.99, 36.98, 36.97, 36.98, 36.98, 36.99, 36.98, 36.97, 36.98, 36.98];
+var rows = ph.map(function (p, i) {
+var m = 26 - i;
+return { i: i + 1, minute: '2026-09-24 07:' + (m < 10 ? '0' + m : m), ph: p.toFixed(2), dO: dO[i].toFixed(1), temp: tc[i].toFixed(2), doColor: 'var(--text)' };
+});
+var pts = [];
+var lastY = 0;
+for (var k = 0; k <= 60; k++) {
+var x = 36 + k * 13.4;
+var base = 48 - k * 0.1;
+if (k >= 28 && k <= 34) base += (4 - Math.abs(31 - k)) * 1.1;
+if (k < 60) base += Math.sin(k * 1.7) * 0.35;
+var y = 20 + (50 - base) * 20;
+lastY = y;
+pts.push((k === 0 ? 'M' : 'L') + x.toFixed(1) + ' ' + y.toFixed(1));
+}
+return {
+themeClass: 'phlo shell theme-' + th,
+th: th, pickTheme: function (t) { self.setTheme(t); },
+tabs: tabs, rows: rows, chartPath: pts.join(' '), lastY: lastY.toFixed(1),
+isResults: cur === 'results', isChart: cur === 'chart', isPlan: cur === 'plan'
+};
+}
+}
+</script>
+</body>
+</html>

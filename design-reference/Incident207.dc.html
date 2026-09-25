@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Incident #207</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./theme.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+
+<div class="{{themeClass}}" style="width: 1440px; height: 960px">
+
+<dc-import name="Sidebar" active="incidents" incident="207" env="prod" variant="standard" theme="{{th}}" on-theme="{{pickTheme}}" hint-size="248px,960px"></dc-import>
+
+<main class="panel">
+  <header class="topbar">
+    <a class="crumb" href="Incidents.dc.html">Incidents</a>
+    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" style="color: var(--faint)"><path d="M6 4l4 4-4 4"></path></svg>
+    <span class="title-sm">#207 Slow load: LIMS extract</span>
+    <div style="margin-left: auto; display: flex; align-items: center; gap: 10px">
+      <div style="display: flex"><span class="avatar lg">GP</span></div>
+      <button class="btn">Subscribed</button>
+      <button class="icon-btn" aria-label="More actions">···</button>
+    </div>
+  </header>
+
+  <div style="flex-grow: 1; display: flex; min-height: 0">
+    <section class="br" style="width: 440px; flex-shrink: 0; box-sizing: border-box; display: flex; flex-direction: column; overflow-y: auto">
+      <div style="padding: 22px 28px 18px; display: flex; flex-direction: column; gap: 10px">
+        <div style="display: flex; align-items: center; gap: 8px">
+          <span class="tile lg t-blue"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 12l4-4 3 3 5-6"></path></svg></span>
+          <span class="mono meta">#207</span>
+          <span class="pill lg p-grey" style="margin-left: 6px">Low</span>
+          <span class="pill lg p-blue" style="display: flex; align-items: center; gap: 6px"><span class="dot md" style="background: var(--blue)"></span>Monitoring</span>
+          <sc-if value="{{snoozed}}" hint-placeholder-val="{{ false }}">
+            <span class="pill lg p-outline">Snoozed 24 h</span>
+          </sc-if>
+        </div>
+        <h1 style="margin: 0; font-size: 22px; line-height: 1.25; font-weight: 600; letter-spacing: -0.01em">LIMS extract is almost 3× slower</h1>
+        <p style="margin: 0; font-size: 14px; line-height: 1.55; color: var(--text-3)">Since 02:00 every run of <span class="mono" style="font-size: 13px">ingest_lims</span> has taken about 11 minutes instead of 4. Nothing is failing and data is still inside its freshness target, but 4 downstream jobs have slowed with it.</p>
+        <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px; flex-wrap: wrap">
+          <button class="btn-primary" onClick="{{raise}}" disabled="{{raisedDisabled}}">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="2.5" width="11" height="11" rx="1.5"></rect><path d="M2.5 6.5h11"></path><path d="M2.5 10h11"></path></svg>
+            {{raiseLabel}}
+          </button>
+          <a class="btn" href="RunTimeline.dc.html">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h7"></path><path d="M5 8h9"></path><path d="M3 12h6"></path></svg>
+            Open run timeline
+          </a>
+          <button class="btn" aria-pressed="{{snoozePressed}}" onClick="{{toggleSnooze}}">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8.5" r="5.5"></circle><path d="M8 5.5v3l2 1.2"></path><path d="M2.5 2.5l2 1.5"></path><path d="M13.5 2.5l-2 1.5"></path></svg>
+            {{snoozeLabel}}
+          </button>
+        </div>
+        <div class="fhelp">{{raiseHelp}}</div>
+      </div>
+
+      <div style="padding: 0 28px 18px; display: grid; grid-template-columns: 120px 1fr; row-gap: 12px; align-items: center">
+        <div class="k">Asset</div>
+        <div class="v"><a class="mono" href="AssetDetail.dc.html" style="font-size: 13px">bronze.lims_samples</a></div>
+        <div class="k">Job</div>
+        <div class="v"><a class="mono" href="Pipelines.dc.html" style="font-size: 13px">ingest_lims</a><span class="meta">hourly</span></div>
+        <div class="k">Source</div>
+        <div class="v">LIMS API<span class="pill p-outline">dlt</span></div>
+        <div class="k">Owner</div>
+        <div class="v"><span class="avatar">GP</span>Gareth</div>
+        <div class="k">Opened</div>
+        <div class="v">Mon 03:14 · 3 d ago</div>
+      </div>
+
+      <div style="padding: 0 28px 20px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+        <div class="stat"><div class="eyebrow">Median duration</div><div class="c-amber" style="font-size: 15px; font-weight: 500">11 m 04 s</div><div class="meta" style="font-size: 12px">baseline 3 m 50 s</div></div>
+        <div class="stat"><div class="eyebrow">LIMS API p95</div><div class="c-amber" style="font-size: 15px; font-weight: 500">1.8 s</div><div class="meta" style="font-size: 12px">was 0.4 s</div></div>
+        <div class="stat"><div class="eyebrow">Freshness</div><div class="c-green" style="font-size: 15px; font-weight: 500">41 m / 60 m</div><div class="meta" style="font-size: 12px">still within target</div></div>
+        <div class="stat"><div class="eyebrow">Jobs affected</div><div style="font-size: 15px; font-weight: 500">4</div><div class="meta" style="font-size: 12px">slower, none failing</div></div>
+      </div>
+
+      <div class="divider" style="margin: 0 28px"></div>
+
+      <div class="eyebrow" style="padding: 16px 28px 4px">Activity</div>
+      <div style="padding: 10px 28px 24px; display: flex; flex-direction: column; gap: 14px; position: relative">
+        <div class="tl-line" style="bottom: 60px"></div>
+
+        <div style="display: flex; gap: 14px; position: relative">
+          <span class="tl-dot bg-amber"></span>
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <div class="meta">Opened automatically · 3 d ago</div>
+            <div style="font-size: 14px; line-height: 1.5">3 runs of <span class="mono" style="font-size: 12.5px">ingest_lims</span> took more than twice the usual time (6 to 7 min).</div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 14px; align-items: center; position: relative">
+          <span class="ring" style="width: 9px; height: 9px; background: var(--panel)"></span>
+          <div class="meta"><span class="hl">Gareth</span> set status to <span class="hl">Monitoring</span> · 3 d ago</div>
+        </div>
+
+        <div style="display: flex; gap: 14px; position: relative">
+          <span class="tl-dot bg-amber"></span>
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <div class="meta">Slow again · today 02:00</div>
+            <div style="font-size: 14px; line-height: 1.5">8 runs in a row at 10 to 12 min. <span class="mono" style="font-size: 12.5px">ingest_lims_results</span> and two QC models slowed at the same time.</div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 14px; position: relative">
+          <span class="tl-dot bg-accent"></span>
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <div class="meta">Finding · today 08:15</div>
+            <div style="font-size: 14px; line-height: 1.5">LIMS API p95 is 1.8 s, up from 0.4 s. Our code and row counts haven't changed.</div>
+          </div>
+        </div>
+
+        <div class="comment">
+          <div style="display: flex; align-items: center; gap: 8px">
+            <span class="avatar">GP</span>
+            <span class="meta"><span class="hl">Gareth</span> commented · 25 min ago</span>
+          </div>
+          <div style="font-size: 14px; line-height: 1.5">Asked the LIMS vendor about it. If the 10:00 run is still slow I'll raise the page size, which they say is fine up to 5,000.</div>
+        </div>
+      </div>
+    </section>
+
+    <section style="flex-grow: 1; min-width: 0; overflow-y: auto; padding: 20px 28px 24px; display: flex; flex-direction: column; gap: 20px">
+      <div style="display: flex; flex-direction: column; gap: 10px">
+        <div style="display: flex; align-items: baseline; gap: 10px">
+          <div style="font-size: 15px; font-weight: 500">Run duration</div>
+          <div class="meta"><span class="mono" style="font-size: 12.5px">ingest_lims</span> · last 24 runs, hourly</div>
+          <div class="meta" style="margin-left: auto; display: flex; align-items: center; gap: 14px; font-size: 12px">
+            <span style="display: flex; align-items: center; gap: 6px"><span class="legend-cell" style="background: var(--bar)"></span>Normal</span>
+            <span style="display: flex; align-items: center; gap: 6px"><span class="legend-cell" style="background: var(--amber-bar)"></span>Slow</span>
+            <span style="display: flex; align-items: center; gap: 6px"><span style="width: 14px; border-top: 1.5px dashed var(--chart-line)"></span>Baseline</span>
+          </div>
+        </div>
+        <div class="box" style="padding: 16px 16px 10px">
+          <div role="img" aria-label="{{chartLabel}}" style="display: grid; grid-template-columns: 34px minmax(0, 1fr); column-gap: 8px; row-gap: 6px">
+            <div class="mono meta" style="position: relative; height: 170px; font-size: 11px">
+              <span style="position: absolute; right: 0; top: -7px">15 m</span>
+              <span style="position: absolute; right: 0; top: 50px">10 m</span>
+              <span style="position: absolute; right: 0; top: 107px">5 m</span>
+              <span style="position: absolute; right: 0; bottom: -7px">0</span>
+            </div>
+            <div style="position: relative; height: 170px; border-bottom: 1px solid var(--grid)">
+              <div style="position: absolute; left: 0; right: 0; top: 0; border-top: 1px solid var(--grid)"></div>
+              <div style="position: absolute; left: 0; right: 0; top: 33.33%; border-top: 1px solid var(--grid)"></div>
+              <div style="position: absolute; left: 0; right: 0; top: 66.67%; border-top: 1px solid var(--grid)"></div>
+              <div style="position: absolute; left: 0; right: 0; bottom: 0; top: 0; display: flex; align-items: flex-end; gap: 4px">
+                <sc-for list="{{runs}}" as="r" hint-placeholder-count="24">
+                  <div title="{{r.tip}}" style="flex: 1 1 0; min-width: 0; height: {{r.h}}; background: {{r.c}}; border-radius: 3px 3px 0 0"></div>
+                </sc-for>
+              </div>
+              <div style="position: absolute; left: 0; right: 0; bottom: 25.56%; border-top: 1.5px dashed var(--chart-line)"></div>
+              <span class="meta" style="position: absolute; left: 4px; bottom: 27%; font-size: 11.5px; background: var(--panel); padding: 0 4px">3 m 50 s</span>
+              <span class="c-amber" style="position: absolute; left: 66.67%; top: 6px; font-size: 11.5px; padding-left: 2px">Slow since 02:00</span>
+            </div>
+            <div></div>
+            <div class="mono meta" style="display: grid; grid-template-columns: repeat(24, minmax(0, 1fr)); gap: 4px; font-size: 11px">
+              <sc-for list="{{ticks}}" as="t" hint-placeholder-count="24">
+                <span style="white-space: nowrap">{{t.label}}</span>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <div style="display: flex; align-items: baseline; gap: 10px; padding-bottom: 4px">
+          <div style="font-size: 15px; font-weight: 500">Where the time goes</div>
+          <div class="meta">median of the 8 slow runs · black mark is the baseline</div>
+        </div>
+        <div class="breakdown-row"><span class="meta">Waiting on API</span><div class="track"><div class="track-fill" style="width: 91%; background: var(--amber-bar)"></div><div style="position: absolute; left: 18.5%; top: 0; bottom: 0; width: 2px; background: var(--text)"></div></div><span class="mono" style="font-size: 12px; text-align: right">8 m 12 s</span></div>
+        <div class="breakdown-row"><span class="meta">Parsing</span><div class="track"><div class="track-fill" style="width: 17%; background: var(--bar)"></div><div style="position: absolute; left: 15.7%; top: 0; bottom: 0; width: 2px; background: var(--text)"></div></div><span class="mono" style="font-size: 12px; text-align: right">1 m 31 s</span></div>
+        <div class="breakdown-row"><span class="meta">Writing to Iceberg</span><div class="track"><div class="track-fill" style="width: 15%; background: var(--amber-bar)"></div><div style="position: absolute; left: 8.3%; top: 0; bottom: 0; width: 2px; background: var(--text)"></div></div><span class="mono" style="font-size: 12px; text-align: right">1 m 21 s</span></div>
+        <div class="note-blue" style="margin-top: 8px">Most of the extra 7 minutes is spent waiting on the LIMS API. The extract fetches 280 pages of 500 rows, one after another, and each page now takes about 1.8 s instead of 0.4 s. Writing is also 36 s slower because the object store is running slow. Our code hasn't changed, so the vendor side is the likely cause. Fetching 2,000 rows per page would cut the requests to 70.</div>
+      </div>
+
+      <div style="display: flex; flex-direction: column">
+        <div style="display: flex; align-items: baseline; gap: 10px; padding-bottom: 4px">
+          <div style="font-size: 15px; font-weight: 500">Slowed with it</div>
+          <div class="meta">usual → last run</div>
+        </div>
+        <sc-for list="{{jobs}}" as="j" hint-placeholder-count="4">
+          <div class="list-row">
+            <span class="dot md" style="background: var(--amber-bar)"></span>
+            <span class="mono" style="font-size: 13px">{{j.name}}</span>
+            <span class="meta" style="font-size: 12.5px">{{j.why}}</span>
+            <span class="mono" style="margin-left: auto; font-size: 12.5px"><span class="c-muted">{{j.from}}</span> → <span class="c-amber">{{j.to}}</span></span>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+  </div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { theme: null, raised: false, snoozed: false };
+this.onStorage = this.onStorage.bind(this);
+}
+componentDidMount() {
+try { var t = window.localStorage.getItem('phlo-theme'); if (t === 'light' || t === 'dark') this.setState({ theme: t }); } catch (e) {}
+try { window.addEventListener('storage', this.onStorage); } catch (e) {}
+}
+componentWillUnmount() {
+try { window.removeEventListener('storage', this.onStorage); } catch (e) {}
+}
+onStorage(e) {
+if (e && e.key === 'phlo-theme' && (e.newValue === 'light' || e.newValue === 'dark')) this.setState({ theme: e.newValue });
+}
+setTheme(t) {
+this.setState({ theme: t });
+try { window.localStorage.setItem('phlo-theme', t); } catch (e) {}
+}
+renderVals() {
+var self = this;
+var th = this.state.theme || this.props.theme || 'light';
+var fmt = function (s) { var m = Math.floor(s / 60), r = s % 60; return m + ' m ' + (r < 10 ? '0' : '') + r + ' s'; };
+var secs = [228, 236, 219, 241, 230, 247, 225, 229, 238, 221, 244, 229, 233, 226, 240, 230, 612, 641, 666, 655, 672, 701, 689, 662];
+var runs = secs.map(function (s, i) {
+var hour = (10 + i) % 24;
+var slow = i >= 16;
+return {
+h: (s / 900 * 100).toFixed(1) + '%',
+c: slow ? 'var(--amber-bar)' : 'var(--bar)',
+tip: (hour < 10 ? '0' : '') + hour + ':00 · ' + fmt(s) + (slow ? ' · slow' : '')
+};
+});
+var ticks = secs.map(function (s, i) {
+var hour = (10 + i) % 24;
+return { label: i % 4 === 0 ? (hour < 10 ? '0' : '') + hour + ':00' : '' };
+});
+var jobs = [
+['ingest_lims', 'same API', '3 m 50 s', '11 m 02 s'],
+['ingest_lims_results', 'same API', '2 m 10 s', '6 m 40 s'],
+['transform_silver_qc', 'waits on both', '3 m 05 s', '4 m 20 s'],
+['transform_gold_release', 'waits on silver', '2 m 15 s', '3 m 02 s']
+].map(function (j) { return { name: j[0], why: j[1], from: j[2], to: j[3] }; });
+var raised = this.state.raised, snoozed = this.state.snoozed;
+return {
+themeClass: 'phlo shell theme-' + th,
+th: th,
+pickTheme: function (t) { self.setTheme(t); },
+runs: runs, ticks: ticks, jobs: jobs,
+chartLabel: 'Duration of the last 24 ingest_lims runs. Runs up to 01:00 took about 3 m 50 s; every run from 02:00 took between 10 m 12 s and 11 m 41 s.',
+raise: function () { self.setState({ raised: true }); },
+raisedDisabled: raised,
+raiseLabel: raised ? 'Page size set to 2,000' : 'Raise page size to 2,000',
+raiseHelp: raised ? 'Saved on the ingest_lims source config. It applies from the 10:00 run; this incident stays open until durations are back near baseline.' : 'Changes one setting on the ingest_lims source. Takes effect on the next run and can be undone at any time.',
+snoozed: snoozed,
+snoozePressed: snoozed ? 'true' : 'false',
+snoozeLabel: snoozed ? 'Unsnooze' : 'Snooze 24 h',
+toggleSnooze: function () { self.setState({ snoozed: !self.state.snoozed }); }
+};
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Pipelines at scale</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./theme.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+
+<div class="{{themeClass}}" style="width: 1440px; height: 960px">
+
+<dc-import name="Sidebar" active="pipelines" incident="none" env="prod" variant="scale" theme="{{th}}" on-theme="{{pickTheme}}" hint-size="248px,960px"></dc-import>
+
+<main class="panel">
+  <header class="topbar">
+    <span class="title-sm">Pipelines</span>
+    <span class="meta">104 jobs · 2,412 runs in 24 h · 97.9% succeeded</span>
+    <div style="margin-left: auto; display: flex; align-items: center; gap: 10px">
+      <label style="display: flex; align-items: center; gap: 8px; height: 32px; width: 220px; box-sizing: border-box; padding: 0 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--raised); color: var(--muted)">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"></circle><path d="M10.5 10.5L14 14"></path></svg>
+        <input type="text" placeholder="Find a job" aria-label="Find a job" style="border: none; background: transparent; outline: none; font-size: 13px; color: var(--text); flex-grow: 1; min-width: 0">
+      </label>
+      <span class="meta">Group by</span>
+      <div class="seg"><button class="on">Domain</button><button>Owner</button><button>Source</button></div>
+      <div class="seg"><button class="on">List</button><a href="RunTimeline.dc.html" style="display: flex; align-items: center; height: 26px; padding: 0 10px; font-size: 13px; color: var(--text-3)">Timeline</a></div>
+    </div>
+  </header>
+
+  <!-- Status strip -->
+  <div class="bb" style="display: flex; align-items: center; gap: 16px; padding: 12px 20px">
+    <div style="flex-grow: 1; display: flex; height: 10px; border-radius: 4px; overflow: hidden; gap: 2px">
+      <div class="bg-red" style="flex-grow: 3"></div>
+      <div style="flex-grow: 7; background: var(--amber-bar)"></div>
+      <div style="flex-grow: 2; background: var(--skip-line)"></div>
+      <div style="flex-grow: 92; background: var(--sla-ok)"></div>
+    </div>
+    <span style="display: flex; align-items: center; gap: 6px; font-size: 13px"><span class="sw bg-red"></span>3 failing</span>
+    <span style="display: flex; align-items: center; gap: 6px; font-size: 13px"><span class="sw" style="background: var(--amber-bar)"></span>7 slow</span>
+    <span style="display: flex; align-items: center; gap: 6px; font-size: 13px"><span class="sw" style="background: var(--skip-line)"></span>2 paused</span>
+    <span style="display: flex; align-items: center; gap: 6px; font-size: 13px" class="c-text2"><span class="sw" style="background: var(--sla-ok)"></span>92 healthy</span>
+  </div>
+
+  <div style="flex-grow: 1; display: flex; min-height: 0">
+    <aside aria-label="Filters" class="br" style="width: 216px; flex-shrink: 0; box-sizing: border-box; padding: 14px 10px; display: flex; flex-direction: column; gap: 18px; overflow: hidden">
+      <div class="facet">
+        <div class="facet-h">Status</div>
+        <label class="facet-item"><input type="checkbox" checked="{{ true }}"><span class="dot bg-red"></span>Failing<span class="facet-count">3</span></label>
+        <label class="facet-item"><input type="checkbox" checked="{{ true }}"><span class="dot" style="background: var(--amber-bar)"></span>Slow<span class="facet-count">7</span></label>
+        <label class="facet-item"><input type="checkbox" checked="{{ true }}"><span class="dot" style="background: var(--skip-line)"></span>Paused<span class="facet-count">2</span></label>
+        <label class="facet-item"><input type="checkbox" checked="{{ true }}"><span class="dot bg-green"></span>Healthy<span class="facet-count">92</span></label>
+      </div>
+      <div class="facet">
+        <div class="facet-h">Source</div>
+        <label class="facet-item"><input type="checkbox">Process historian<span class="facet-count">14</span></label>
+        <label class="facet-item"><input type="checkbox">LIMS<span class="facet-count">22</span></label>
+        <label class="facet-item"><input type="checkbox">Plate readers<span class="facet-count">18</span></label>
+        <label class="facet-item"><input type="checkbox">Env sensors<span class="facet-count">16</span></label>
+        <label class="facet-item"><input type="checkbox">ERP · MES<span class="facet-count">9</span></label>
+        <label class="facet-item"><input type="checkbox">Internal<span class="facet-count">25</span></label>
+      </div>
+      <div class="facet">
+        <div class="facet-h">Owner</div>
+        <label class="facet-item"><input type="checkbox">Data platform<span class="facet-count">38</span></label>
+        <label class="facet-item"><input type="checkbox">QC Analytics<span class="facet-count">24</span></label>
+        <label class="facet-item"><input type="checkbox">Process Dev<span class="facet-count">24</span></label>
+        <label class="facet-item"><input type="checkbox">Assay Dev<span class="facet-count">18</span></label>
+      </div>
+      <div class="facet">
+        <div class="facet-h">Saved views</div>
+        <label class="facet-item"><input type="checkbox">My jobs<span class="facet-count">31</span></label>
+        <label class="facet-item"><input type="checkbox">Feeds batch release<span class="facet-count">17</span></label>
+      </div>
+    </aside>
+
+    <section style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; overflow: hidden">
+      <div class="scale-row bb"style="height: 32px; background: var(--raised)"><span></span><span class="th">Job</span><span class="th">Domain</span><span class="th">Why it's here</span><span class="th">Last 24 runs</span><span class="th" style="text-align: right">Last run</span><span class="th">Owner</span></div>
+
+      <div style="display: flex; align-items: center; gap: 10px; padding: 10px 16px 8px">
+        <span style="font-size: 13.5px; font-weight: 500">Needs attention</span>
+        <span class="meta">12 jobs, pinned to the top</span>
+      </div>
+      <div style="margin: 0 16px 8px; display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 8px; background: var(--red-wash); border: 1px solid var(--red-line); font-size: 13px; color: var(--red-ink)">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0"><circle cx="4" cy="8" r="2"></circle><circle cx="12" cy="3.5" r="2"></circle><circle cx="12" cy="12.5" r="2"></circle><path d="M6 7l4-2.5"></path><path d="M6 9l4 2.5"></path></svg>
+        <span>All 3 failures read from the process historian and started within 10 minutes. Grouped under <a href="Main.dc.html">#214</a> instead of 3 separate alerts.</span>
+      </div>
+      <sc-for list="{{attention}}" as="j" hint-placeholder-count="12">
+        <div class="scale-row">
+          <span class="dot md" style="background: {{j.dot}}"></span>
+          <span class="mono" style="font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{j.name}}</span>
+          <span class="meta" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{j.domain}}</span>
+          <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: {{j.whyColor}}">{{j.why}}</span>
+          <span class="mini-cells"><sc-for list="{{j.cells}}" as="c" hint-placeholder-count="24"><span style="background: {{c.bg}}; border: 1px solid {{c.b}}"></span></sc-for></span>
+          <span class="meta" style="text-align: right">{{j.last}}</span>
+          <span class="c-text2" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{j.owner}}</span>
+        </div>
+      </sc-for>
+
+      <div style="display: flex; align-items: center; gap: 10px; padding: 14px 16px 6px">
+        <span style="font-size: 13.5px; font-weight: 500">Healthy</span>
+        <span class="meta">92 jobs in 7 groups, folded</span>
+      </div>
+      <sc-for list="{{groups}}" as="g" hint-placeholder-count="7">
+        <div class="scale-group">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color: var(--faint)"><path d="M6 4l4 4-4 4"></path></svg>
+          <span style="font-weight: 500">{{g.name}}</span>
+          <span class="meta">{{g.count}} jobs</span>
+          <span class="meta">{{g.note}}</span>
+          <span class="health-mix"><span style="flex-grow: {{g.ok}}; background: var(--sla-ok)"></span><span style="flex-grow: {{g.bad}}; background: {{g.badColor}}"></span></span>
+          <span class="mono meta" style="text-align: right; font-size: 12px">{{g.rate}}</span>
+          <span class="meta" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{g.owner}}</span>
+        </div>
+      </sc-for>
+    </section>
+  </div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { theme: null };
+this.onStorage = this.onStorage.bind(this);
+}
+componentDidMount() {
+try { var t = window.localStorage.getItem('phlo-theme'); if (t === 'light' || t === 'dark') this.setState({ theme: t }); } catch (e) {}
+try { window.addEventListener('storage', this.onStorage); } catch (e) {}
+}
+componentWillUnmount() {
+try { window.removeEventListener('storage', this.onStorage); } catch (e) {}
+}
+onStorage(e) {
+if (e && e.key === 'phlo-theme' && (e.newValue === 'light' || e.newValue === 'dark')) this.setState({ theme: e.newValue });
+}
+setTheme(t) {
+this.setState({ theme: t });
+try { window.localStorage.setItem('phlo-theme', t); } catch (e) {}
+}
+renderVals() {
+var self = this;
+var th = this.state.theme || this.props.theme || 'light';
+var C = { s: ['var(--sla-ok)', 'var(--sla-ok)'], w: ['var(--amber-bar)', 'var(--amber-bar)'], f: ['var(--red)', 'var(--red)'], k: ['transparent', 'var(--skip-line)'], p: ['var(--soft)', 'var(--soft)'] };
+var D = { fail: 'var(--red)', slow: 'var(--amber-bar)', paused: 'var(--skip-line)' };
+var W = { fail: 'var(--red-text)', slow: 'var(--amber-ink)', paused: 'var(--muted)' };
+var attention = [
+['fail', 'ingest_bioreactor', 'Bioreactor', 'Failing ×3 · schema contract', 'sssssssssssssssskkkkkfff', '6 min', 'Gareth'],
+['fail', 'ingest_bioreactor_offgas', 'Bioreactor', 'Failing ×3 · schema contract', 'sssssssssssssssskkkkkfff', '8 min', 'Process Dev'],
+['fail', 'ingest_bioreactor_feeds', 'Bioreactor', 'Failing ×2 · schema contract', 'ssssssssssssssssskkkkkff', '11 min', 'Process Dev'],
+['slow', 'ingest_lims', 'QC & LIMS', '11 m vs 3 m usual · LIMS API latency', 'sssssssssssssssswwwwwwww', '14 min', 'Gareth'],
+['slow', 'ingest_lims_results', 'QC & LIMS', '8 m vs 2 m usual · LIMS API latency', 'ssssssssssssssssswwwwwww', '14 min', 'QC Analytics'],
+['slow', 'transform_silver_qc', 'QC & LIMS', 'Waiting on ingest_lims', 'ssssssssssssssssswwwwwww', '9 min', 'QC Analytics'],
+['slow', 'transform_gold_release', 'QC & LIMS', 'Waiting on transform_silver_qc', 'sssssssssssssssssswwwwww', '4 min', 'QC Analytics'],
+['slow', 'ingest_env_monitoring', 'Environmental', '2.4× usual · 3 new sensors added', 'ssssssssssssssswwwwwwwww', '2 min', 'Data platform'],
+['slow', 'ingest_cold_chain_temps', 'ERP & supply', 'Queued behind maintenance at 02:00', 'sssssssswsssssssssssssss', '20 min', 'Data platform'],
+['slow', 'iceberg_compact_bronze', 'Maintenance', '48 m vs 20 m · 412 small files', 'wwwwwwwwwwwwwwwwwwwwwwww', '8 h', 'Data platform'],
+['paused', 'ingest_legacy_mes', 'ERP & supply', 'Paused by Rui P. · system retiring', 'pppppppppppppppppppppppp', '6 d', 'Data platform'],
+['paused', 'report_batch_pdf', 'Reporting', 'Paused by Chris T. · template change', 'ssssssssssssssssspppppppp', '9 h', 'QC Analytics']
+].map(function (a) {
+return { dot: D[a[0]], name: a[1], domain: a[2], why: a[3], whyColor: W[a[0]], cells: a[4].split('').map(function (k) { return { bg: C[k][0], b: C[k][1] }; }), last: a[5], owner: a[6] };
+});
+var groups = [
+['Bioreactor', 11, 'Plus 3 failing, above', 3, 'var(--red)', '99.6%', 'Process Dev · Data platform'],
+['QC & LIMS', 18, 'Plus 4 slow, above', 4, 'var(--amber-bar)', '99.9%', 'QC Analytics'],
+['Assay', 18, 'All healthy', 0, 'var(--sla-ok)', '100%', 'Assay Dev'],
+['Environmental monitoring', 15, 'Plus 1 slow, above', 1, 'var(--amber-bar)', '100%', 'Data platform'],
+['Maintenance', 11, 'Plus 1 slow, above', 1, 'var(--amber-bar)', '100%', 'Data platform'],
+['ERP & supply', 7, 'Plus 1 slow, 1 paused', 2, 'var(--amber-bar)', '99.8%', 'Data platform'],
+['Reporting', 12, 'Plus 1 paused', 1, 'var(--skip-line)', '100%', 'QC Analytics']
+].map(function (g) {
+return { name: g[0], count: g[1], note: g[2], ok: g[1], bad: g[3], badColor: g[4], rate: g[5], owner: g[6] };
+});
+return {
+themeClass: 'phlo shell theme-' + th,
+th: th, pickTheme: function (t) { self.setTheme(t); },
+attention: attention, groups: groups
+};
+}
+}
+</script>
+</body>
+</html>

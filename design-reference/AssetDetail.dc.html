@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Asset · bioreactor telemetry</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./theme.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+
+<div class="{{themeClass}}" style="width: 1440px; height: 960px">
+
+<dc-import name="Sidebar" active="assets" incident="none" env="prod" variant="standard" theme="{{th}}" on-theme="{{pickTheme}}" hint-size="248px,960px"></dc-import>
+
+<main class="panel">
+  <header class="topbar">
+    <a class="crumb" href="Assets.dc.html">Assets</a>
+    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" style="color: var(--faint)"><path d="M6 4l4 4-4 4"></path></svg>
+    <span class="mono" style="font-size: 13.5px; font-weight: 500">bronze.bioreactor_telemetry</span>
+    <div style="margin-left: auto; display: flex; align-items: center; gap: 10px">
+      <a class="btn" href="Query.dc.html">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4L2 8l3 4"></path><path d="M11 4l3 4-3 4"></path></svg>
+        Query
+      </a>
+      <a class="btn-primary" href="Materialize.dc.html">Materialize</a>
+    </div>
+  </header>
+
+  <div class="bb" style="padding: 22px 28px 0; display: flex; flex-direction: column; gap: 10px">
+    <div style="display: flex; align-items: center; gap: 8px">
+      <span class="pill lg" style="display: flex; align-items: center; gap: 6px; background: var(--bronze-soft); color: var(--text-2)"><span class="sw bg-bronze"></span>Bronze</span>
+      <span class="pill lg p-red">Stale · 134 min</span>
+      <span class="pill lg p-outline">Iceberg v2</span>
+      <a href="Main.dc.html" style="font-size: 13px; margin-left: 4px">Incident #214</a>
+    </div>
+    <h1 class="mono" style="margin: 0; font-size: 22px; font-weight: 500; letter-spacing: -0.01em">bronze.bioreactor_telemetry</h1>
+    <p style="margin: 0; font-size: 14px; color: var(--text-3); line-height: 1.5">Raw 10-second process readings from the bioreactor historian, loaded by dlt every 15 minutes. Append-only; one row per vessel per reading.</p>
+    <div role="tablist" aria-label="Asset views" style="display: flex; gap: 4px; padding: 8px 0 12px">
+      <sc-for list="{{tabs}}" as="t" hint-placeholder-count="5">
+        <button class="{{t.cls}}" role="tab" aria-selected="{{t.sel}}" onClick="{{t.pick}}">{{t.label}}</button>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- Overview -->
+  <sc-if value="{{isOverview}}" hint-placeholder-val="{{ true }}">
+  <div style="flex-grow: 1; display: flex; min-height: 0">
+    <section style="flex-grow: 1; min-width: 0; padding: 20px 28px; display: flex; flex-direction: column; gap: 22px; overflow: hidden">
+      <div style="display: flex; flex-direction: column; gap: 10px">
+        <div style="display: flex; align-items: baseline; gap: 10px">
+          <div class="eyebrow">Rows per run · last 48 runs</div>
+          <div class="meta" style="margin-left: auto; display: flex; align-items: center; gap: 14px">
+            <span style="display: flex; align-items: center; gap: 6px"><span class="sw" style="background: var(--bar)"></span>Loaded</span>
+            <span style="display: flex; align-items: center; gap: 6px"><span class="sw" style="box-sizing: border-box; border: 1px dashed var(--skip-line)"></span>Skipped</span>
+            <span style="display: flex; align-items: center; gap: 6px"><span class="sw bg-red"></span>Failed</span>
+          </div>
+        </div>
+        <div style="display: flex; align-items: flex-end; gap: 4px; height: 96px; border-bottom: 1px solid var(--grid)">
+          <sc-for list="{{bars}}" as="b" hint-placeholder-count="48">
+            <span style="flex-grow: 1; border-radius: 2px 2px 0 0; box-sizing: border-box; height: {{b.h}}px; background: {{b.c}}; border: 1px {{b.bs}} {{b.b}}; border-bottom: none"></span>
+          </sc-for>
+        </div>
+        <div class="mono meta" style="display: flex; justify-content: space-between; font-size: 11px"><span>12 h ago</span><span>6 h ago</span><span>now</span></div>
+      </div>
+
+      <div style="display: flex; flex-direction: column">
+        <div style="display: flex; align-items: baseline; padding-bottom: 6px">
+          <div class="eyebrow">Schema · 8 columns</div>
+          <span class="meta" style="margin-left: auto">Contract: <span class="mono" style="font-size: 12px">freeze</span></span>
+        </div>
+        <div class="schema-row" style="height: 32px"><span class="th">Column</span><span class="th">Type</span><span class="th">Nullable</span><span class="th">Notes</span></div>
+        <div class="schema-row"><span class="mono" style="font-size: 12.5px">ts</span><span class="mono meta" style="font-size: 12.5px">timestamptz</span><span class="meta">no</span><span class="meta">Partition: day(ts)</span></div>
+        <div class="schema-row"><span class="mono" style="font-size: 12.5px">vessel_id</span><span class="mono meta" style="font-size: 12.5px">string</span><span class="meta">no</span><span class="meta">Partition: identity</span></div>
+        <div class="schema-row"><span class="mono" style="font-size: 12.5px">run_id</span><span class="mono meta" style="font-size: 12.5px">string</span><span class="meta">no</span><span class="meta">Joins to ERP batch</span></div>
+        <div class="schema-row"><span class="mono" style="font-size: 12.5px">ph</span><span class="mono meta" style="font-size: 12.5px">double</span><span class="meta">yes</span><span></span></div>
+        <div class="schema-row" style="background: var(--amber-wash)"><span class="mono" style="font-size: 12.5px">do_pct</span><span class="mono meta" style="font-size: 12.5px">double</span><span class="meta">yes</span><span style="display: flex; align-items: center; gap: 8px"><span class="pill p-purple">renamed on fix branch</span><span class="mono meta" style="font-size: 12px">→ do_sat_pct</span></span></div>
+        <div class="schema-row"><span class="mono" style="font-size: 12.5px">temp_c</span><span class="mono meta" style="font-size: 12.5px">double</span><span class="meta">yes</span><span></span></div>
+        <div class="schema-row"><span class="mono" style="font-size: 12.5px">agitation_rpm</span><span class="mono meta" style="font-size: 12.5px">double</span><span class="meta">yes</span><span></span></div>
+        <div class="schema-row" style="border-bottom: none"><span class="mono" style="font-size: 12.5px">_dlt_load_id</span><span class="mono meta" style="font-size: 12.5px">string</span><span class="meta">no</span><span class="meta">Load lineage</span></div>
+      </div>
+    </section>
+
+    <aside class="bl" style="width: 360px; flex-shrink: 0; box-sizing: border-box; padding: 20px 24px; display: flex; flex-direction: column; gap: 22px; overflow: hidden">
+      <div style="display: grid; grid-template-columns: 112px 1fr; row-gap: 11px">
+        <div class="meta-key">Owner</div><div class="meta-value">Gareth</div>
+        <div class="meta-key">Source</div><div class="meta-value">Process historian · dlt</div>
+        <div class="meta-key">Job</div><div class="meta-value"><a class="mono" href="Pipelines.dc.html" style="font-size: 12.5px">ingest_bioreactor</a></div>
+        <div class="meta-key">Freshness SLA</div><div class="meta-value">60 min</div>
+        <div class="meta-key">Rows</div><div class="meta-value mono" style="font-size: 12.5px">1.21 B</div>
+        <div class="meta-key">Size</div><div class="meta-value mono" style="font-size: 12.5px">842 GB · 1,642 files</div>
+        <div class="meta-key">Sort order</div><div class="meta-value mono" style="font-size: 12.5px">vessel_id, ts</div>
+      </div>
+
+      <div style="display: flex; flex-direction: column">
+        <div class="eyebrow" style="padding-bottom: 4px">Audits</div>
+        <div class="audit-line"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color: var(--green)"><circle cx="8" cy="8" r="6.5"></circle><path d="M5 8.2l2 2 4-4"></path></svg><span class="mono" style="font-size: 12.5px">not_null(ts, run_id)</span></div>
+        <div class="audit-line"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color: var(--green)"><circle cx="8" cy="8" r="6.5"></circle><path d="M5 8.2l2 2 4-4"></path></svg><span class="mono" style="font-size: 12.5px">unique(vessel_id, ts)</span></div>
+        <div class="audit-line"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color: var(--green)"><circle cx="8" cy="8" r="6.5"></circle><path d="M5 8.2l2 2 4-4"></path></svg><span class="mono" style="font-size: 12.5px">range(ph, 6.0, 8.0)</span></div>
+        <div class="audit-line" style="border-bottom: none"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="color: var(--red)"><circle cx="8" cy="8" r="6.5"></circle><path d="M5.5 5.5l5 5"></path><path d="M10.5 5.5l-5 5"></path></svg><span class="mono" style="font-size: 12.5px">freshness &lt; 60 min</span><span class="c-red" style="margin-left: auto; font-size: 12px">failing</span></div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <div style="display: flex; align-items: baseline"><div class="eyebrow">Downstream</div><a href="Main.dc.html" style="margin-left: auto; font-size: 13px">Blast radius</a></div>
+        <div style="display: flex; align-items: center; gap: 8px"><span class="sw bg-silver"></span><span class="mono" style="font-size: 12.5px">silver.bioreactor_runs_1min</span></div>
+        <div style="display: flex; align-items: center; gap: 8px"><span class="sw bg-silver"></span><span class="mono" style="font-size: 12.5px">silver.feed_events</span></div>
+        <div style="display: flex; align-items: center; gap: 8px"><span class="sw bg-silver"></span><span class="mono" style="font-size: 12.5px">silver.run_summaries</span></div>
+        <div class="meta">+ 3 gold tables through these</div>
+      </div>
+    </aside>
+  </div>
+  </sc-if>
+
+  <!-- Data -->
+  <sc-if value="{{isData}}" hint-placeholder-val="{{ false }}">
+  <div style="flex-grow: 1; display: flex; flex-direction: column; min-height: 0">
+    <div class="bb" style="display: flex; align-items: center; gap: 8px; padding: 12px 28px">
+      <span class="chip" style="height: 28px"><span class="meta">vessel_id</span> = <span class="mono" style="font-size: 12.5px">BR-V03</span><svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="color: var(--muted)"><path d="M4 4l8 8"></path><path d="M12 4l-8 8"></path></svg></span>
+      <span class="chip" style="height: 28px"><span class="meta">ts</span> last 1 hour of data<svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="color: var(--muted)"><path d="M4 4l8 8"></path><path d="M12 4l-8 8"></path></svg></span>
+      <button class="chip dashed" style="height: 28px">+ Filter</button>
+      <span class="meta" style="margin-left: 8px">Columns: 8 of 8</span>
+      <div style="margin-left: auto; display: flex; align-items: center; gap: 8px">
+        <div class="seg">
+          <button class="on"><span class="mono" style="font-size: 12px">main</span></button>
+          <button><span class="mono" style="font-size: 12px">fix/telemetry-schema</span></button>
+        </div>
+        <a class="btn" href="Query.dc.html" style="height: 30px">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2.5" width="12" height="11" rx="1.5"></rect><path d="M5 6.5l2 1.5-2 1.5"></path><path d="M8.5 10.5h2.5"></path></svg>
+          Open in Query
+        </a>
+      </div>
+    </div>
+    <div style="flex-grow: 1; overflow: hidden">
+      <div class="dgrid" style="grid-template-columns: 48px 176px 96px 124px 86px 86px 86px 118px minmax(0, 1fr)">
+        <div class="h" style="justify-content: flex-end">#</div>
+        <div class="h">ts <span class="ty">timestamptz</span></div>
+        <div class="h">vessel_id <span class="ty">string</span></div>
+        <div class="h">run_id <span class="ty">string</span></div>
+        <div class="h" style="justify-content: flex-end">ph <span class="ty">double</span></div>
+        <div class="h" style="justify-content: flex-end">do_pct <span class="ty">double</span></div>
+        <div class="h" style="justify-content: flex-end">temp_c <span class="ty">double</span></div>
+        <div class="h" style="justify-content: flex-end">agitation_rpm <span class="ty">double</span></div>
+        <div class="h" style="border-right: none">_dlt_load_id <span class="ty">string</span></div>
+        <sc-for list="{{sample}}" as="r" hint-placeholder-count="13">
+          <div class="c idx">{{r.i}}</div>
+          <div class="c">{{r.ts}}</div>
+          <div class="c">BR-V03</div>
+          <div class="c">BR-2026-121</div>
+          <div class="c num">{{r.ph}}</div>
+          <div class="c num">{{r.dO}}</div>
+          <div class="c num">{{r.temp}}</div>
+          <div class="c num">{{r.rpm}}</div>
+          <div class="c" style="border-right: none; color: var(--muted)">1727162811.4031</div>
+        </sc-for>
+      </div>
+    </div>
+    <div class="bt meta" style="height: 44px; flex-shrink: 0; display: flex; align-items: center; gap: 16px; padding: 0 28px">
+      <span>Showing 13 of 360 matching rows · 1.21 B in table</span>
+      <span>As of snapshot <span class="mono" style="font-size: 12px">7702…0447</span> on <span class="mono" style="font-size: 12px">main</span></span>
+      <span class="c-amber" style="margin-left: auto; color: var(--amber-ink)">Newest row 07:26:50 · no loads since</span>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- Schema history -->
+  <sc-if value="{{isSchema}}" hint-placeholder-val="{{ false }}">
+  <div style="flex-grow: 1; display: flex; min-height: 0">
+    <section aria-label="Schema versions" class="br" style="width: 380px; flex-shrink: 0; box-sizing: border-box; padding: 18px 16px; display: flex; flex-direction: column; gap: 4px">
+      <div class="eyebrow" style="padding: 0 10px 8px">7 versions</div>
+      <div class="version-card on">
+        <div style="display: flex; align-items: center; gap: 8px"><span class="mono" style="font-size: 12.5px; font-weight: 500">v7</span><span class="pill" style="background: var(--panel); border: 1px solid var(--purple-line); color: var(--purple); padding: 0 6px">fix/telemetry-schema</span><span class="meta" style="margin-left: auto; font-size: 12px">18 min ago</span></div>
+        <div style="font-size: 14px">Rename <span class="mono" style="font-size: 12.5px">do_pct</span> → <span class="mono" style="font-size: 12.5px">do_sat_pct</span></div>
+        <div class="meta" style="font-size: 12px">Gareth · not yet on main</div>
+      </div>
+      <div class="version-card">
+        <div style="display: flex; align-items: center; gap: 8px"><span class="mono" style="font-size: 12.5px; font-weight: 500">v6</span><span class="pill p-grey" style="padding: 0 6px">main</span><span class="meta" style="margin-left: auto; font-size: 12px">12 Jun</span></div>
+        <div style="font-size: 14px">Add <span class="mono" style="font-size: 12.5px">agitation_rpm</span></div>
+        <div class="meta" style="font-size: 12px">Gareth · additive</div>
+      </div>
+      <div class="version-card">
+        <div style="display: flex; align-items: center; gap: 8px"><span class="mono" style="font-size: 12.5px; font-weight: 500">v5</span><span class="meta" style="margin-left: auto; font-size: 12px">2 Apr</span></div>
+        <div style="font-size: 14px">Partition by <span class="mono" style="font-size: 12.5px">vessel_id</span> as well as day</div>
+        <div class="meta" style="font-size: 12px">Gareth · partition spec change</div>
+      </div>
+      <div class="version-card">
+        <div style="display: flex; align-items: center; gap: 8px"><span class="mono" style="font-size: 12.5px; font-weight: 500">v4</span><span class="meta" style="margin-left: auto; font-size: 12px">18 Feb</span></div>
+        <div style="font-size: 14px">Widen <span class="mono" style="font-size: 12.5px">ts</span> to timestamptz</div>
+        <div class="meta" style="font-size: 12px">Gareth · type promotion</div>
+      </div>
+      <div class="version-card">
+        <div style="display: flex; align-items: center; gap: 8px"><span class="mono" style="font-size: 12.5px; font-weight: 500">v1–v3</span><span class="meta" style="margin-left: auto; font-size: 12px">Nov 2025</span></div>
+        <div style="font-size: 14px">Table created, initial columns</div>
+        <div class="meta" style="font-size: 12px">Gareth</div>
+      </div>
+    </section>
+    <section style="flex-grow: 1; min-width: 0; padding: 20px 28px; display: flex; flex-direction: column; gap: 20px">
+      <div style="display: flex; align-items: baseline; gap: 10px">
+        <div style="font-size: 15px; font-weight: 500">v6 → v7</div>
+        <div class="meta">Compared with <span class="mono" style="font-size: 12px">main</span></div>
+        <span class="pill p-amber" style="margin-left: auto">Breaking for readers of do_pct</span>
+      </div>
+      <div class="box">
+        <div class="mono" style="font-size: 12.5px; line-height: 30px; padding: 6px 0">
+          <div class="schema-diff"><span> </span><span>ts</span><span class="diff-muted">timestamptz</span><span class="diff-muted">not null</span></div>
+          <div class="schema-diff"><span> </span><span>vessel_id</span><span class="diff-muted">string</span><span class="diff-muted">not null</span></div>
+          <div class="schema-diff"><span> </span><span>run_id</span><span class="diff-muted">string</span><span class="diff-muted">not null</span></div>
+          <div class="schema-diff"><span> </span><span>ph</span><span class="diff-muted">double</span><span></span></div>
+          <div class="schema-diff del"><span>−</span><span>do_pct</span><span>double</span><span></span></div>
+          <div class="schema-diff add"><span>+</span><span>do_sat_pct</span><span>double</span><span>field id 5 kept · rename only</span></div>
+          <div class="schema-diff"><span> </span><span>temp_c</span><span class="diff-muted">double</span><span></span></div>
+          <div class="schema-diff"><span> </span><span>agitation_rpm</span><span class="diff-muted">double</span><span></span></div>
+          <div class="schema-diff"><span> </span><span>_dlt_load_id</span><span class="diff-muted">string</span><span class="diff-muted">not null</span></div>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <div class="eyebrow">Downstream code that reads do_pct</div>
+        <div class="usage-row"><span class="mono" style="font-size: 12.5px">models/silver/bioreactor_runs_1min.sql</span><span class="meta">line 14 · avg(do_pct)</span><span class="pill p-green" style="margin-left: auto">updated on branch</span></div>
+        <div class="usage-row"><span class="mono" style="font-size: 12.5px">models/silver/feed_events.sql</span><span class="meta">line 31 · do_pct &lt; 30</span><span class="pill p-green" style="margin-left: auto">updated on branch</span></div>
+        <div class="usage-row" style="border-bottom: none"><span class="mono" style="font-size: 12.5px">models/silver/run_summaries.sql</span><span class="meta">line 22 · min(do_pct)</span><span class="pill p-amber" style="margin-left: auto">needs update</span></div>
+      </div>
+    </section>
+  </div>
+  </sc-if>
+
+  <!-- Lineage -->
+  <sc-if value="{{isLineage}}" hint-placeholder-val="{{ false }}">
+  <div style="flex-grow: 1; padding: 20px 28px; display: flex; flex-direction: column; gap: 18px; min-height: 0">
+    <div style="display: flex; align-items: baseline; gap: 10px">
+      <div style="font-size: 15px; font-weight: 500">Upstream and downstream</div>
+      <div class="meta">Red outline means stale right now</div>
+    </div>
+    <svg width="1080" height="290" viewBox="0 0 1080 290" role="img" aria-label="Process historian feeds ingest_bioreactor, which writes this table. This table feeds three silver tables, which feed three gold tables. All downstream tables are stale.">
+      <g font-size="11" letter-spacing="0.6" style="fill: var(--muted)">
+        <text x="0" y="12">SOURCE</text><text x="215" y="12">JOB</text><text x="430" y="12">THIS TABLE</text><text x="645" y="12">SILVER</text><text x="880" y="12">GOLD</text>
+      </g>
+      <g fill="none" stroke-width="1.5" style="stroke: var(--skip-line)">
+        <path d="M180 160 L215 160"></path>
+        <path d="M395 160 L430 160"></path>
+      </g>
+      <g fill="none" stroke-width="1.5" style="stroke: var(--red-line)">
+        <path d="M610 160 C628 160, 627 70, 645 70"></path>
+        <path d="M610 160 L645 160"></path>
+        <path d="M610 160 C628 160, 627 250, 645 250"></path>
+        <path d="M845 70 L880 70"></path>
+        <path d="M845 70 C863 70, 862 160, 880 160"></path>
+        <path d="M845 160 C863 160, 862 70, 880 70"></path>
+        <path d="M845 250 L880 250"></path>
+      </g>
+      <rect x="0.5" y="136.5" width="179" height="47" rx="8" style="fill: var(--sunken); stroke: var(--border)"></rect>
+      <text x="14" y="156" font-size="11" style="fill: var(--muted)">dlt source</text>
+      <text x="14" y="173" font-size="13" style="fill: var(--text)">Process historian</text>
+      <rect x="215.5" y="136.5" width="179" height="47" rx="8" style="fill: var(--panel); stroke: var(--border)"></rect>
+      <text x="229" y="156" font-size="11" style="fill: var(--red-text)">Dagster job · failing</text>
+      <text x="229" y="173" font-size="11.5" font-family="Geist Mono, monospace" style="fill: var(--text)">ingest_bioreactor</text>
+      <rect x="431" y="137" width="178" height="46" rx="8" stroke-width="2" style="fill: var(--red-wash); stroke: var(--red)"></rect>
+      <text x="444" y="156" font-size="11" style="fill: var(--red-text)">bronze · 134 m</text>
+      <text x="444" y="173" font-size="11.5" font-weight="600" font-family="Geist Mono, monospace" style="fill: var(--text)">bioreactor_telemetry</text>
+      <g style="fill: var(--red-wash); stroke: var(--red-line)">
+        <rect x="645.5" y="46.5" width="199" height="47" rx="8"></rect>
+        <rect x="645.5" y="136.5" width="199" height="47" rx="8"></rect>
+        <rect x="645.5" y="226.5" width="199" height="47" rx="8"></rect>
+        <rect x="880.5" y="46.5" width="199" height="47" rx="8"></rect>
+        <rect x="880.5" y="136.5" width="199" height="47" rx="8"></rect>
+        <rect x="880.5" y="226.5" width="199" height="47" rx="8"></rect>
+      </g>
+      <g font-size="11" style="fill: var(--red-text)">
+        <text x="659" y="66">stale · 131 m</text>
+        <text x="659" y="156">stale · 129 m</text>
+        <text x="659" y="246">stale · 126 m</text>
+        <text x="894" y="66">stale · 118 m</text>
+        <text x="894" y="156">stale · 117 m</text>
+        <text x="894" y="246">stale · 1 d 2 h</text>
+      </g>
+      <g font-size="11.5" font-family="Geist Mono, monospace" style="fill: var(--text)">
+        <text x="659" y="83">bioreactor_runs_1min</text>
+        <text x="659" y="173">feed_events</text>
+        <text x="659" y="263">run_summaries</text>
+        <text x="894" y="83">batch_release_metrics</text>
+        <text x="894" y="173">cpp_trends</text>
+        <text x="894" y="263">process_capability</text>
+      </g>
+    </svg>
+    <div class="bt" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; padding-top: 16px">
+      <div style="display: flex; flex-direction: column">
+        <div class="eyebrow" style="padding-bottom: 6px">Column-level use</div>
+        <div class="list-row"><span class="mono" style="font-size: 12.5px; width: 130px">ts, vessel_id</span><span class="meta">all 3 silver tables</span></div>
+        <div class="list-row"><span class="mono" style="font-size: 12.5px; width: 130px">do_pct</span><span class="meta">3 models · renamed on fix branch</span></div>
+        <div class="list-row"><span class="mono" style="font-size: 12.5px; width: 130px">ph, temp_c</span><span class="meta">runs_1min, run_summaries</span></div>
+        <div class="list-row" style="border-bottom: none"><span class="mono" style="font-size: 12.5px; width: 130px">agitation_rpm</span><span class="meta">not read downstream</span></div>
+      </div>
+      <div style="display: flex; flex-direction: column">
+        <div class="eyebrow" style="padding-bottom: 6px">Reports that depend on this table</div>
+        <div class="list-row"><span class="sw bg-gold"></span>Batch release review<span class="pill p-red" style="margin-left: auto">QA notified</span></div>
+        <div class="list-row"><span class="sw bg-gold"></span>CPP trend report<span class="meta" style="margin-left: auto">next run 12:00</span></div>
+        <div class="list-row" style="border-bottom: none"><span class="sw bg-gold"></span>Process capability (Cpk)<span class="meta" style="margin-left: auto">daily</span></div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- Snapshots -->
+  <sc-if value="{{isSnapshots}}" hint-placeholder-val="{{ false }}">
+  <div style="flex-grow: 1; padding: 20px 28px; display: flex; flex-direction: column; gap: 18px; min-height: 0">
+    <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px">
+      <div class="stat"><div class="eyebrow">Snapshots kept</div><div style="font-size: 18px; font-weight: 500">2,918</div></div>
+      <div class="stat"><div class="eyebrow">Oldest</div><div style="font-size: 18px; font-weight: 500">7 days</div></div>
+      <div class="stat"><div class="eyebrow">Pinned by release tags</div><div style="font-size: 18px; font-weight: 500">3</div></div>
+      <div class="stat"><div class="eyebrow">Last on main</div><div class="c-red" style="font-size: 18px; font-weight: 500">2 h 14 min ago</div></div>
+    </div>
+    <div>
+      <div class="snapshot-grid bb" style="height: 34px"><span class="th">Snapshot</span><span class="th">Committed</span><span class="th">Operation</span><span class="th" style="text-align: right">Rows added</span><span class="th" style="text-align: right">Files</span><span class="th">Ref</span><span class="th">By</span></div>
+      <sc-for list="{{snaps}}" as="s" hint-placeholder-count="7">
+        <div class="snapshot-grid" style="height: 44px; font-size: 13.5px; border-bottom: 1px solid var(--line-soft)">
+          <span class="mono" style="font-size: 12.5px">{{s.id}}</span>
+          <span class="meta">{{s.when}}</span>
+          <span>{{s.op}}</span>
+          <span class="mono" style="font-size: 12.5px; text-align: right; color: {{s.rowsColor}}">{{s.rows}}</span>
+          <span class="mono meta" style="font-size: 12.5px; text-align: right">{{s.files}}</span>
+          <span class="{{s.refCls}}">{{s.ref}}</span>
+          <span class="meta">{{s.by}}</span>
+        </div>
+      </sc-for>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px">
+      <div class="query" style="flex-grow: 1"><span class="kw">SELECT</span> * <span class="kw">FROM</span> bronze.bioreactor_telemetry <span class="kw">FOR VERSION AS OF</span> 7702914853210447</div>
+      <button class="btn" style="height: 40px">Roll back to this snapshot</button>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- Audits -->
+  <sc-if value="{{isAudits}}" hint-placeholder-val="{{ false }}">
+  <div style="flex-grow: 1; padding: 20px 28px; display: flex; flex-direction: column; gap: 16px; min-height: 0">
+    <div style="display: flex; align-items: baseline; gap: 10px">
+      <div style="font-size: 15px; font-weight: 500">7 audits</div>
+      <div class="meta">Run after every load · 6 passing, 1 failing</div>
+      <a class="btn" href="AddAudit.dc.html" style="margin-left: auto">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 3v10"></path><path d="M3 8h10"></path></svg>
+        Add audit
+      </a>
+    </div>
+    <div>
+      <div class="audit-grid bb" style="height: 34px"><span></span><span class="th">Audit</span><span class="th">Kind</span><span class="th">Last result</span><span class="th">Last 20 loads</span><span class="th">Blocks</span></div>
+      <sc-for list="{{audits}}" as="a" hint-placeholder-count="7">
+        <div class="audit-grid" style="height: 50px; border-bottom: 1px solid var(--line-soft)">
+          <span class="dot" style="width: 10px; height: 10px; background: {{a.dot}}"></span>
+          <span class="mono" style="font-size: 12.5px">{{a.name}}</span>
+          <span class="meta">{{a.kind}}</span>
+          <span style="font-size: 13.5px; color: {{a.resColor}}">{{a.res}}</span>
+          <span style="display: flex; gap: 3px">
+            <sc-for list="{{a.hist}}" as="h" hint-placeholder-count="20">
+              <span style="width: 9px; height: 18px; border-radius: 2px; background: {{h.c}}"></span>
+            </sc-for>
+          </span>
+          <span class="meta">{{a.blocks}}</span>
+        </div>
+      </sc-for>
+    </div>
+    <div class="meta" style="line-height: 1.5">Blocking audits stop downstream models from reading a load that failed. Warnings open an incident but let data through.</div>
+  </div>
+  </sc-if>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"tab":{"editor":"enum","options":["overview","data","schema","lineage","snapshots","audits"],"default":"overview"},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { tab: null, theme: null };
+this.onStorage = this.onStorage.bind(this);
+}
+componentDidMount() {
+try { var t = window.localStorage.getItem('phlo-theme'); if (t === 'light' || t === 'dark') this.setState({ theme: t }); } catch (e) {}
+try { window.addEventListener('storage', this.onStorage); } catch (e) {}
+}
+componentWillUnmount() {
+try { window.removeEventListener('storage', this.onStorage); } catch (e) {}
+}
+onStorage(e) {
+if (e && e.key === 'phlo-theme' && (e.newValue === 'light' || e.newValue === 'dark')) this.setState({ theme: e.newValue });
+}
+setTheme(t) {
+this.setState({ theme: t });
+try { window.localStorage.setItem('phlo-theme', t); } catch (e) {}
+}
+renderVals() {
+var self = this;
+var th = this.state.theme || this.props.theme || 'light';
+var cur = this.state.tab || this.props.tab || 'overview';
+var tabs = [['overview', 'Overview'], ['data', 'Data'], ['schema', 'Schema history'], ['lineage', 'Lineage'], ['snapshots', 'Snapshots'], ['audits', 'Audits']].map(function (t) {
+var on = t[0] === cur;
+return { label: t[1], sel: on ? 'true' : 'false', cls: on ? 'tab on' : 'tab', pick: function () { self.setState({ tab: t[0] }); } };
+});
+var rows = [18.9, 19.1, 18.7, 19.4, 18.8, 19.0, 19.3, 18.6, 18.9, 19.2, 19.0, 18.8, 19.5, 19.1, 18.7, 18.9, 19.2, 19.0, 18.6, 19.3, 19.1, 18.8, 19.0, 19.4, 18.9, 19.2, 18.7, 19.0, 19.1, 18.8, 19.3, 18.9, 19.0, 19.2, 18.7, 19.1, 19.0, 18.9, 19.3, 18.8];
+var bars = rows.map(function (r) { return { h: Math.round(r * 4.6), c: 'var(--bar)', b: 'var(--bar)', bs: 'solid' }; });
+for (var i = 0; i < 5; i++) bars.push({ h: 87, c: 'transparent', b: 'var(--skip-line)', bs: 'dashed' });
+for (var j = 0; j < 3; j++) bars.push({ h: 10, c: 'var(--red)', b: 'var(--red)', bs: 'solid' });
+var sample = [];
+for (var s = 0; s < 13; s++) {
+var sec = 50 - s * 10;
+var mm = 26;
+while (sec < 0) { sec += 60; mm -= 1; }
+sample.push({
+i: s + 1,
+ts: '2026-09-24 07:' + mm + ':' + (sec < 10 ? '0' + sec : sec),
+ph: (7.02 + ((s * 7) % 3 - 1) * 0.01).toFixed(2),
+dO: (41.8 + s * 0.05 + ((s * 5) % 3) * 0.1).toFixed(1),
+temp: (36.98 + ((s * 3) % 3 - 1) * 0.01).toFixed(2),
+rpm: (120 + ((s * 11) % 5) * 0.5).toFixed(1)
+});
+}
+var REF = { main: 'pill mono p-grey', fix: 'pill mono p-purple', tag: 'pill mono p-amber' };
+var snaps = [
+['5b7f3118a09e', '9 min ago', 'append', '+184,212', '212', 'fix/telemetry-schema', 'fix', 'dagster'],
+['a1c9e02d44f1', '18 min ago', 'schema update', '—', '0', 'fix/telemetry-schema', 'fix', 'Gareth'],
+['77029148532b', '2 h 14 m ago', 'append', '+18,904', '22', 'main', 'main', 'dagster'],
+['6618d03e7c50', '2 h 29 m ago', 'append', '+19,122', '23', 'main', 'main', 'dagster'],
+['55210fa9b1d7', '2 h 44 m ago', 'append', '+18,877', '22', 'main', 'main', 'dagster'],
+['3e0b77c2f914', '02:14 today', 'replace · compaction', '0', '−188', 'main', 'main', 'iceberg_maintenance'],
+['c42e9b0a61e3', 'Mon 18:02', 'append', '+20,417', '24', 'release/BR-2026-118', 'tag', 'dagster']
+].map(function (s) {
+return { id: s[0], when: s[1], op: s[2], rows: s[3], rowsColor: s[3].charAt(0) === '+' ? 'var(--green-text)' : 'var(--muted)', files: s[4], ref: s[5], refCls: REF[s[6]], by: s[7] };
+});
+var HC = { p: 'var(--green-bar)', f: 'var(--red)', w: 'var(--amber-bar)', k: 'var(--border)' };
+var audits = [
+['not_null(ts, run_id)', 'Not null', 'Passed', 'pppppppppppppppppkkk', 'Downstream'],
+['unique(vessel_id, ts)', 'Unique', 'Passed', 'pppppppppppppppppkkk', 'Downstream'],
+['range(ph, 6.0, 8.0)', 'Range', 'Passed', 'ppppppppppwppppppkkk', 'Warn only'],
+['range(temp_c, 30, 40)', 'Range', 'Passed', 'pppppppppppppppppkkk', 'Warn only'],
+['accepted(vessel_id)', 'Accepted values', 'Passed', 'pppppppppppppppppkkk', 'Downstream'],
+['row_count within 3σ', 'Volume', 'Passed', 'pppppppppppppppppkkk', 'Warn only'],
+['freshness < 60 min', 'Freshness', 'Failing · 134 min', 'pppppppppppppppfffff', 'Opens incident']
+].map(function (a) {
+var bad = a[2].indexOf('Failing') === 0;
+return { name: a[0], kind: a[1], res: a[2], resColor: bad ? 'var(--red-text)' : 'var(--green-text)', dot: bad ? 'var(--red)' : 'var(--green)', hist: a[3].split('').map(function (k) { return { c: HC[k] }; }), blocks: a[4] };
+});
+return {
+themeClass: 'phlo shell theme-' + th,
+th: th, pickTheme: function (t) { self.setTheme(t); },
+tabs: tabs, bars: bars, snaps: snaps, audits: audits, sample: sample,
+isOverview: cur === 'overview', isData: cur === 'data', isSchema: cur === 'schema', isLineage: cur === 'lineage', isSnapshots: cur === 'snapshots', isAudits: cur === 'audits'
+};
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Incident #198 · resolved</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./theme.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+
+<div class="{{themeClass}}" style="width: 1440px; height: 960px">
+
+<dc-import name="Sidebar" active="incidents" incident="none" env="prod" variant="standard" theme="{{th}}" on-theme="{{pickTheme}}" hint-size="248px,960px"></dc-import>
+
+<main class="panel">
+  <header class="topbar">
+    <a class="crumb" href="Incidents.dc.html">Incidents</a>
+    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" style="color: var(--faint)"><path d="M6 4l4 4-4 4"></path></svg>
+    <span class="title-sm">#198 Duplicate batch_ids in qc_results</span>
+    <div style="margin-left: auto; display: flex; align-items: center; gap: 10px">
+      <button class="btn">Export post-mortem</button>
+      <button class="btn">Reopen</button>
+    </div>
+  </header>
+
+  <div style="flex-grow: 1; display: flex; min-height: 0">
+    <section class="br" style="width: 500px; flex-shrink: 0; box-sizing: border-box; display: flex; flex-direction: column; overflow-y: auto">
+      <div style="padding: 22px 28px 18px; display: flex; flex-direction: column; gap: 10px">
+        <div style="display: flex; align-items: center; gap: 8px">
+          <span class="tile lg t-grey"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8"></path><path d="M12 4l-8 8"></path></svg></span>
+          <span class="mono meta">#198</span>
+          <span class="pill lg p-outline" style="margin-left: 6px">High</span>
+          <span class="pill lg p-green" style="display: flex; align-items: center; gap: 6px"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3 3 7-7"></path></svg>Resolved</span>
+        </div>
+        <h1 style="margin: 0; font-size: 22px; line-height: 1.25; font-weight: 600; letter-spacing: -0.01em">Duplicate batch_ids in qc_results</h1>
+        <p style="margin: 0; font-size: 14px; line-height: 1.55; color: var(--text-3)">An audit caught duplicate result rows in the silver QC table after the LIMS extract posted the same results twice.</p>
+      </div>
+
+      <div style="padding: 0 28px 18px; display: grid; grid-template-columns: 120px 1fr; row-gap: 12px; align-items: center">
+        <div class="k">Asset</div>
+        <div class="v mono" style="font-size: 13px">silver.qc_results</div>
+        <div class="k">Caught by</div>
+        <div class="v mono" style="font-size: 12.5px">unique(batch_id, test_code, rep)</div>
+        <div class="k">Owner</div>
+        <div class="v">QC Analytics</div>
+        <div class="k">Resolved by</div>
+        <div class="v">Sam R. · Friday 16:40</div>
+        <div class="k">Fixed in</div>
+        <div class="v"><a class="mono" href="AuditLog.dc.html" style="font-size: 13px">3f81a2c</a><span class="pill p-green" style="padding: 1px 7px">signed</span></div>
+      </div>
+
+      <div style="padding: 0 28px 20px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+        <div class="stat"><div class="eyebrow">Time to resolve</div><div style="font-size: 15px; font-weight: 500">3 h 12 min</div></div>
+        <div class="stat"><div class="eyebrow">Rows affected</div><div style="font-size: 15px; font-weight: 500">1,204</div></div>
+        <div class="stat"><div class="eyebrow">Batches touched</div><div style="font-size: 15px; font-weight: 500">3</div></div>
+        <div class="stat"><div class="eyebrow">Release impact</div><div class="c-green" style="font-size: 15px; font-weight: 500">None · caught before review</div></div>
+      </div>
+
+      <div class="divider" style="margin: 0 28px"></div>
+
+      <div style="padding: 16px 28px 20px; display: flex; flex-direction: column; gap: 12px">
+        <div class="eyebrow">Timeline</div>
+        <div class="event-line"><span class="mono meta" style="width: 44px; font-size: 12px">13:28</span><span class="dot md bg-red"></span>Audit failed on <span class="mono" style="font-size: 12.5px">silver.qc_results</span></div>
+        <div class="event-line"><span class="mono meta" style="width: 44px; font-size: 12px">13:31</span><span class="dot md bg-amber"></span>Downstream gold models paused</div>
+        <div class="event-line"><span class="mono meta" style="width: 44px; font-size: 12px">14:05</span><span class="dot md bg-accent"></span>Root cause found: LIMS retry</div>
+        <div class="event-line"><span class="mono meta" style="width: 44px; font-size: 12px">15:52</span><span class="dot md bg-purple"></span>Dedup fix merged and signed</div>
+        <div class="event-line"><span class="mono meta" style="width: 44px; font-size: 12px">16:40</span><span class="dot md bg-green"></span>Audits green, incident resolved</div>
+      </div>
+    </section>
+
+    <section style="flex-grow: 1; display: flex; flex-direction: column; min-width: 0">
+      <div role="tablist" aria-label="Incident views" class="tabbar">
+        <sc-for list="{{tabs}}" as="t" hint-placeholder-count="4">
+          <button class="{{t.cls}}" role="tab" aria-selected="{{t.sel}}" onClick="{{t.pick}}">{{t.label}}</button>
+        </sc-for>
+      </div>
+
+      <sc-if value="{{isPm}}" hint-placeholder-val="{{ true }}">
+      <div style="flex-grow: 1; overflow-y: auto; padding: 22px 28px; display: flex; flex-direction: column; gap: 20px">
+        <div style="display: flex; align-items: center; gap: 10px">
+          <span class="avatar teal">SR</span>
+          <span class="meta">Written by <span class="hl">Sam R.</span> · reviewed by <span class="hl">Gareth</span> · Monday</span>
+        </div>
+
+        <div class="postmortem" style="display: flex; flex-direction: column; gap: 18px">
+          <div><h3>What happened</h3><p>The LIMS API timed out mid-response on Friday afternoon. Our extract retried the page and dlt loaded both copies, so 1,204 result rows appeared twice in <span class="mono" style="font-size: 13px">bronze.lims_results</span> and then in <span class="mono" style="font-size: 13px">silver.qc_results</span>.</p></div>
+          <div><h3>Impact</h3><p>Three batches (BR-2026-114 to 116) showed doubled replicate counts for about three hours. Gold models were paused automatically, so nothing reached the batch release review.</p></div>
+          <div><h3>Root cause</h3><p>The extract used a cursor on <span class="mono" style="font-size: 13px">updated_at</span> with no primary key, so a retried page wasn't recognised as a repeat. The uniqueness audit only ran at the silver layer.</p></div>
+          <div><h3>Fix</h3><p>Switched the dlt resource to merge on <span class="mono" style="font-size: 13px">result_id</span>, removed the duplicates on a branch, re-ran audits, and merged with a signed approval.</p></div>
+        </div>
+
+        <div class="box" style="display: flex; flex-direction: column; gap: 10px; padding: 16px">
+          <div style="display: flex; align-items: baseline"><div style="font-size: 14px; font-weight: 500">Follow-ups</div><span class="meta" style="margin-left: auto">2 of 3 done</span></div>
+          <label class="followup done"><input type="checkbox" checked="{{ true }}"><span>Merge on <span class="mono" style="font-size: 13px">result_id</span> for all LIMS resources</span><span class="meta" style="margin-left: auto; white-space: nowrap">Gareth</span></label>
+          <label class="followup done"><input type="checkbox" checked="{{ true }}"><span>Add uniqueness audit at the bronze layer</span><span class="meta" style="margin-left: auto; white-space: nowrap">QC Analytics</span></label>
+          <label class="followup"><input type="checkbox"><span>Alert when the LIMS API retries more than 3 times in an hour</span><span class="meta" style="margin-left: auto; white-space: nowrap">due Fri</span></label>
+        </div>
+      </div>
+      </sc-if>
+
+      <sc-if value="{{isActivity}}" hint-placeholder-val="{{ false }}">
+      <div style="flex-grow: 1; overflow-y: auto; padding: 18px 24px 20px 28px; display: flex; flex-direction: column; gap: 14px; position: relative">
+        <div class="tl-line" style="bottom: 30px"></div>
+
+        <div style="display: flex; gap: 14px; position: relative">
+          <span class="tl-dot bg-red"></span>
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <div class="meta">Problem detected · Fri 13:28</div>
+            <div style="font-size: 14.5px; line-height: 1.5">Audit <span class="mono" style="font-size: 13px">unique(batch_id, test_code, rep)</span> failed on <span class="mono" style="font-size: 13px">silver.qc_results</span>: 1,204 duplicate rows.</div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 14px; align-items: center; position: relative">
+          <span class="ring" style="width: 9px; height: 9px; background: var(--panel)"></span>
+          <div class="meta">Gold models <span class="hl">paused automatically</span> · 13:31</div>
+        </div>
+
+        <div style="display: flex; gap: 14px; align-items: center; position: relative">
+          <span class="tl-dot mid bg-faint"></span>
+          <div class="meta"><span class="hl">Sam R.</span> acknowledged · 13:34</div>
+        </div>
+
+        <div style="display: flex; gap: 14px; position: relative">
+          <span class="tl-dot bg-accent"></span>
+          <div style="display: flex; flex-direction: column; gap: 8px; flex-grow: 1; min-width: 0">
+            <div class="meta">Finding · 14:05</div>
+            <div style="font-size: 14.5px; line-height: 1.5">The LIMS API timed out and the extract retried the same page. The resource appends with no key, so both copies landed.</div>
+            <div class="box">
+              <div class="codebar" style="height: 36px">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" style="color: var(--text-2)"><path d="M4 1.5h5l3 3v10H4z"></path><path d="M9 1.5v3h3"></path></svg>
+                <span class="mono c-text2" style="font-size: 12.5px">sources/lims.py</span>
+                <span class="pill p-green" style="padding: 0 6px; margin-left: 4px">merged</span>
+              </div>
+              <div class="code">
+                <div class="ln"><span class="n">18</span><span><span class="kw">@dlt.resource</span>(name=<span class="str">"lims_results"</span>,</span></div>
+                <div class="ln del"><span class="n">19</span><span>    write_disposition="append")</span></div>
+                <div class="ln add"><span class="n">19</span><span>    write_disposition="merge", primary_key="result_id")</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 14px; align-items: center; position: relative">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="flex-shrink: 0; color: var(--purple); background: var(--panel)"><circle cx="4.5" cy="3.5" r="1.5"></circle><circle cx="4.5" cy="12.5" r="1.5"></circle><circle cx="11.5" cy="8" r="1.5"></circle><path d="M4.5 5v6"></path><path d="M4.5 5c0 3 3 3 5.5 3"></path></svg>
+          <div class="meta"><span class="mono hl" style="font-size: 12.5px">fix/lims-dedup</span> signed and merged by Gareth (Approved) · 15:52</div>
+        </div>
+
+        <div class="comment">
+          <div style="display: flex; align-items: center; gap: 8px">
+            <span class="avatar teal">SR</span>
+            <span class="meta"><span class="hl">Sam R.</span> commented · 16:38</span>
+          </div>
+          <div style="font-size: 14.5px; line-height: 1.5">Checked BR-2026-114 to 116 against LIMS directly. Replicate counts match now. Resuming gold models.</div>
+        </div>
+
+        <div style="display: flex; gap: 14px; align-items: center; position: relative">
+          <span class="tl-dot mid bg-green"></span>
+          <div class="meta">Status set to <span class="c-green">Resolved</span> by Sam R. · 16:40</div>
+        </div>
+      </div>
+      </sc-if>
+
+      <sc-if value="{{isRuns}}" hint-placeholder-val="{{ false }}">
+      <div style="flex-grow: 1; overflow-y: auto; padding: 20px 24px; display: flex; flex-direction: column; gap: 16px">
+        <div style="display: flex; align-items: baseline; gap: 10px">
+          <span style="font-size: 15px; font-weight: 500">Runs during the incident</span>
+          <span class="meta">Fri 13:00 – 16:45</span>
+          <a href="Pipelines.dc.html" style="margin-left: auto; font-size: 13px">Open in Pipelines</a>
+        </div>
+        <div>
+          <div class="resolved-run-grid bb" style="height: 34px"><span class="th">Time</span><span class="th">Job</span><span class="th">Duration</span><span class="th">Status</span><span class="th">Detail</span></div>
+          <sc-for list="{{runs}}" as="r" hint-placeholder-count="8">
+            <div class="resolved-run-grid" style="height: 46px; font-size: 13.5px; border-bottom: 1px solid var(--line-soft)">
+              <span class="mono meta" style="font-size: 12.5px">{{r.time}}</span>
+              <span class="mono" style="font-size: 12.5px">{{r.job}}</span>
+              <span class="mono meta" style="font-size: 12.5px">{{r.dur}}</span>
+              <span class="{{r.cls}}">{{r.status}}</span>
+              <span class="meta" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{r.detail}}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+
+      <sc-if value="{{isLineage}}" hint-placeholder-val="{{ false }}">
+      <div style="flex-grow: 1; overflow-y: auto; padding: 20px 28px; display: flex; flex-direction: column; gap: 16px">
+        <div style="display: flex; align-items: baseline; gap: 10px">
+          <span style="font-size: 15px; font-weight: 500">What was affected</span>
+          <span class="meta">All back to fresh</span>
+        </div>
+        <svg width="620" height="270" viewBox="0 0 620 270" role="img" aria-label="LIMS API feeds ingest_lims, which writes bronze.lims_results, which feeds silver.qc_results, the table with duplicates. It feeds two gold tables that were paused from 13:31 to 16:42.">
+          <g font-size="11" letter-spacing="0.6" style="fill: var(--muted)">
+            <text x="0" y="12">SOURCE</text><text x="160" y="12">BRONZE</text><text x="320" y="12">SILVER</text><text x="480" y="12">GOLD</text>
+          </g>
+          <g fill="none" stroke-width="1.5" style="stroke: var(--skip-line)">
+            <path d="M140 140 L160 140"></path>
+            <path d="M300 140 L320 140"></path>
+            <path d="M460 140 C470 140, 470 85, 480 85"></path>
+            <path d="M460 140 C470 140, 470 195, 480 195"></path>
+          </g>
+          <rect x="0.5" y="117.5" width="139" height="45" rx="8" style="fill: var(--sunken); stroke: var(--border)"></rect>
+          <text x="12" y="136" font-size="10.5" style="fill: var(--muted)">dlt · ingest_lims</text>
+          <text x="12" y="152" font-size="12.5" style="fill: var(--text)">LIMS API</text>
+          <rect x="160.5" y="117.5" width="139" height="45" rx="8" style="fill: var(--panel); stroke: var(--border)"></rect>
+          <text x="172" y="136" font-size="10.5" style="fill: var(--green-text)">fresh · deduped</text>
+          <text x="172" y="152" font-size="10.5" font-family="Geist Mono, monospace" style="fill: var(--text)">lims_results</text>
+          <rect x="320.75" y="117.75" width="139" height="45" rx="8" stroke-width="1.5" style="fill: var(--panel); stroke: var(--text)"></rect>
+          <text x="332" y="136" font-size="10.5" style="fill: var(--muted)">origin · fixed</text>
+          <text x="332" y="152" font-size="10.5" font-family="Geist Mono, monospace" style="fill: var(--text)">qc_results</text>
+          <rect x="480.5" y="62.5" width="139" height="45" rx="8" style="fill: var(--panel); stroke: var(--border)"></rect>
+          <text x="492" y="81" font-size="10.5" style="fill: var(--muted)">paused 3 h 11 m</text>
+          <text x="492" y="97" font-size="10" font-family="Geist Mono, monospace" style="fill: var(--text)">batch_release_metrics</text>
+          <rect x="480.5" y="172.5" width="139" height="45" rx="8" style="fill: var(--panel); stroke: var(--border)"></rect>
+          <text x="492" y="191" font-size="10.5" style="fill: var(--muted)">paused 3 h 11 m</text>
+          <text x="492" y="207" font-size="10" font-family="Geist Mono, monospace" style="fill: var(--text)">qc_release_dashboard</text>
+        </svg>
+        <div class="note-green">Gold tables were paused before they read the bad data, so no duplicate results reached the batch release review.</div>
+      </div>
+      </sc-if>
+    </section>
+  </div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"tab":{"editor":"enum","options":["postmortem","activity","runs","lineage"],"default":"postmortem"},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { tab: null, theme: null };
+this.onStorage = this.onStorage.bind(this);
+}
+componentDidMount() {
+try { var t = window.localStorage.getItem('phlo-theme'); if (t === 'light' || t === 'dark') this.setState({ theme: t }); } catch (e) {}
+try { window.addEventListener('storage', this.onStorage); } catch (e) {}
+}
+componentWillUnmount() {
+try { window.removeEventListener('storage', this.onStorage); } catch (e) {}
+}
+onStorage(e) {
+if (e && e.key === 'phlo-theme' && (e.newValue === 'light' || e.newValue === 'dark')) this.setState({ theme: e.newValue });
+}
+setTheme(t) {
+this.setState({ theme: t });
+try { window.localStorage.setItem('phlo-theme', t); } catch (e) {}
+}
+renderVals() {
+var self = this;
+var th = this.state.theme || this.props.theme || 'light';
+var cur = this.state.tab || this.props.tab || 'postmortem';
+var tabs = [['postmortem', 'Post-mortem'], ['activity', 'Activity'], ['runs', 'Runs'], ['lineage', 'Lineage']].map(function (t) {
+var on = t[0] === cur;
+return { label: t[1], sel: on ? 'true' : 'false', cls: on ? 'tab on' : 'tab', pick: function () { self.setState({ tab: t[0] }); } };
+});
+var S = { ok: 'pill p-green', warn: 'pill p-amber', fail: 'pill p-red', skip: 'pill p-grey' };
+var runs = [
+['13:00', 'ingest_lims', '14 m 02 s', 'Succeeded', 'warn', 'Page 7 retried after timeout · +2,408 rows'],
+['13:20', 'transform_silver', '3 m 40 s', 'Succeeded', 'ok', 'Built qc_results from the duplicated load'],
+['13:28', 'audits_qc', '52 s', 'Failed', 'fail', 'unique(batch_id, test_code, rep) · 1,204 rows'],
+['13:31', 'transform_gold', '—', 'Paused', 'skip', 'Held by failing upstream audit'],
+['14:00', 'ingest_lims', '11 m 10 s', 'Succeeded', 'ok', 'No retries · +1,196 rows'],
+['15:55', 'ingest_lims', '6 m 41 s', 'Succeeded', 'ok', 'Merge on result_id · 1,204 duplicates removed'],
+['16:30', 'audits_qc', '49 s', 'Passed', 'ok', 'All 12 audits green'],
+['16:42', 'transform_gold', '2 m 18 s', 'Succeeded', 'ok', 'Resumed · gold tables fresh']
+].map(function (r) {
+return { time: r[0], job: r[1], dur: r[2], status: r[3], cls: S[r[4]], detail: r[5] };
+});
+return {
+themeClass: 'phlo shell theme-' + th,
+th: th, pickTheme: function (t) { self.setTheme(t); },
+tabs: tabs, runs: runs,
+isPm: cur === 'postmortem', isActivity: cur === 'activity', isRuns: cur === 'runs', isLineage: cur === 'lineage'
+};
+}
+}
+</script>
+</body>
+</html>

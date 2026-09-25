@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Assets</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./theme.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+
+<div class="{{themeClass}}" style="width: 1440px; height: 960px">
+
+<dc-import name="Sidebar" active="assets" incident="none" env="prod" variant="standard" theme="{{th}}" on-theme="{{pickTheme}}" hint-size="248px,960px"></dc-import>
+
+<main class="panel">
+  <header class="topbar">
+    <span class="title-sm">Assets</span>
+    <span class="meta">148 Iceberg tables on <span class="mono" style="font-size: 12.5px">main</span></span>
+    <div style="margin-left: auto; display: flex; align-items: center; gap: 10px">
+      <label for="asset-search" style="display: flex; align-items: center; gap: 8px; height: 32px; width: 280px; box-sizing: border-box; padding: 0 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--raised); color: var(--muted)">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"></circle><path d="M10.5 10.5L14 14"></path></svg>
+        <input id="asset-search" type="text" placeholder="Filter by name, owner or tag" aria-label="Filter assets" style="border: none; background: transparent; outline: none; font-size: 13.5px; color: var(--text); flex-grow: 1; min-width: 0">
+      </label>
+      <button class="btn">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="4" cy="8" r="2"></circle><circle cx="12" cy="3.5" r="2"></circle><circle cx="12" cy="12.5" r="2"></circle><path d="M6 7l4-2.5"></path><path d="M6 9l4 2.5"></path></svg>
+        Lineage
+      </button>
+    </div>
+  </header>
+
+  <div class="bb" style="display: flex; align-items: center; gap: 8px; padding: 14px 20px">
+    <button class="chip">All<span class="mono meta" style="font-size: 12px">148</span></button>
+    <button class="chip on" aria-pressed="true">Needs attention<span class="mono" style="font-size: 12px">11</span></button>
+    <button class="chip"><span class="sw bg-bronze"></span>Bronze<span class="mono meta" style="font-size: 12px">52</span></button>
+    <button class="chip"><span class="sw bg-silver"></span>Silver<span class="mono meta" style="font-size: 12px">61</span></button>
+    <button class="chip"><span class="sw bg-gold"></span>Gold<span class="mono meta" style="font-size: 12px">35</span></button>
+    <span class="meta" style="margin-left: auto">Sorted by freshness lag</span>
+  </div>
+
+  <div class="asset-row" style="height: 38px; background: var(--raised)">
+    <div class="th">Asset</div>
+    <div class="th">Layer</div>
+    <div class="th">Freshness</div>
+    <div class="th">Last materialized</div>
+    <div class="th" style="text-align: right">Rows</div>
+    <div class="th" style="text-align: right">Size</div>
+    <div class="th">Owner</div>
+    <div class="th">Last 7 days</div>
+  </div>
+
+  <div style="flex-grow: 1; overflow: hidden">
+    <sc-for list="{{assets}}" as="a" hint-placeholder-count="14">
+      <div class="asset-row">
+        <div style="display: flex; align-items: center; gap: 10px; min-width: 0">
+          <span class="dot md" style="background: {{a.dot}}"></span>
+          <a href="{{a.href}}" class="mono" style="font-size: 13px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{a.name}}</a>
+          <sc-if value="{{a.hasTag}}" hint-placeholder-val="{{ false }}">
+            <span class="{{a.tagCls}}" style="font-size: 11.5px; padding: 1px 7px">{{a.tag}}</span>
+          </sc-if>
+        </div>
+        <div class="c-text2" style="display: flex; align-items: center; gap: 6px; font-size: 13.5px"><span class="sw" style="background: {{a.layerColor}}"></span>{{a.layer}}</div>
+        <div class="mono" style="font-size: 13px; color: {{a.lagColor}}">{{a.lag}}</div>
+        <div class="meta">{{a.last}}</div>
+        <div class="mono num-cell">{{a.rows}}</div>
+        <div class="mono num-cell">{{a.size}}</div>
+        <div class="c-text2" style="font-size: 13.5px">{{a.owner}}</div>
+        <div style="display: flex; gap: 3px">
+          <sc-for list="{{a.days}}" as="d" hint-placeholder-count="7">
+            <span style="width: 12px; height: 16px; border-radius: 3px; background: {{d.c}}"></span>
+          </sc-for>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div class="bt meta" style="height: 44px; flex-shrink: 0; display: flex; align-items: center; padding: 0 20px">
+    <span>Showing 14 of 148</span>
+    <span style="margin-left: auto; display: flex; align-items: center; gap: 14px">
+      <span style="display: flex; align-items: center; gap: 6px"><span class="sw lg" style="border-radius: 2px; background: var(--sla-ok)"></span>Met SLA</span>
+      <span style="display: flex; align-items: center; gap: 6px"><span class="sw lg" style="border-radius: 2px; background: var(--sla-late)"></span>Late</span>
+      <span style="display: flex; align-items: center; gap: 6px"><span class="sw lg bg-red" style="border-radius: 2px"></span>Breached</span>
+    </span>
+  </div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;},&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:960}}">
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { theme: null };
+this.onStorage = this.onStorage.bind(this);
+}
+componentDidMount() {
+try { var t = window.localStorage.getItem('phlo-theme'); if (t === 'light' || t === 'dark') this.setState({ theme: t }); } catch (e) {}
+try { window.addEventListener('storage', this.onStorage); } catch (e) {}
+}
+componentWillUnmount() {
+try { window.removeEventListener('storage', this.onStorage); } catch (e) {}
+}
+onStorage(e) {
+if (e && e.key === 'phlo-theme' && (e.newValue === 'light' || e.newValue === 'dark')) this.setState({ theme: e.newValue });
+}
+setTheme(t) {
+this.setState({ theme: t });
+try { window.localStorage.setItem('phlo-theme', t); } catch (e) {}
+}
+renderVals() {
+var self = this;
+var th = this.state.theme || this.props.theme || 'light';
+var L = { Bronze: 'var(--bronze)', Silver: 'var(--silver)', Gold: 'var(--gold)' };
+var S = { stale: 'var(--red)', warn: 'var(--amber)', ok: 'var(--green)' };
+var D = { g: 'var(--sla-ok)', a: 'var(--sla-late)', r: 'var(--red)' };
+var T = { stale: 'pill p-red', drift: 'pill p-amber', audit: 'pill p-red', compact: 'pill p-blue' };
+var rows = [
+['bronze.bioreactor_telemetry', 'Bronze', 'stale', '134 m / 60 m', '2 h 14 m ago', '1.21 B', '842 GB', 'Gareth', 'gggggar', 'stale', '#214', 'AssetDetail.dc.html'],
+['silver.bioreactor_runs_1min', 'Silver', 'stale', '131 m / 60 m', '2 h 11 m ago', '48.2 M', '36 GB', 'Gareth', 'gggggar', '', '', 'AssetDetail.dc.html'],
+['silver.feed_events', 'Silver', 'stale', '129 m / 60 m', '2 h 9 m ago', '2.1 M', '1.4 GB', 'Process Dev', 'ggggggr', '', '', 'AssetDetail.dc.html'],
+['silver.run_summaries', 'Silver', 'stale', '126 m / 120 m', '2 h 6 m ago', '18.4 k', '22 MB', 'Process Dev', 'ggggggr', '', '', 'AssetDetail.dc.html'],
+['gold.batch_release_metrics', 'Gold', 'stale', '118 m / 90 m', '1 h 58 m ago', '6.2 k', '9 MB', 'QC Analytics', 'gggaggr', '', '', 'AssetDetail.dc.html'],
+['gold.cpp_trends', 'Gold', 'stale', '117 m / 90 m', '1 h 57 m ago', '310 k', '140 MB', 'QC Analytics', 'ggggggr', '', '', 'AssetDetail.dc.html'],
+['gold.process_capability', 'Gold', 'stale', '1 d 2 h / 1 d', '1 d 2 h ago', '1.1 k', '2 MB', 'QC Analytics', 'gggggga', '', '', 'AssetDetail.dc.html'],
+['bronze.elisa_plate_reads', 'Bronze', 'warn', '8 m / 30 m', '8 m ago', '96.0 M', '58 GB', 'Assay Dev', 'gggggga', 'drift', '#213', 'Incident213.dc.html'],
+['silver.qc_results', 'Silver', 'warn', '19 m / 60 m', '19 m ago', '4.8 M', '3.1 GB', 'QC Analytics', 'ggaggga', 'audit', '#211', 'Incident211.dc.html'],
+['bronze.lims_samples', 'Bronze', 'warn', '41 m / 60 m', '41 m ago', '12.7 M', '7.9 GB', 'Gareth', 'gaagaaa', '', '', 'Pipelines.dc.html'],
+['silver.elisa_results', 'Silver', 'warn', '9 m / 60 m', '9 m ago', '31.5 M', '11 GB', 'Assay Dev', 'ggggggg', 'compact', 'compaction due', 'AssetDetail.dc.html'],
+['bronze.erp_batches', 'Bronze', 'ok', '14 m / 60 m', '14 m ago', '88.1 k', '40 MB', 'Gareth', 'ggggggg', '', '', 'AssetDetail.dc.html'],
+['silver.sample_lineage', 'Silver', 'ok', '16 m / 60 m', '16 m ago', '12.6 M', '2.2 GB', 'QC Analytics', 'ggggggg', '', '', 'AssetDetail.dc.html'],
+['gold.qc_release_dashboard', 'Gold', 'ok', '22 m / 90 m', '22 m ago', '4.4 k', '6 MB', 'QC Analytics', 'ggggggg', '', '', 'AssetDetail.dc.html']
+];
+var assets = rows.map(function (r) {
+return {
+name: r[0], layer: r[1], layerColor: L[r[1]], dot: S[r[2]],
+lag: r[3], lagColor: r[2] === 'stale' ? 'var(--red-text)' : 'var(--text-2)',
+last: r[4], rows: r[5], size: r[6], owner: r[7],
+days: r[8].split('').map(function (k) { return { c: D[k] }; }),
+hasTag: !!r[9], tag: r[10], tagCls: r[9] ? T[r[9]] : '',
+href: r[11]
+};
+});
+return {
+themeClass: 'phlo shell theme-' + th,
+th: th, pickTheme: function (t) { self.setTheme(t); },
+assets: assets
+};
+}
+}
+</script>
+</body>
+</html>

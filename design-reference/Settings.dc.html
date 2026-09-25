@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Settings</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./theme.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+
+<div class="{{themeClass}}" style="width: 1440px; height: 960px">
+
+<dc-import name="Sidebar" active="settings" incident="none" env="prod" variant="standard" theme="{{th}}" on-theme="{{pickTheme}}" hint-size="248px,960px"></dc-import>
+
+<main class="panel">
+  <header class="topbar">
+    <span class="title-sm">Settings</span>
+    <span class="meta">Lakehouse · prod</span>
+    <div style="margin-left: auto; display: flex; align-items: center; gap: 10px">
+      <span class="meta">Last changed by Gareth · 3 d ago</span>
+      <button class="btn">Discard</button>
+      <button class="btn-primary">Save changes</button>
+    </div>
+  </header>
+
+  <div style="flex-grow: 1; display: flex; min-height: 0">
+    <nav aria-label="Settings sections" class="br" style="width: 196px; flex-shrink: 0; box-sizing: border-box; padding: 16px 10px; display: flex; flex-direction: column; gap: 2px">
+      <div class="meta" style="font-size: 12px; padding: 0 10px 6px">Workspace</div>
+      <a class="subnav-link on" href="Settings.dc.html">Lakehouse</a>
+      <a class="subnav-link" href="Members.dc.html">Members</a>
+      <a class="subnav-link" href="Members.dc.html">Service accounts</a>
+      <a class="subnav-link" href="AuditLog.dc.html">Audit log</a>
+      <div class="meta" style="font-size: 12px; padding: 16px 10px 6px">Environments</div>
+      <a class="subnav-link" href="Overview.dc.html">prod</a>
+      <a class="subnav-link" href="OverviewStaging.dc.html">staging</a>
+    </nav>
+
+    <div style="flex-grow: 1; min-width: 0; overflow-y: auto; padding: 20px 24px; display: flex; flex-direction: column; gap: 16px">
+
+      <section class="settings-card" style="gap: 8px">
+        <div style="display: flex; align-items: baseline; gap: 10px; padding-bottom: 4px">
+          <div class="card-title">Connections</div>
+          <div class="meta">Services phlo reads from and writes to</div>
+        </div>
+        <div class="conn-row"><span style="font-size: 14px">Nessie catalog</span><span class="mono uri">[NESSIE_URI]/api/v2</span><span style="display: flex; align-items: center; gap: 8px; font-size: 13.5px"><span class="dot bg-green"></span>Connected<span class="meta">· 38 ms</span></span><button class="btn" style="height: 28px; justify-content: center">Test</button></div>
+        <div class="conn-row"><span style="font-size: 14px">Dagster</span><span class="mono uri">[DAGSTER_URL]</span><span style="display: flex; align-items: center; gap: 8px; font-size: 13.5px"><span class="dot bg-green"></span>Connected<span class="meta">· 52 ms</span></span><button class="btn" style="height: 28px; justify-content: center">Test</button></div>
+        <div class="conn-row"><span style="font-size: 14px">Postgres</span><span class="mono uri">[POSTGRES_DSN]</span><span style="display: flex; align-items: center; gap: 8px; font-size: 13.5px"><span class="dot bg-green"></span>Connected<span class="meta">· 4 ms</span></span><button class="btn" style="height: 28px; justify-content: center">Test</button></div>
+        <div class="conn-row"><span style="font-size: 14px">Object store</span><span class="mono uri">[WAREHOUSE_BUCKET]</span><span style="display: flex; align-items: center; gap: 8px; font-size: 13.5px"><span class="dot bg-amber"></span>Degraded<span class="meta">· p95 1.8 s</span></span><button class="btn" style="height: 28px; justify-content: center">Test</button></div>
+      </section>
+
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px">
+        <section class="settings-card">
+          <div style="display: flex; flex-direction: column; gap: 3px">
+            <div class="card-title">Freshness targets</div>
+            <div class="meta">Default SLA per layer. Assets can override.</div>
+          </div>
+          <div class="field-row"><span class="sw lg bg-bronze"></span><label for="sla-bronze" style="width: 80px">Bronze</label><input id="sla-bronze" class="field mono" type="number" value="60" style="width: 84px"><span class="meta">min</span></div>
+          <div class="field-row"><span class="sw lg bg-silver"></span><label for="sla-silver" style="width: 80px">Silver</label><input id="sla-silver" class="field mono" type="number" value="60" style="width: 84px"><span class="meta">min</span></div>
+          <div class="field-row"><span class="sw lg bg-gold"></span><label for="sla-gold" style="width: 80px">Gold</label><input id="sla-gold" class="field mono" type="number" value="90" style="width: 84px"><span class="meta">min</span></div>
+          <div class="card-split">
+            <label class="check-label"><input type="checkbox" checked="{{ true }}">Open an incident when a table breaches its SLA</label>
+            <label class="check-label"><input type="checkbox">Hold downstream jobs while an upstream table is stale</label>
+          </div>
+        </section>
+
+        <section class="settings-card">
+          <div style="display: flex; flex-direction: column; gap: 3px">
+            <div class="card-title">Alerts</div>
+            <div class="meta">Where incidents and digests go</div>
+          </div>
+          <div class="field-row"><label for="al-chat" style="width: 110px">Chat channel</label><input id="al-chat" class="field" type="text" value="#data-platform" style="flex-grow: 1"></div>
+          <div class="field-row"><label for="al-digest" style="width: 110px">Email digest</label><input id="al-digest" class="field" type="text" value="Weekdays at 08:00" style="flex-grow: 1"></div>
+          <div class="card-split">
+            <label class="check-label"><input type="checkbox" checked="{{ true }}">Notify asset owners directly</label>
+            <label class="check-label"><input type="checkbox" checked="{{ true }}">Tell downstream consumers when their data is stale</label>
+          </div>
+        </section>
+
+        <section class="settings-card">
+          <div style="display: flex; flex-direction: column; gap: 3px">
+            <div class="card-title">Table maintenance</div>
+            <div class="meta">Iceberg compaction and snapshot housekeeping</div>
+          </div>
+          <div class="field-row"><label for="mt-size" style="width: 150px">Target file size</label><input id="mt-size" class="field mono" type="number" value="512" style="width: 84px"><span class="meta">MB</span></div>
+          <div class="field-row"><label for="mt-exp" style="width: 150px">Expire snapshots after</label><input id="mt-exp" class="field mono" type="number" value="7" style="width: 84px"><span class="meta">days</span></div>
+          <div class="field-row"><label for="mt-orph" style="width: 150px">Orphan file cleanup</label><input id="mt-orph" class="field" type="text" value="Sundays 03:00" style="flex-grow: 1"></div>
+          <div class="card-split">
+            <label class="check-label"><input type="checkbox" checked="{{ true }}">Keep snapshots that a release tag points to</label>
+            <label class="check-label"><input type="checkbox" checked="{{ true }}">Compact nightly when a table has 200+ small files</label>
+          </div>
+        </section>
+
+        <section class="settings-card">
+          <div style="display: flex; flex-direction: column; gap: 3px">
+            <div class="card-title">Audit &amp; data integrity</div>
+            <div class="meta">Controls for the GxP audit trail on <span class="mono" style="font-size: 12px">main</span></div>
+          </div>
+          <label class="check-label"><input type="checkbox" checked="{{ true }}">Protect <span class="mono" style="font-size: 13px">main</span> from direct writes</label>
+          <label class="check-label"><input type="checkbox" checked="{{ true }}">Require a reason on every merge into <span class="mono" style="font-size: 13px">main</span></label>
+          <label class="check-label"><input type="checkbox" checked="{{ true }}">Require an e-signature to create a release tag</label>
+          <label class="check-label"><input type="checkbox">Require a second reviewer for gold-layer merges</label>
+          <div class="field-row card-split"style="flex-direction: row; align-items: center"><label for="au-ret" style="width: 150px">Keep audit log for</label><input id="au-ret" class="field mono" type="text" value="[YEARS]" style="width: 84px"><span class="meta">years</span></div>
+        </section>
+      </div>
+    </div>
+  </div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { theme: null };
+this.onStorage = this.onStorage.bind(this);
+}
+componentDidMount() {
+try { var t = window.localStorage.getItem('phlo-theme'); if (t === 'light' || t === 'dark') this.setState({ theme: t }); } catch (e) {}
+try { window.addEventListener('storage', this.onStorage); } catch (e) {}
+}
+componentWillUnmount() {
+try { window.removeEventListener('storage', this.onStorage); } catch (e) {}
+}
+onStorage(e) {
+if (e && e.key === 'phlo-theme' && (e.newValue === 'light' || e.newValue === 'dark')) this.setState({ theme: e.newValue });
+}
+setTheme(t) {
+this.setState({ theme: t });
+try { window.localStorage.setItem('phlo-theme', t); } catch (e) {}
+}
+renderVals() {
+var self = this;
+var th = this.state.theme || this.props.theme || 'light';
+return {
+themeClass: 'phlo shell theme-' + th,
+th: th, pickTheme: function (t) { self.setTheme(t); }
+};
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Add audit</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./theme.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+
+<div class="{{themeClass}}" style="width: 1440px; height: 960px">
+
+  <div aria-hidden="true" style="width: 248px; flex-shrink: 0; box-sizing: border-box; padding: 20px 18px; display: flex; flex-direction: column; gap: 14px">
+    <div class="sk" style="width: 110px; height: 20px"></div>
+    <div class="sk" style="height: 34px; background: var(--panel); border: 1px solid var(--border)"></div>
+    <div class="sk" style="width: 150px; height: 14px"></div><div class="sk" style="width: 130px; height: 14px"></div><div class="sk" style="width: 140px; height: 14px; background: var(--border-strong)"></div>
+    <div class="sk" style="width: 120px; height: 14px"></div><div class="sk" style="width: 150px; height: 14px"></div>
+  </div>
+  <div aria-hidden="true" class="panel">
+    <div class="topbar"><span class="crumb">Assets</span><span class="mono" style="font-size: 13.5px">bronze.bioreactor_telemetry</span></div>
+    <div class="bb" style="padding: 22px 28px; display: flex; flex-direction: column; gap: 12px"><div class="sk" style="width: 300px; height: 22px"></div><div class="sk soft" style="width: 520px; height: 14px"></div><div class="sk soft" style="width: 380px; height: 28px"></div></div>
+    <div style="padding: 20px 28px; display: flex; flex-direction: column; gap: 14px"><div class="sk soft" style="height: 34px"></div><div class="sk soft" style="height: 34px"></div><div class="sk soft" style="height: 34px"></div><div class="sk soft" style="height: 34px"></div></div>
+  </div>
+
+  <div class="scrim" style="align-items: center; justify-content: center">
+    <form class="dialog" role="dialog" aria-modal="true" aria-labelledby="aa-title" style="width: 620px; margin: 0">
+      <div class="bb" style="padding: 20px 24px 16px; display: flex; flex-direction: column; gap: 6px">
+        <div style="display: flex; align-items: center; gap: 10px">
+          <h2 id="aa-title" style="margin: 0; font-size: 17px; font-weight: 600">Add audit</h2>
+          <a href="AssetDetail.dc.html" aria-label="Close" style="margin-left: auto; width: 30px; height: 30px; border-radius: 7px; display: flex; align-items: center; justify-content: center; color: var(--text-3)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 4l8 8"></path><path d="M12 4l-8 8"></path></svg></a>
+        </div>
+        <div class="meta">On <span class="mono hl" style="font-size: 12.5px">bronze.bioreactor_telemetry</span> · runs after every load</div>
+      </div>
+
+      <div style="padding: 18px 24px 20px; display: flex; flex-direction: column; gap: 18px">
+        <div class="fgroup">
+          <span class="flabel" id="aa-type">Check</span>
+          <div class="choice-row" role="radiogroup" aria-labelledby="aa-type">
+            <sc-for list="{{types}}" as="t" hint-placeholder-count="7">
+              <label class="{{t.cls}}"><input type="radio" name="atype" checked="{{t.on}}" onChange="{{t.pick}}">{{t.label}}</label>
+            </sc-for>
+          </div>
+        </div>
+
+        <sc-if value="{{isSql}}" hint-placeholder-val="{{ false }}">
+          <div class="fgroup">
+            <label class="flabel" for="aa-sql">Query that returns failing rows</label>
+            <textarea id="aa-sql" class="textarea mono" rows="5" style="font-size: 13px">SELECT *
+FROM bronze.bioreactor_telemetry
+WHERE do_sat_pct &gt; 0
+  AND agitation_rpm = 0</textarea>
+            <span class="fhelp">The audit fails if this returns any rows.</span>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{isColumnCheck}}" hint-placeholder-val="{{ true }}">
+          <div style="display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 12px">
+            <div class="fgroup">
+              <span class="flabel">Column</span>
+              <button type="button" class="select"><span class="mono" style="font-size: 13px">do_sat_pct</span><span class="meta mono" style="font-size: 11.5px">double</span><svg class="caret" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"></path></svg></button>
+            </div>
+            <sc-if value="{{isRange}}" hint-placeholder-val="{{ true }}">
+              <div class="fgroup">
+                <label class="flabel" for="aa-min">Min</label>
+                <div class="unit-input"><input id="aa-min" type="text" value="20"><span>%</span></div>
+              </div>
+              <div class="fgroup">
+                <label class="flabel" for="aa-max">Max</label>
+                <div class="unit-input"><input id="aa-max" type="text" value="100"><span>%</span></div>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <div class="fgroup">
+          <span class="flabel" id="aa-fail">When it fails</span>
+          <div class="choice-row" role="radiogroup" aria-labelledby="aa-fail">
+            <sc-for list="{{fails}}" as="f" hint-placeholder-count="3">
+              <label class="{{f.cls}}"><input type="radio" name="afail" checked="{{f.on}}" onChange="{{f.pick}}">{{f.label}}</label>
+            </sc-for>
+          </div>
+          <span class="fhelp">{{failHelp}}</span>
+        </div>
+
+        <div class="note-green" style="display: flex; gap: 10px; align-items: flex-start">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px"><circle cx="8" cy="8" r="6.5"></circle><path d="M5 8.2l2 2 4-4"></path></svg>
+          <span>Dry run on the last 7 days of <span class="mono" style="font-size: 12.5px">fix/telemetry-schema</span>: <strong style="font-weight: 600">0 of 362,880 rows</strong> would fail.</span>
+        </div>
+      </div>
+
+      <div class="bt" style="padding: 14px 24px; display: flex; align-items: center; gap: 10px; background: var(--raised)">
+        <span class="meta">Added to the fix branch, not <span class="mono" style="font-size: 12px">main</span></span>
+        <a class="btn lg" href="AssetDetail.dc.html" style="margin-left: auto; background: var(--panel)">Cancel</a>
+        <a class="btn-primary lg" href="AssetDetail.dc.html" style="padding: 0 16px">Add audit</a>
+      </div>
+    </form>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { theme: null, type: 'Range', fail: 'Block downstream' };
+this.onStorage = this.onStorage.bind(this);
+}
+componentDidMount() {
+try { var t = window.localStorage.getItem('phlo-theme'); if (t === 'light' || t === 'dark') this.setState({ theme: t }); } catch (e) {}
+try { window.addEventListener('storage', this.onStorage); } catch (e) {}
+}
+componentWillUnmount() {
+try { window.removeEventListener('storage', this.onStorage); } catch (e) {}
+}
+onStorage(e) {
+if (e && e.key === 'phlo-theme' && (e.newValue === 'light' || e.newValue === 'dark')) this.setState({ theme: e.newValue });
+}
+renderVals() {
+var self = this;
+var th = this.state.theme || this.props.theme || 'light';
+var types = ['Not null', 'Unique', 'Range', 'Accepted values', 'Row count', 'Custom SQL'].map(function (t) {
+var on = self.state.type === t;
+return { label: t, on: on, cls: on ? 'choice on' : 'choice', pick: function () { self.setState({ type: t }); } };
+});
+var FH = { 'Block downstream': 'Silver and gold models won’t read a load that fails this check.', 'Open incident': 'Data still flows, but an incident opens and the owner is notified.', 'Warn only': 'Shown on the asset page. Nobody is notified.' };
+var fails = ['Block downstream', 'Open incident', 'Warn only'].map(function (f) {
+var on = self.state.fail === f;
+return { label: f, on: on, cls: on ? 'choice on' : 'choice', pick: function () { self.setState({ fail: f }); } };
+});
+var ty = this.state.type;
+return {
+themeClass: 'phlo shell theme-' + th,
+types: types, fails: fails, failHelp: FH[this.state.fail],
+isSql: ty === 'Custom SQL', isColumnCheck: ty !== 'Custom SQL' && ty !== 'Row count', isRange: ty === 'Range'
+};
+}
+}
+</script>
+</body>
+</html>

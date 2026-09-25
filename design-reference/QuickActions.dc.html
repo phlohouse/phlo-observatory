@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Quick actions</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./theme.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+
+<div class="{{themeClass}}" style="width: 1440px; height: 960px">
+
+  <div aria-hidden="true" style="width: 248px; flex-shrink: 0; box-sizing: border-box; padding: 20px 18px; display: flex; flex-direction: column; gap: 14px">
+    <div class="sk" style="width: 110px; height: 20px"></div>
+    <div class="sk" style="height: 34px; background: var(--panel); border: 1px solid var(--border)"></div>
+    <div class="sk" style="width: 150px; height: 14px; background: var(--border-strong)"></div>
+    <div class="sk" style="width: 130px; height: 14px"></div>
+    <div class="sk" style="width: 140px; height: 14px"></div>
+    <div class="sk" style="width: 120px; height: 14px"></div>
+    <div class="sk" style="width: 150px; height: 14px"></div>
+  </div>
+  <div aria-hidden="true" class="panel" style="padding: 76px 24px 24px; gap: 20px">
+    <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px"><div class="sk soft" style="height: 96px"></div><div class="sk soft" style="height: 96px"></div><div class="sk soft" style="height: 96px"></div><div class="sk soft" style="height: 96px"></div></div>
+    <div class="sk soft" style="height: 200px"></div>
+    <div style="display: flex; gap: 16px; flex-grow: 1"><div class="sk soft" style="flex-grow: 3"></div><div class="sk soft" style="flex-grow: 2"></div></div>
+  </div>
+
+  <div class="scrim" style="justify-content: center; padding-top: 120px; box-sizing: border-box">
+    <div class="dialog" role="dialog" aria-modal="true" aria-label="Quick actions" style="width: 640px; align-self: flex-start">
+      <label class="bb" style="display: flex; align-items: center; gap: 12px; height: 56px; padding: 0 18px">
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" style="color: var(--muted)"><circle cx="7" cy="7" r="4.5"></circle><path d="M10.5 10.5L14 14"></path></svg>
+        <input type="text" aria-label="Search or run a command" value="bioreac" style="flex-grow: 1; border: none; outline: none; font-size: 16px; color: var(--text); background: transparent">
+        <span class="kbd">esc</span>
+      </label>
+
+      <div style="padding: 6px 8px 8px; display: flex; flex-direction: column">
+        <div class="palette-group">Assets</div>
+        <a class="palette-item on" href="AssetDetail.dc.html">
+          <span class="palette-icon" style="background: var(--bronze-soft)"><span class="sw lg bg-bronze" style="width: 9px; height: 9px; border-radius: 2px"></span></span>
+          <span class="mono" style="font-size: 13.5px">bronze.<mark>bioreac</mark>tor_telemetry</span>
+          <span class="pill p-red" style="padding: 1px 7px">stale</span>
+          <span class="kbd" style="margin-left: auto">↵</span>
+        </a>
+        <a class="palette-item" href="AssetDetail.dc.html">
+          <span class="palette-icon" style="background: var(--silver-soft)"><span class="sw lg bg-silver" style="width: 9px; height: 9px; border-radius: 2px"></span></span>
+          <span class="mono" style="font-size: 13.5px">silver.<mark>bioreac</mark>tor_runs_1min</span>
+          <span class="pill p-red" style="padding: 1px 7px">stale</span>
+        </a>
+
+        <div class="palette-group">Jobs</div>
+        <a class="palette-item" href="Pipelines.dc.html">
+          <span class="palette-icon t-grey" style="color: var(--text-2)"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="4.5" height="4.5" rx="1"></rect><rect x="9.5" y="9.5" width="4.5" height="4.5" rx="1"></rect><path d="M6.5 4.25H9a2.5 2.5 0 0 1 2.5 2.5V9.5"></path></svg></span>
+          <span class="mono" style="font-size: 13.5px">ingest_<mark>bioreac</mark>tor</span>
+          <span class="meta">failing · every 15 min</span>
+        </a>
+
+        <div class="palette-group">Incidents</div>
+        <a class="palette-item" href="Main.dc.html">
+          <span class="palette-icon t-teal"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="8" cy="8" r="6"></circle><path d="M8 4.5V8l2.5 1.5"></path></svg></span>
+          <span>#214 Stale table: <mark>bioreac</mark>tor telemetry</span>
+          <span class="meta">Investigating</span>
+        </a>
+
+        <div class="palette-group">Actions</div>
+        <a class="palette-item" href="Pipelines.dc.html">
+          <span class="palette-icon" style="background: var(--accent-soft); color: var(--accent)"><svg width="13" height="13" viewBox="0 0 16 16" style="fill: currentColor"><path d="M5 3.5v9l7-4.5z"></path></svg></span>
+          <span>Re-run <span class="mono" style="font-size: 13px">ingest_<mark>bioreac</mark>tor</span> from failed step</span>
+          <span class="kbd" style="margin-left: auto">⌘↵</span>
+        </a>
+        <a class="palette-item" href="Pipelines.dc.html">
+          <span class="palette-icon" style="background: var(--accent-soft); color: var(--accent)"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="3" width="2.5" height="10" rx="0.5"></rect><rect x="9.5" y="3" width="2.5" height="10" rx="0.5"></rect></svg></span>
+          <span>Pause <span class="mono" style="font-size: 13px">ingest_<mark>bioreac</mark>tor</span> schedule</span>
+        </a>
+        <a class="palette-item" href="Branches.dc.html">
+          <span class="palette-icon t-purple"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="4.5" cy="3.5" r="1.5"></circle><circle cx="4.5" cy="12.5" r="1.5"></circle><circle cx="11.5" cy="5" r="1.5"></circle><path d="M4.5 5v6"></path><path d="M11.5 6.5c0 3-3.5 2.6-6.6 4.7"></path></svg></span>
+          <span>Create branch from <span class="mono" style="font-size: 13px">main</span> for <span class="mono" style="font-size: 13px"><mark>bioreac</mark>tor_telemetry</span></span>
+        </a>
+      </div>
+
+      <div class="bt meta" style="display: flex; align-items: center; gap: 16px; height: 40px; padding: 0 18px; background: var(--raised)">
+        <span style="display: flex; align-items: center; gap: 6px"><span class="kbd">↑</span><span class="kbd">↓</span>Move</span>
+        <span style="display: flex; align-items: center; gap: 6px"><span class="kbd">↵</span>Open</span>
+        <span style="display: flex; align-items: center; gap: 6px"><span class="kbd">⌘↵</span>Run action</span>
+        <span style="margin-left: auto">Type <span class="kbd">&gt;</span> for commands only</span>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { theme: null };
+this.onStorage = this.onStorage.bind(this);
+}
+componentDidMount() {
+try { var t = window.localStorage.getItem('phlo-theme'); if (t === 'light' || t === 'dark') this.setState({ theme: t }); } catch (e) {}
+try { window.addEventListener('storage', this.onStorage); } catch (e) {}
+}
+componentWillUnmount() {
+try { window.removeEventListener('storage', this.onStorage); } catch (e) {}
+}
+onStorage(e) {
+if (e && e.key === 'phlo-theme' && (e.newValue === 'light' || e.newValue === 'dark')) this.setState({ theme: e.newValue });
+}
+renderVals() {
+var th = this.state.theme || this.props.theme || 'light';
+return { themeClass: 'phlo shell theme-' + th };
+}
+}
+</script>
+</body>
+</html>

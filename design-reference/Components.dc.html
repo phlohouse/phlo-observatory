@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Components</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./theme.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+
+<div class="{{rootClass}}">
+<div class="spec-page" style="height: 1800px">
+
+  <header style="display: flex; align-items: center; gap: 14px">
+    <div class="brand-mark" style="width: 30px; height: 30px; font-size: 16px; border-radius: 8px">φ</div>
+    <div style="display: flex; flex-direction: column; gap: 2px">
+      <div style="font-size: 22px; font-weight: 500; letter-spacing: -.01em">Components</div>
+      <div class="meta">Every piece used across the screens, live and labelled with its class. Grey labels are the names to use in <span class="mono" style="font-size: 12px">theme.css</span>.</div>
+    </div>
+    <div style="margin-left: auto; display: flex; align-items: center; gap: 12px">
+      <a href="Foundations.dc.html" class="btn">← Foundations</a>
+      <a href="Patterns.dc.html" class="btn">Screen patterns →</a>
+      <div class="theme-switch" role="group" aria-label="Theme" style="margin-top: 0; width: 180px">
+        <button class="{{lightCls}}" aria-pressed="{{lightPressed}}" onClick="{{setLight}}">Light</button>
+        <button class="{{darkCls}}" aria-pressed="{{darkPressed}}" onClick="{{setDark}}">Dark</button>
+      </div>
+    </div>
+  </header>
+
+  <div style="flex-grow: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.12fr); gap: 16px">
+
+    <!-- ============ Column 1: controls ============ -->
+    <div class="spec-col">
+
+      <section class="spec-card">
+        <div class="spec-head"><span class="spec-title">Buttons</span><span class="spec-note">One primary per view</span></div>
+        <div class="spec-body">
+          <div class="spec-examples">
+            <div class="spec-example"><button class="btn-primary">Merge into main</button><span class="spec-label">.btn-primary</span></div>
+            <div class="spec-example"><button class="btn">Refresh</button><span class="spec-label">.btn</span></div>
+            <div class="spec-example"><button class="icon-btn" aria-label="More">⋯</button><span class="spec-label">.icon-btn</span></div>
+          </div>
+          <div class="spec-examples">
+            <div class="spec-example"><button class="btn-primary lg">Create incident</button><span class="spec-label">.btn-primary.lg</span></div>
+            <div class="spec-example"><button class="btn lg">Cancel</button><span class="spec-label">.btn.lg</span></div>
+          </div>
+          <div class="spec-examples">
+            <div class="spec-example"><button class="btn-primary" disabled="{{ true }}">Promote…</button><span class="spec-label">[disabled]</span></div>
+            <div class="spec-example"><button class="btn" style="color: var(--red-text) !important; border-color: var(--red-line)">Reject change</button><span class="spec-label">.btn + red text · destructive</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="spec-card">
+        <div class="spec-head"><span class="spec-title">Pills and markers</span><span class="spec-note">Status at a glance</span></div>
+        <div class="spec-body">
+          <div class="spec-examples">
+            <div class="spec-example"><span class="pill p-red">Stale</span><span class="spec-label">.p-red</span></div>
+            <div class="spec-example"><span class="pill p-amber">Needs sign-off</span><span class="spec-label">.p-amber</span></div>
+            <div class="spec-example"><span class="pill p-green">Passing</span><span class="spec-label">.p-green</span></div>
+            <div class="spec-example"><span class="pill p-purple">Branch</span><span class="spec-label">.p-purple</span></div>
+          </div>
+          <div class="spec-examples">
+            <div class="spec-example"><span class="pill p-blue">Running</span><span class="spec-label">.p-blue</span></div>
+            <div class="spec-example"><span class="pill p-grey">Draft</span><span class="spec-label">.p-grey</span></div>
+            <div class="spec-example"><span class="pill p-outline">QC Analytics</span><span class="spec-label">.p-outline</span></div>
+            <div class="spec-example"><span class="pill lg p-red">High</span><span class="spec-label">.pill.lg</span></div>
+          </div>
+          <div class="divider"></div>
+          <div class="spec-examples">
+            <div class="spec-example"><div class="spec-inline"><span class="dot bg-red"></span><span class="dot bg-amber"></span><span class="dot bg-green"></span><span class="dot bg-faint"></span></div><span class="spec-label">.dot .bg-*</span></div>
+            <div class="spec-example"><div class="spec-inline"><span class="dot md bg-purple"></span><span class="dot md bg-accent"></span></div><span class="spec-label">.dot.md</span></div>
+            <div class="spec-example"><div class="spec-inline" style="height: 7px"><span class="ring"></span></div><span class="spec-label">.ring · waiting</span></div>
+            <div class="spec-example"><div class="spec-inline"><span class="sw lg bg-bronze"></span><span class="sw lg bg-silver"></span><span class="sw lg bg-gold"></span></div><span class="spec-label">.sw.lg · layers</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="spec-card">
+        <div class="spec-head"><span class="spec-title">Chips, segments, tabs</span><span class="spec-note">Try them</span></div>
+        <div class="spec-body">
+          <div class="spec-example" style="align-items: stretch">
+            <div class="spec-inline" style="flex-wrap: wrap">
+              <sc-for list="{{chips}}" as="c" hint-placeholder-count="4">
+                <button class="{{c.cls}}" onClick="{{c.pick}}">{{c.label}}<span class="mono" style="font-size: 11.5px">{{c.n}}</span></button>
+              </sc-for>
+              <button class="chip dashed">+ Filter</button>
+            </div>
+            <span class="spec-label">.chip · .chip.on · .chip.dashed</span>
+          </div>
+          <div class="spec-example">
+            <div class="seg">
+              <sc-for list="{{segs}}" as="s" hint-placeholder-count="3">
+                <button class="{{s.cls}}" onClick="{{s.pick}}">{{s.label}}</button>
+              </sc-for>
+            </div>
+            <span class="spec-label">.seg · button.on</span>
+          </div>
+          <div class="spec-example" style="align-items: stretch">
+            <div class="box">
+              <div class="tabbar" style="padding: 8px 10px">
+                <sc-for list="{{tabs}}" as="t" hint-placeholder-count="4">
+                  <button class="{{t.cls}}" onClick="{{t.pick}}">{{t.label}}</button>
+                </sc-for>
+              </div>
+              <div class="meta" style="padding: 12px 14px; font-size: 13px">{{tabText}}</div>
+            </div>
+            <span class="spec-label">.tabbar · .tab · .tab.on</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="spec-card" style="flex-grow: 1">
+        <div class="spec-head"><span class="spec-title">Form controls</span><span class="spec-note">Label, control, help</span></div>
+        <div class="spec-body">
+          <div class="fgroup">
+            <label class="flabel">Title</label>
+            <input class="input" value="Potency results out of range">
+            <span class="spec-label">.fgroup · .flabel · .input</span>
+          </div>
+          <div class="fgroup">
+            <label class="flabel">Asset <span class="opt-tag">required</span></label>
+            <div class="input" style="display: flex; align-items: center; border-color: var(--accent-solid); box-shadow: 0 0 0 3px var(--accent-soft)"><span class="mono" style="font-size: 13px">silver.qc_</span><span class="caret-bar"></span></div>
+            <span class="fhelp">Focus ring shown · type to search 148 tables</span>
+            <span class="spec-label">.input:focus · .fhelp · .opt-tag</span>
+          </div>
+          <div class="fgroup">
+            <label class="flabel">Severity</label>
+            <div class="choice-row">
+              <sc-for list="{{choices}}" as="c" hint-placeholder-count="3">
+                <label class="{{c.cls}}"><input type="radio" name="demo-sev" checked="{{c.on}}" onChange="{{c.pick}}">{{c.label}}</label>
+              </sc-for>
+            </div>
+            <span class="spec-label">.choice-row · .choice.on</span>
+          </div>
+          <div class="fgroup">
+            <label class="flabel">Owner</label>
+            <div class="select"><span class="avatar teal">JK</span>Jo K.<svg class="caret" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"></path></svg></div>
+            <span class="spec-label">.select · .caret</span>
+          </div>
+          <div class="fgroup">
+            <label class="flabel">Notes</label>
+            <textarea class="textarea" rows="2">Plate P-4471 standard curve R² 0.912.</textarea>
+            <div class="spec-inline"><span class="token mono">qc_results</span><span class="token mono">P-4471</span></div>
+            <span class="spec-label">.textarea · .token</span>
+          </div>
+          <div class="spec-example">
+            <label class="checkline"><input type="checkbox" checked="{{ true }}">Block downstream until resolved</label>
+            <span class="spec-label">.checkline</span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ============ Column 2: navigation & status ============ -->
+    <div class="spec-col">
+
+      <section class="spec-card">
+        <div class="spec-head"><span class="spec-title">Sidebar</span><span class="spec-note">248 px, on --bg</span></div>
+        <div class="spec-body" style="flex-direction: row; gap: 16px; align-items: flex-start">
+          <div class="spec-sidebar">
+            <div class="brand" style="padding: 2px 6px"><div class="brand-mark">φ</div><div style="font-size: 15px; font-weight: 600">phlo</div><div class="env">prod</div></div>
+            <a class="qa" href="QuickActions.dc.html"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"></circle><path d="M10.5 10.5L14 14"></path></svg><span>Quick actions</span><span class="kbd" style="margin-left: auto">⌘K</span></a>
+            <div class="stack">
+              <a class="nav on" href="Overview.dc.html"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="5" height="5" rx="1"></rect><rect x="9" y="2" width="5" height="5" rx="1"></rect><rect x="2" y="9" width="5" height="5" rx="1"></rect><rect x="9" y="9" width="5" height="5" rx="1"></rect></svg><span>Overview</span></a>
+              <a class="nav" href="Incidents.dc.html"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5L14 13H2L8 2.5Z"></path><path d="M8 6.5v3"></path><path d="M8 11.3v.1"></path></svg><span>Incidents</span><span class="count alert">5</span></a>
+              <a class="nav" href="Branches.dc.html"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="4.5" cy="3.5" r="1.5"></circle><circle cx="4.5" cy="12.5" r="1.5"></circle><circle cx="11.5" cy="5" r="1.5"></circle><path d="M4.5 5v6"></path><path d="M11.5 6.5c0 3-3.5 2.6-6.6 4.7"></path></svg><span>Branches</span><span class="count">3</span></a>
+            </div>
+            <div class="stack">
+              <div class="side-h">Open incidents</div>
+              <a class="inc on" href="Main.dc.html"><span class="tile t-teal"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="8" cy="8" r="6"></circle><path d="M8 4.5V8l2.5 1.5"></path></svg></span><span>#214 Stale: bioreactor…</span></a>
+              <a class="inc" href="Incident211.dc.html"><span class="tile t-red"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8"></path><path d="M12 4l-8 8"></path></svg></span><span>#211 Audit failed…</span></a>
+            </div>
+            <div class="svc-box" style="margin-top: 0">
+              <div class="svc"><span class="dot bg-green"></span>Dagster<span class="mono">up</span></div>
+              <div class="svc"><span class="dot bg-amber"></span>Object store<span class="mono">slow</span></div>
+              <div class="theme-switch" role="group" aria-label="Theme">
+                <button class="{{lightCls}}" onClick="{{setLight}}">Light</button>
+                <button class="{{darkCls}}" onClick="{{setDark}}">Dark</button>
+              </div>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 9px; padding-top: 4px">
+            <span class="spec-label">.brand · .brand-mark · .env</span>
+            <span class="spec-label" style="padding-top: 12px">.qa · .kbd</span>
+            <span class="spec-label" style="padding-top: 14px">.stack · .nav.on</span>
+            <span class="spec-label" style="padding-top: 12px">.count.alert</span>
+            <span class="spec-label">.count</span>
+            <span class="spec-label" style="padding-top: 16px">.side-h</span>
+            <span class="spec-label">.inc.on · .tile</span>
+            <span class="spec-label" style="padding-top: 22px">.svc-box · .svc</span>
+            <span class="spec-label" style="padding-top: 30px">.theme-switch</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="spec-card">
+        <div class="spec-head"><span class="spec-title">Environment</span><span class="spec-note">Anything not prod is amber</span></div>
+        <div class="spec-body">
+          <div class="spec-examples">
+            <div class="spec-example"><span class="env">prod</span><span class="spec-label">.env</span></div>
+            <div class="spec-example"><span class="env staging">staging</span><span class="spec-label">.env.staging</span></div>
+          </div>
+          <div class="spec-example" style="align-items: stretch">
+            <div class="box"><div class="env-stripe"></div><div class="meta" style="padding: 10px 12px; font-size: 12.5px">Top of the panel on every staging screen</div></div>
+            <span class="spec-label">.env-stripe</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="spec-card">
+        <div class="spec-head"><span class="spec-title">Tiles and avatars</span><span class="spec-note">Incident type, people</span></div>
+        <div class="spec-body">
+          <div class="spec-examples">
+            <div class="spec-example"><span class="tile lg t-teal"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="8" cy="8" r="6"></circle><path d="M8 4.5V8l2.5 1.5"></path></svg></span><span class="spec-label">.t-teal</span></div>
+            <div class="spec-example"><span class="tile lg t-amber"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h10v10H3z"></path><path d="M3 8h10"></path><path d="M8 3v10"></path></svg></span><span class="spec-label">.t-amber</span></div>
+            <div class="spec-example"><span class="tile lg t-red"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8"></path><path d="M12 4l-8 8"></path></svg></span><span class="spec-label">.t-red</span></div>
+            <div class="spec-example"><span class="tile lg t-purple"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="4.5" cy="3.5" r="1.5"></circle><circle cx="4.5" cy="12.5" r="1.5"></circle><path d="M4.5 5v6"></path></svg></span><span class="spec-label">.t-purple</span></div>
+            <div class="spec-example"><span class="tile lg t-blue"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 12l4-4 3 3 5-6"></path></svg></span><span class="spec-label">.t-blue</span></div>
+            <div class="spec-example"><span class="tile lg t-grey"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3 3 7-7"></path></svg></span><span class="spec-label">.t-grey</span></div>
+          </div>
+          <div class="spec-examples">
+            <div class="spec-example"><span class="avatar">GP</span><span class="spec-label">.avatar</span></div>
+            <div class="spec-example"><span class="avatar teal">JK</span><span class="spec-label">.avatar.teal</span></div>
+            <div class="spec-example"><div class="spec-inline" style="gap: 0"><span class="avatar lg">GP</span><span class="avatar lg teal" style="margin-left: -6px">JK</span><span class="avatar lg teal" style="margin-left: -6px">AD</span></div><span class="spec-label">.avatar.lg · stacked</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="spec-card">
+        <div class="spec-head"><span class="spec-title">Run cells</span><span class="spec-note">One cell per run, newest right</span></div>
+        <div class="spec-body">
+          <div class="spec-inline" style="gap: 2px">
+            <sc-for list="{{runs}}" as="r" hint-placeholder-count="24">
+              <span class="run-cell" style="background: {{r.c}}; border: 1px solid {{r.b}}"></span>
+            </sc-for>
+          </div>
+          <div class="spec-examples">
+            <div class="spec-example"><div class="spec-inline"><span class="run-cell" style="background: var(--green-bar)"></span><span style="font-size: 13px">Succeeded</span></div><span class="spec-label">--green-bar</span></div>
+            <div class="spec-example"><div class="spec-inline"><span class="run-cell" style="background: var(--amber-bar)"></span><span style="font-size: 13px">Slow</span></div><span class="spec-label">--amber-bar</span></div>
+            <div class="spec-example"><div class="spec-inline"><span class="run-cell" style="background: var(--red)"></span><span style="font-size: 13px">Failed</span></div><span class="spec-label">--red</span></div>
+            <div class="spec-example"><div class="spec-inline"><span class="run-cell" style="border: 1px solid var(--skip-line)"></span><span style="font-size: 13px">Skipped</span></div><span class="spec-label">--skip-line</span></div>
+          </div>
+          <div class="divider"></div>
+          <div class="spec-example" style="align-items: stretch">
+            <div style="display: flex; gap: 2px; height: 5px"><div class="bg-green" style="flex-grow: 141; border-radius: 2px"></div><div class="bg-red" style="flex-grow: 7; border-radius: 2px"></div></div>
+            <span class="spec-label">health bar · green share vs red share</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="spec-card" style="flex-grow: 1">
+        <div class="spec-head"><span class="spec-title">Loading and empty</span><span class="spec-note">Keep the layout, fade the content</span></div>
+        <div class="spec-body">
+          <div class="spec-example" style="align-items: stretch">
+            <div style="display: flex; flex-direction: column; gap: 8px">
+              <div class="sk" style="height: 12px; width: 60%"></div>
+              <div class="sk soft" style="height: 10px; width: 90%"></div>
+              <div class="sk soft" style="height: 10px; width: 75%"></div>
+            </div>
+            <span class="spec-label">.sk · .sk.soft</span>
+          </div>
+          <div class="spec-example" style="align-items: stretch">
+            <div class="well" style="padding: 18px; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center">
+              <span class="tile lg t-grey"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3 3 7-7"></path></svg></span>
+              <span style="font-size: 14px; font-weight: 500">No open incidents</span>
+              <span class="meta" style="font-size: 12.5px">Say what's fine, and when it was last checked.</span>
+            </div>
+            <span class="spec-label">.well · empty state</span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ============ Column 3: content ============ -->
+    <div class="spec-col">
+
+      <section class="spec-card">
+        <div class="spec-head"><span class="spec-title">Cards and callouts</span><span class="spec-note">Surfaces step down: card › well</span></div>
+        <div class="spec-body">
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+            <div class="spec-example" style="align-items: stretch">
+              <div class="card" style="padding: 14px 16px; display: flex; flex-direction: column; gap: 6px">
+                <div class="eyebrow">Asset freshness</div>
+                <div style="display: flex; align-items: baseline; gap: 6px"><span style="font-size: 26px; font-weight: 500">95.3%</span><span class="meta">141 of 148</span></div>
+              </div>
+              <span class="spec-label">.card · KPI</span>
+            </div>
+            <div class="spec-example" style="align-items: stretch">
+              <div class="stat"><span class="meta" style="font-size: 12px">Failing rows</span><span style="font-size: 20px; font-weight: 500">37</span><span class="meta" style="font-size: 12px">of 4,812</span></div>
+              <span class="spec-label">.stat</span>
+            </div>
+          </div>
+          <div class="spec-example" style="align-items: stretch">
+            <div class="note-blue">Plate P-4471's standard curve fit at R² 0.912, below the 0.98 the lab accepts. The samples are probably fine — the curve isn't.</div>
+            <span class="spec-label">.note-blue · explanation</span>
+          </div>
+          <div class="spec-example" style="align-items: stretch">
+            <div class="note-green">All 431 audits passed on the branch. Safe to merge.</div>
+            <span class="spec-label">.note-green · all clear</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="spec-card">
+        <div class="spec-head"><span class="spec-title">Code</span><span class="spec-note">Diffs, SQL, editor</span></div>
+        <div class="spec-body">
+          <div class="spec-example" style="align-items: stretch">
+            <div class="box">
+              <div class="codebar"><span class="mono c-text2" style="font-size: 12.5px">sources/historian.py</span><span class="pill p-outline">suggested fix</span></div>
+              <div class="code">
+                <div class="ln del"><span class="n">11</span><span>cols = ["ts", "do_pct"]</span></div>
+                <div class="ln add"><span class="n">11</span><span>cols = ["ts", "do_sat_pct"]</span></div>
+                <div class="ln"><span class="n">12</span><span><span class="kw">yield from</span> historian.read(cols)</span></div>
+              </div>
+            </div>
+            <span class="spec-label">.box · .codebar · .code .ln .del .add .kw</span>
+          </div>
+          <div class="spec-example" style="align-items: stretch">
+            <div class="box">
+              <div class="editor"><div class="gut">1
+2</div><div class="src"><span class="kw">select</span> plate_id, <span class="fn">avg</span>(potency_pct)
+<span class="kw">from</span> silver.qc_results <span class="kw">where</span> curve_r2 &lt; <span class="nm">0.98</span><span class="caret-bar"></span></div></div>
+            </div>
+            <span class="spec-label">.editor · .gut · .src · .fn · .nm · .caret-bar</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="spec-card">
+        <div class="spec-head"><span class="spec-title">Data grid</span><span class="spec-note">Types in the header, numbers right</span></div>
+        <div class="spec-body">
+          <div class="spec-example" style="align-items: stretch">
+            <div class="box">
+              <div class="dgrid" style="grid-template-columns: 36px minmax(0, 1fr) 124px 100px">
+                <div class="h"></div><div class="h">sample_id<span class="ty">str</span></div><div class="h" style="justify-content: flex-end">potency_pct<span class="ty">f64</span></div><div class="h" style="justify-content: flex-end">curve_r2<span class="ty">f64</span></div>
+                <div class="c idx">1</div><div class="c">S-26-11904</div><div class="c num" style="color: var(--red-text)">162.4</div><div class="c num">0.912</div>
+                <div class="c idx">2</div><div class="c">S-26-11905</div><div class="c num" style="color: var(--red-text)">41.8</div><div class="c num">0.912</div>
+                <div class="c idx">3</div><div class="c">S-26-11871</div><div class="c num">98.6</div><div class="c num">0.994</div>
+              </div>
+            </div>
+            <span class="spec-label">.dgrid · .h .ty · .c .num .idx</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="spec-card">
+        <div class="spec-head"><span class="spec-title">Timeline</span><span class="spec-note">Dot colour = kind of event</span></div>
+        <div class="spec-body">
+          <div style="position: relative; display: flex; flex-direction: column; gap: 12px; padding-left: 4px">
+            <div class="tl-line" style="left: 8px; top: 12px; bottom: 70px"></div>
+            <div style="display: flex; gap: 14px; position: relative"><span class="tl-dot bg-red"></span><div style="display: flex; flex-direction: column; gap: 2px"><span class="meta" style="font-size: 12px">Problem detected · 5 h ago</span><span style="font-size: 13.5px">Audit blocked <span class="mono" style="font-size: 12.5px">silver.qc_results</span></span></div></div>
+            <div style="display: flex; gap: 14px; align-items: center; position: relative"><span class="ring" style="width: 9px; height: 9px; background: var(--panel)"></span><span class="meta" style="font-size: 12.5px"><span class="hl">Status</span> → <span class="hl">In progress</span></span></div>
+            <div style="display: flex; gap: 14px; position: relative"><span class="tl-dot bg-accent"></span><div style="display: flex; flex-direction: column; gap: 2px"><span class="meta" style="font-size: 12px">Finding · 4 h ago</span><span style="font-size: 13.5px">All 37 failures come from one plate.</span></div></div>
+            <div class="comment" style="margin-left: 0">
+              <div class="spec-inline"><span class="avatar teal">JK</span><span class="meta" style="font-size: 12.5px"><span class="hl">Jo K.</span> commented · 1 h ago</span></div>
+              <div style="font-size: 13.5px; line-height: 1.5">Re-assay booked for 14:00.</div>
+            </div>
+          </div>
+          <span class="spec-label">.tl-line · .tl-dot · .ring · .comment · .hl</span>
+        </div>
+      </section>
+
+      <section class="spec-card" style="flex-grow: 1">
+        <div class="spec-head"><span class="spec-title">Dialog</span><span class="spec-note">Over .scrim, 14 px corners</span></div>
+        <div class="spec-body">
+          <div class="spec-example" style="align-items: stretch">
+            <div style="background: var(--scrim); border-radius: 10px; padding: 18px 28px">
+              <div class="dialog">
+                <div style="padding: 14px 16px 10px; display: flex; flex-direction: column; gap: 4px">
+                  <span style="font-size: 15px; font-weight: 500">Quarantine plate P-4471?</span>
+                  <span class="meta" style="font-size: 12.5px; line-height: 1.45">37 rows move to <span class="mono" style="font-size: 12px">qc_results_quarantine</span>. Batch BR-2026-119 stays held.</span>
+                </div>
+                <div class="bt" style="padding: 10px 16px; display: flex; justify-content: flex-end; gap: 8px">
+                  <button class="btn">Cancel</button>
+                  <button class="btn-primary">Quarantine</button>
+                </div>
+              </div>
+            </div>
+            <span class="spec-label">.scrim · .dialog · .bt footer</span>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1800}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { theme: null, chip: 'Failing', seg: '24 h', tab: 'Activity', sev: 'High' };
+this.onStorage = this.onStorage.bind(this);
+}
+componentDidMount() {
+try { var t = window.localStorage.getItem('phlo-theme'); if (t === 'light' || t === 'dark') this.setState({ theme: t }); } catch (e) {}
+try { window.addEventListener('storage', this.onStorage); } catch (e) {}
+}
+componentWillUnmount() {
+try { window.removeEventListener('storage', this.onStorage); } catch (e) {}
+}
+onStorage(e) {
+if (e && e.key === 'phlo-theme' && (e.newValue === 'light' || e.newValue === 'dark')) this.setState({ theme: e.newValue });
+}
+setTheme(t) {
+this.setState({ theme: t });
+try { window.localStorage.setItem('phlo-theme', t); } catch (e) {}
+}
+renderVals() {
+var self = this;
+var st = this.state;
+var th = st.theme || this.props.theme || 'light';
+var chips = [['All', '104'], ['Failing', '6'], ['Slow', '9'], ['Paused', '3']].map(function (c) {
+return { label: c[0], n: c[1], cls: st.chip === c[0] ? 'chip on' : 'chip', pick: function () { self.setState({ chip: c[0] }); } };
+});
+var segs = ['24 h', '7 d', '30 d'].map(function (s) {
+return { label: s, cls: st.seg === s ? 'on' : '', pick: function () { self.setState({ seg: s }); } };
+});
+var TT = { Activity: 'What happened, in order — findings, status changes, comments.', Runs: 'Each Dagster run with its duration and outcome.', Lineage: 'Upstream sources and everything downstream that is affected.', Snapshots: 'Iceberg snapshots you can compare or roll back to.' };
+var tabs = ['Activity', 'Runs', 'Lineage', 'Snapshots'].map(function (t) {
+return { label: t, cls: st.tab === t ? 'tab on' : 'tab', pick: function () { self.setState({ tab: t }); } };
+});
+var choices = ['High', 'Medium', 'Low'].map(function (c) {
+return { label: c, on: st.sev === c, cls: st.sev === c ? 'choice on' : 'choice', pick: function () { self.setState({ sev: c }); } };
+});
+var C = { s: ['var(--green-bar)', 'var(--green-bar)'], w: ['var(--amber-bar)', 'var(--amber-bar)'], f: ['var(--red)', 'var(--red)'], k: ['transparent', 'var(--skip-line)'] };
+var runs = 'sssssssssswsssskkkssssff'.split('').map(function (k) { return { c: C[k][0], b: C[k][1] }; });
+return {
+rootClass: 'phlo theme-' + th,
+lightCls: th === 'light' ? 'on' : '', darkCls: th === 'dark' ? 'on' : '',
+lightPressed: th === 'light' ? 'true' : 'false', darkPressed: th === 'dark' ? 'true' : 'false',
+setLight: function () { self.setTheme('light'); }, setDark: function () { self.setTheme('dark'); },
+chips: chips, segs: segs, tabs: tabs, tabText: TT[st.tab], choices: choices, runs: runs
+};
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Pipelines</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./theme.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+
+<div class="{{themeClass}}" style="width: 1440px; height: 960px">
+
+<dc-import name="Sidebar" active="pipelines" incident="none" env="prod" variant="standard" theme="{{th}}" on-theme="{{pickTheme}}" hint-size="248px,960px"></dc-import>
+
+<main class="panel">
+  <header class="topbar">
+    <span class="title-sm">Pipelines</span>
+    <span class="meta">8 Dagster jobs · 312 runs in the last 24 h</span>
+    <div style="margin-left: auto; display: flex; align-items: center; gap: 10px">
+      <button class="btn">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="3.5" height="10" rx="1"></rect><rect x="9.5" y="3" width="3.5" height="10" rx="1"></rect></svg>
+        Pause schedules
+      </button>
+      <button class="btn" type="button">Open Dagster
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h7v7"></path><path d="M13 3L4 12"></path></svg>
+      </button>
+    </div>
+  </header>
+
+  <div style="flex-grow: 1; display: flex; min-height: 0">
+    <section class="br" style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column">
+      <div class="job-row"style="padding-top: 0; padding-bottom: 0; height: 38px; background: var(--raised)">
+        <div class="th">Job</div>
+        <div class="th">Schedule</div>
+        <div class="th">Last 24 runs</div>
+        <div class="th" style="text-align: right">Avg</div>
+      </div>
+      <sc-for list="{{jobs}}" as="j" hint-placeholder-count="8">
+        <div class="job-row"style="background: {{j.bg}}">
+          <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0">
+            <div style="display: flex; align-items: center; gap: 8px">
+              <span class="dot md" style="background: {{j.dot}}"></span>
+              <span class="mono" style="font-size: 13.5px">{{j.name}}</span>
+            </div>
+            <div class="meta" style="padding-left: 16px">{{j.kind}} · {{j.status}}</div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 3px">
+            <span class="mono c-text2" style="font-size: 12.5px">{{j.cron}}</span>
+            <span class="meta">{{j.next}}</span>
+          </div>
+          <div style="display: flex; gap: 2px; align-items: center">
+            <sc-for list="{{j.runs}}" as="r" hint-placeholder-count="24">
+              <span style="width: 8px; height: 22px; border-radius: 2px; box-sizing: border-box; background: {{r.c}}; border: 1px solid {{r.b}}"></span>
+            </sc-for>
+          </div>
+          <div class="mono" style="font-size: 13px; text-align: right; color: {{j.avgColor}}">{{j.avg}}</div>
+        </div>
+      </sc-for>
+      <div class="bt meta" style="margin-top: auto; height: 44px; display: flex; align-items: center; gap: 16px; padding: 0 20px">
+        <span style="display: flex; align-items: center; gap: 6px"><span class="legend-cell" style="background: var(--green-bar)"></span>Succeeded</span>
+        <span style="display: flex; align-items: center; gap: 6px"><span class="legend-cell" style="background: var(--amber-bar)"></span>Slow (over 2× median)</span>
+        <span style="display: flex; align-items: center; gap: 6px"><span class="legend-cell bg-red"></span>Failed</span>
+        <span style="display: flex; align-items: center; gap: 6px"><span class="legend-cell" style="border: 1px solid var(--skip-line)"></span>Skipped</span>
+      </div>
+    </section>
+
+    <aside aria-label="Selected run" style="width: 440px; flex-shrink: 0; display: flex; flex-direction: column; overflow: hidden">
+      <div class="bb" style="padding: 22px 24px 18px; display: flex; flex-direction: column; gap: 10px">
+        <div style="display: flex; align-items: center; gap: 8px">
+          <span class="pill p-red" style="font-weight: 500">Failed</span>
+          <span class="meta">Run <span class="mono" style="font-size: 12.5px">e7d8c01</span> · 6 min ago</span>
+        </div>
+        <div class="mono" style="font-size: 18px; font-weight: 500">ingest_bioreactor</div>
+        <div style="display: grid; grid-template-columns: 110px 1fr; row-gap: 10px; margin-top: 4px">
+          <div class="k" style="font-size: 13.5px">Duration</div><div class="v" style="font-size: 13.5px">1 m 16 s</div>
+          <div class="k" style="font-size: 13.5px">Trigger</div><div class="v" style="font-size: 13.5px">Schedule · every 15 min</div>
+          <div class="k" style="font-size: 13.5px">Target</div><div class="v mono" style="font-size: 12.5px">bronze.bioreactor_telemetry</div>
+          <div class="k" style="font-size: 13.5px">Incident</div><div class="v" style="font-size: 13.5px"><a href="Main.dc.html">#214 Stale: bioreactor telemetry</a></div>
+        </div>
+      </div>
+
+      <div class="bb" style="padding: 18px 24px; display: flex; flex-direction: column; gap: 12px">
+        <div class="eyebrow">Steps</div>
+        <div style="display: grid; grid-template-columns: 96px 1fr 56px; align-items: center; row-gap: 10px; column-gap: 12px">
+          <span class="mono" style="font-size: 12.5px">extract</span>
+          <div class="step-bar"style="background: var(--soft); position: relative"><div class="step-bar"style="position: absolute; left: 0; width: 88%; background: var(--green-bar)"></div></div>
+          <span class="mono meta" style="font-size: 12px; text-align: right">1 m 07 s</span>
+
+          <span class="mono" style="font-size: 12.5px">normalize</span>
+          <div class="step-bar"style="background: var(--soft); position: relative"><div class="step-bar bg-red"style="position: absolute; left: 88%; width: 6%"></div></div>
+          <span class="mono c-red" style="font-size: 12px; text-align: right">5 s</span>
+
+          <span class="mono meta" style="font-size: 12.5px">load</span>
+          <div class="step-bar"style="border: 1px dashed var(--skip-line); box-sizing: border-box"></div>
+          <span class="meta" style="font-size: 12px; text-align: right">skipped</span>
+
+          <span class="mono meta" style="font-size: 12.5px">materialize</span>
+          <div class="step-bar"style="border: 1px dashed var(--skip-line); box-sizing: border-box"></div>
+          <span class="meta" style="font-size: 12px; text-align: right">skipped</span>
+        </div>
+      </div>
+
+      <div style="padding: 18px 24px; display: flex; flex-direction: column; gap: 10px">
+        <div class="eyebrow">Error</div>
+        <div class="mono" style="font-size: 12px; line-height: 1.6; color: var(--red-ink); background: var(--red-wash); border: 1px solid var(--red-line); border-radius: 8px; padding: 12px 14px; white-space: pre-wrap">DataValidationError: In schema "bioreactor"
+table "bioreactor_telemetry": column
+"do_sat_pct" is not allowed.
+Contract mode for columns is "freeze".</div>
+        <div class="meta" style="line-height: 1.5">The two runs before this one failed the same way. Nothing was written to the Iceberg table, so it's safe to re-run once the contract is patched.</div>
+      </div>
+
+      <div class="bt" style="margin-top: auto; padding: 16px 24px; display: flex; gap: 10px">
+        <button class="btn-primary lg" style="padding: 0 16px">Re-run from failed step</button>
+        <button class="btn lg">View logs</button>
+      </div>
+    </aside>
+  </div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { theme: null };
+this.onStorage = this.onStorage.bind(this);
+}
+componentDidMount() {
+try { var t = window.localStorage.getItem('phlo-theme'); if (t === 'light' || t === 'dark') this.setState({ theme: t }); } catch (e) {}
+try { window.addEventListener('storage', this.onStorage); } catch (e) {}
+}
+componentWillUnmount() {
+try { window.removeEventListener('storage', this.onStorage); } catch (e) {}
+}
+onStorage(e) {
+if (e && e.key === 'phlo-theme' && (e.newValue === 'light' || e.newValue === 'dark')) this.setState({ theme: e.newValue });
+}
+setTheme(t) {
+this.setState({ theme: t });
+try { window.localStorage.setItem('phlo-theme', t); } catch (e) {}
+}
+renderVals() {
+var self = this;
+var th = this.state.theme || this.props.theme || 'light';
+var C = { s: ['var(--green-bar)', 'var(--green-bar)'], w: ['var(--amber-bar)', 'var(--amber-bar)'], f: ['var(--red)', 'var(--red)'], k: ['transparent', 'var(--skip-line)'] };
+var ST = { fail: 'var(--red)', warn: 'var(--amber)', ok: 'var(--green)', idle: 'var(--faint)' };
+var list = [
+['ingest_bioreactor', 'Ingest · dlt', 'Failing', 'fail', '*/15 * * * *', 'next in 9 min', 'sssssssssssssssskkkkkfff', '1 m 20 s', true],
+['ingest_lims', 'Ingest · dlt', 'Slow', 'warn', '0 * * * *', 'next in 6 min', 'sssssssssssssssswwwwwwww', '11 m 04 s', false],
+['ingest_plate_readers', 'Ingest · dlt', 'Healthy', 'ok', '*/10 * * * *', 'next in 2 min', 'ssssssssssssssssssssssss', '48 s', false],
+['ingest_erp', 'Ingest · dlt', 'Healthy', 'ok', '0 * * * *', 'next in 6 min', 'ssssssssssssssssssssssss', '1 m 02 s', false],
+['transform_silver', 'Transform · dbt', 'Partial', 'warn', 'on upstream', 'sensor', 'sssssssssssssssssssssskk', '3 m 41 s', false],
+['transform_gold', 'Transform · dbt', 'Waiting on upstream', 'idle', 'on upstream', 'sensor', 'ssssssssssssssssssssskkk', '2 m 15 s', false],
+['audits_qc', 'Audits', '1 failing', 'warn', '30 * * * *', 'next in 36 min', 'ssssssssssssssssssssfsss', '54 s', false],
+['iceberg_maintenance', 'Compaction · expiry', 'Healthy', 'ok', '0 2 * * *', 'next at 02:00', 'ssssssssssssssssssssssss', '14 m 30 s', false]
+];
+var jobs = list.map(function (j) {
+return {
+name: j[0], kind: j[1], status: j[2], dot: ST[j[3]], cron: j[4], next: j[5],
+runs: j[6].split('').map(function (k) { return { c: C[k][0], b: C[k][1] }; }),
+avg: j[7], avgColor: j[0] === 'ingest_lims' ? 'var(--amber-ink)' : 'var(--text-2)',
+bg: j[8] ? 'var(--accent-soft)' : 'transparent'
+};
+});
+return {
+themeClass: 'phlo shell theme-' + th,
+th: th, pickTheme: function (t) { self.setTheme(t); },
+jobs: jobs
+};
+}
+}
+</script>
+</body>
+</html>

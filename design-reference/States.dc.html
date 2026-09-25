@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Harder states</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./theme.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+
+<div class="{{themeClass}}" style="width: 1440px; height: 1320px; flex-direction: column; padding: 40px; box-sizing: border-box; gap: 28px">
+
+  <div style="display: flex; align-items: baseline; gap: 14px">
+    <h1 style="margin: 0; font-size: 24px; font-weight: 600; letter-spacing: -0.01em">When things aren't normal</h1>
+    <span class="meta" style="font-size: 14px">How each part of the app behaves when it's busy, broken, empty or not allowed</span>
+  </div>
+
+  <div style="flex-grow: 1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 28px 24px">
+
+    <!-- 1. Running -->
+    <div class="state-frame">
+      <div class="state-head"><b>1 · Job running</b><span>Pipelines › run detail</span></div>
+      <div class="state-shot" style="padding: 18px; gap: 14px">
+        <div style="display: flex; align-items: center; gap: 8px">
+          <span class="pill p-blue" style="display: flex; align-items: center; gap: 6px"><span class="dot" style="background: var(--accent-solid)"></span>Running</span>
+          <span class="meta">Backfill · started 2 min ago</span>
+        </div>
+        <div class="mono" style="font-size: 16px; font-weight: 500">ingest_bioreactor</div>
+        <div class="meta" style="margin-top: -8px">on <span class="mono" style="font-size: 12px; color: var(--purple)">fix/telemetry-schema</span> · partition 4 of 10</div>
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <div class="step-row"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--green)"><path d="M3 8.5l3 3 7-7"></path></svg><span class="mono" style="font-size: 12.5px">extract</span><div class="progress"><div style="position: absolute; inset: 0; background: var(--green-bar); border-radius: 3px"></div></div><span class="mono meta" style="font-size: 11.5px; text-align: right">41 s</span></div>
+          <div class="step-row"><span class="dot md" style="background: var(--accent-solid); margin-left: 3px"></span><span class="mono" style="font-size: 12.5px">normalize</span><div class="progress"><div class="progress-stripe"style="width: 62%"></div></div><span class="mono meta" style="font-size: 11.5px; text-align: right">62%</span></div>
+          <div class="step-row"><span class="dot md" style="border: 1.5px solid var(--skip-line); box-sizing: border-box; margin-left: 3px"></span><span class="mono meta" style="font-size: 12.5px">load</span><div class="progress"></div><span class="meta" style="font-size: 11.5px; text-align: right">waiting</span></div>
+          <div class="step-row"><span class="dot md" style="border: 1.5px solid var(--skip-line); box-sizing: border-box; margin-left: 3px"></span><span class="mono meta" style="font-size: 12.5px">materialize</span><div class="progress"></div><span class="meta" style="font-size: 11.5px; text-align: right">waiting</span></div>
+        </div>
+        <div class="log-block">09:52:14 normalize  rows 11,420 / 18,400
+09:52:15 normalize  do_sat_pct  ok
+09:52:16 normalize  rows 11,904 / 18,400
+09:52:17 normalize  rows 12,388 / 18,400
+09:52:18 normalize  rows 12,871 / 18,400</div>
+        <div style="display: flex; gap: 8px; margin-top: auto">
+          <button class="btn">Cancel run</button>
+          <button class="btn">Follow logs</button>
+          <span class="meta" style="margin-left: auto; align-self: center">~3 min left</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Query failed -->
+    <div class="state-frame">
+      <div class="state-head"><b>2 · Query failed</b><span>Query › editor</span></div>
+      <div class="state-shot">
+        <div class="editor bb" style="font-size: 12.5px">
+          <div class="gut">1
+2
+3
+4
+5</div>
+          <div class="src"><span class="kw">SELECT</span> minute,
+  <span class="fn">avg</span>(ph)     <span class="kw">AS</span> ph,
+  <span class="fn">avg</span>(<span class="squiggle">do_pct</span>) <span class="kw">AS</span> do_pct
+<span class="kw">FROM</span> bronze.bioreactor_telemetry
+<span class="kw">WHERE</span> run_id = <span class="str">'BR-2026-121'</span></div>
+        </div>
+        <div class="bb" style="display: flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px; background: var(--red-wash); color: var(--red-ink); font-size: 12.5px">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="8" cy="8" r="6.5"></circle><path d="M5.5 5.5l5 5"></path><path d="M10.5 5.5l-5 5"></path></svg>
+          Failed after 0.2 s · nothing was read
+        </div>
+        <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px">
+          <div style="font-size: 14px; font-weight: 500">Column <span class="mono" style="font-size: 13px">do_pct</span> doesn't exist on this branch</div>
+          <div class="meta" style="line-height: 1.5">You're querying <span class="mono" style="font-size: 12px; color: var(--purple)">fix/telemetry-schema</span>, where it was renamed at v7. Line 3, column 7.</div>
+          <div class="query" style="font-size: 11.5px; color: var(--red-ink); background: var(--red-wash); border-color: var(--red-line)">Binder Error: Referenced column "do_pct" not found.
+Candidate bindings: "do_sat_pct"</div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap">
+            <button class="btn-primary">Use do_sat_pct</button>
+            <button class="btn">Run on main instead</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Empty -->
+    <div class="state-frame">
+      <div class="state-head"><b>3 · Nothing found</b><span>Assets › search</span></div>
+      <div class="state-shot">
+        <div class="bb" style="display: flex; align-items: center; gap: 8px; padding: 12px 14px">
+          <label style="display: flex; align-items: center; gap: 8px; height: 32px; flex-grow: 1; padding: 0 10px; border: 1px solid var(--accent-solid); border-radius: 8px; background: var(--panel); box-shadow: 0 0 0 3px var(--accent-soft)">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" style="color: var(--muted)"><circle cx="7" cy="7" r="4.5"></circle><path d="M10.5 10.5L14 14"></path></svg>
+            <input type="text" aria-label="Filter assets" value="bioreacter" style="border: none; background: transparent; outline: none; font-size: 13.5px; color: var(--text); flex-grow: 1; min-width: 0">
+          </label>
+        </div>
+        <div class="bb" style="display: flex; gap: 6px; padding: 10px 14px">
+          <span class="chip on" style="height: 26px; font-size: 12px">Gold</span>
+          <span class="chip on" style="height: 26px; font-size: 12px">Needs attention</span>
+        </div>
+        <div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 24px; text-align: center">
+          <span class="tile t-grey" style="width: 44px; height: 44px; border-radius: 12px"><svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"></circle><path d="M10.5 10.5L14 14"></path><path d="M5.5 7h3"></path></svg></span>
+          <div style="font-size: 15px; font-weight: 500">No tables match "bioreacter"</div>
+          <div class="meta" style="line-height: 1.5; max-width: 300px">Two filters are also on, which hides most tables.</div>
+          <div style="display: flex; flex-direction: column; gap: 8px; align-items: center; margin-top: 4px">
+            <a href="Assets.dc.html" style="font-size: 13.5px">Did you mean <span class="mono" style="font-size: 13px">bioreactor</span>? 6 tables</a>
+            <button class="btn">Clear 2 filters</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Not allowed -->
+    <div class="state-frame">
+      <div class="state-head"><b>4 · Not allowed</b><span>Branches › merge</span></div>
+      <div class="state-shot">
+        <div class="bb" style="padding: 16px 18px; display: flex; flex-direction: column; gap: 4px">
+          <div style="font-size: 15px; font-weight: 600">Merge into <span class="mono" style="font-size: 14px">main</span></div>
+          <div class="meta"><span class="mono" style="font-size: 12px">fix/elisa-dilution-factor</span> · 1 commit</div>
+        </div>
+        <div style="padding: 16px 18px; display: flex; flex-direction: column; gap: 14px">
+          <div class="note-green" style="display: flex; align-items: center; gap: 8px; padding: 9px 12px; font-size: 13px">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0"><circle cx="8" cy="8" r="6.5"></circle><path d="M5 8.2l2 2 4-4"></path></svg>
+            All checks passed
+          </div>
+          <div style="display: flex; gap: 12px; padding: 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--raised)">
+            <span class="tile lg t-grey" style="width: 30px; height: 30px; border-radius: 8px"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="10" height="7" rx="1.5"></rect><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"></path></svg></span>
+            <div style="display: flex; flex-direction: column; gap: 4px">
+              <div style="font-size: 14px; font-weight: 500">You can't sign merges into main</div>
+              <div class="meta" style="line-height: 1.5">Your role is Engineer. Merges into <span class="mono" style="font-size: 12px">main</span> need an Approver's signature.</div>
+            </div>
+          </div>
+          <div class="fgroup">
+            <span class="flabel" style="font-size: 13px">Ask an approver</span>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap">
+              <span class="token"><span class="avatar" style="width: 16px; height: 16px; font-size: 7px">GP</span>Gareth</span>
+              <span class="token"><span class="avatar teal" style="width: 16px; height: 16px; font-size: 7px">SR</span>Sam R.</span>
+              <span class="token" style="color: var(--muted)">Lee W. · signing not set up</span>
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px">
+            <button class="btn-primary">Request approval</button>
+            <a class="btn" href="Members.dc.html">Who can approve?</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Catalog down -->
+    <div class="state-frame">
+      <div class="state-head"><b>5 · Catalog unreachable</b><span>Every screen</span></div>
+      <div class="state-shot">
+        <div style="display: flex; gap: 10px; padding: 12px 14px; background: var(--red-wash); border-bottom: 1px solid var(--red-line); color: var(--red-ink); font-size: 13px; line-height: 1.45">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 1px"><path d="M8 2.5L14 13H2L8 2.5Z"></path><path d="M8 6.5v3"></path><path d="M8 11.3v.1"></path></svg>
+          <span><strong style="font-weight: 600">Can't reach the Nessie catalog.</strong> Showing what we last saw at 09:37. Branching, merging and backfills are paused until it's back.</span>
+        </div>
+        <div class="bb" style="display: flex; align-items: center; gap: 10px; padding: 8px 14px; font-size: 12.5px">
+          <span class="meta">Retrying in 20 s</span>
+          <button class="btn" style="height: 26px; font-size: 12.5px; margin-left: auto">Retry now</button>
+          <button class="btn" type="button" style="height: 26px; font-size: 12.5px">Status page</button>
+        </div>
+        <div style="padding: 14px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+          <div class="stat dimmed"><div class="eyebrow">Asset freshness</div><div style="font-size: 20px; font-weight: 500">141 / 148</div><span class="pill p-grey" style="align-self: flex-start; font-size: 11px">4 min old</span></div>
+          <div class="stat dimmed"><div class="eyebrow">Branches</div><div style="font-size: 20px; font-weight: 500">4</div><span class="pill p-grey" style="align-self: flex-start; font-size: 11px">4 min old</span></div>
+          <div class="stat"><div class="eyebrow">Dagster runs</div><div style="font-size: 20px; font-weight: 500">312</div><span class="pill p-green" style="align-self: flex-start; font-size: 11px">live</span></div>
+          <div class="stat"><div class="eyebrow">Audits</div><div style="font-size: 20px; font-weight: 500">425 / 431</div><span class="pill p-green" style="align-self: flex-start; font-size: 11px">live</span></div>
+        </div>
+        <div style="padding: 0 14px 14px; display: flex; flex-direction: column; gap: 8px">
+          <div class="eyebrow">Services</div>
+          <div class="svc"><span class="dot bg-green"></span>Dagster<span class="mono">up</span></div>
+          <div class="svc"><span class="dot bg-red"></span>Nessie catalog<span class="mono c-red" style="color: var(--red-text)">down 4 min</span></div>
+          <div class="svc"><span class="dot bg-green"></span>Postgres<span class="mono">up</span></div>
+          <div class="svc"><span class="dot bg-amber"></span>Object store<span class="mono">slow</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Loading -->
+    <div class="state-frame">
+      <div class="state-head"><b>6 · First load</b><span>Overview</span></div>
+      <div class="state-shot" style="padding: 16px; gap: 14px">
+        <div style="display: flex; align-items: center; gap: 8px" class="meta">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="color: var(--accent)"><path d="M8 2a6 6 0 1 1-6 6"></path></svg>
+          Connecting to Dagster and Nessie…
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+          <div class="stat" style="gap: 10px"><div class="sk soft"style="width: 60%; height: 10px"></div><div class="sk soft"style="width: 45%; height: 22px"></div><div class="sk soft"style="height: 5px"></div></div>
+          <div class="stat" style="gap: 10px"><div class="sk soft"style="width: 50%; height: 10px"></div><div class="sk soft"style="width: 35%; height: 22px"></div><div class="sk soft"style="width: 70%; height: 10px"></div></div>
+        </div>
+        <div class="stat" style="gap: 12px">
+          <div class="sk soft"style="width: 30%; height: 12px"></div>
+          <div style="display: flex; gap: 8px"><div class="sk soft"style="flex-grow: 1; height: 70px"></div><div class="sk soft"style="flex-grow: 1; height: 70px"></div><div class="sk soft"style="flex-grow: 1; height: 70px"></div></div>
+        </div>
+        <div class="stat" style="gap: 12px; flex-grow: 1">
+          <div class="sk soft"style="width: 40%; height: 12px"></div>
+          <div style="display: flex; gap: 10px; align-items: center"><div class="sk soft"style="width: 8px; height: 8px; border-radius: 50%"></div><div class="sk soft"style="flex-grow: 1; height: 12px"></div></div>
+          <div style="display: flex; gap: 10px; align-items: center"><div class="sk soft"style="width: 8px; height: 8px; border-radius: 50%"></div><div class="sk soft"style="width: 70%; height: 12px"></div></div>
+          <div style="display: flex; gap: 10px; align-items: center"><div class="sk soft"style="width: 8px; height: 8px; border-radius: 50%"></div><div class="sk soft"style="width: 85%; height: 12px"></div></div>
+        </div>
+        <div class="meta" style="font-size: 12px">Shapes match the real layout so nothing jumps when data arrives.</div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1320}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { theme: null };
+this.onStorage = this.onStorage.bind(this);
+}
+componentDidMount() {
+try { var t = window.localStorage.getItem('phlo-theme'); if (t === 'light' || t === 'dark') this.setState({ theme: t }); } catch (e) {}
+try { window.addEventListener('storage', this.onStorage); } catch (e) {}
+}
+componentWillUnmount() {
+try { window.removeEventListener('storage', this.onStorage); } catch (e) {}
+}
+onStorage(e) {
+if (e && e.key === 'phlo-theme' && (e.newValue === 'light' || e.newValue === 'dark')) this.setState({ theme: e.newValue });
+}
+renderVals() {
+var th = this.state.theme || this.props.theme || 'light';
+return { themeClass: 'phlo shell theme-' + th };
+}
+}
+</script>
+</body>
+</html>

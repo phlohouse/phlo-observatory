@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Screen patterns</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./theme.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+
+<div class="{{rootClass}}">
+<div class="spec-page" style="height: 2300px">
+
+  <header style="display: flex; align-items: center; gap: 14px">
+    <div class="brand-mark" style="width: 30px; height: 30px; font-size: 16px; border-radius: 8px">φ</div>
+    <div style="display: flex; flex-direction: column; gap: 2px">
+      <div style="font-size: 22px; font-weight: 500; letter-spacing: -.01em">Screen patterns</div>
+      <div class="meta">The bigger pieces built for particular screens. Each card names the screen it comes from. Every class is defined once, in <span class="mono" style="font-size: 12px">theme.css</span>, so a name always means the same look.</div>
+    </div>
+    <div style="margin-left: auto; display: flex; align-items: center; gap: 12px">
+      <a href="Components.dc.html" class="btn">← Components</a>
+      <div class="theme-switch" role="group" aria-label="Theme" style="margin-top: 0; width: 180px">
+        <button class="{{lightCls}}" aria-pressed="{{lightPressed}}" onClick="{{setLight}}">Light</button>
+        <button class="{{darkCls}}" aria-pressed="{{darkPressed}}" onClick="{{setDark}}">Dark</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== Run timeline ===== -->
+  <section class="spec-card">
+    <div class="spec-head"><span class="spec-title">Run timeline</span><span class="meta" style="font-size: 12.5px">Jobs down, time across · one square per 30 min · groups fold</span><span class="spec-note">from <a href="RunTimeline.dc.html">Run timeline</a></span></div>
+    <div style="display: flex; min-height: 0">
+      <div class="spec-body" style="flex-grow: 1; min-width: 0; gap: 4px">
+        <div class="timeline-row" style="height: 20px">
+          <span class="spec-label">.timeline-row · axis</span>
+          <div style="position: relative; height: 20px">
+            <div class="mono meta" style="position: absolute; left: 0; top: 2px; font-size: 11px">10:00</div>
+            <div class="mono meta" style="position: absolute; left: 25%; top: 2px; font-size: 11px">16:00</div>
+            <div class="mono meta" style="position: absolute; left: 50%; top: 2px; font-size: 11px">22:00</div>
+            <div class="mono meta" style="position: absolute; left: 75%; top: 2px; font-size: 11px">04:00</div>
+            <div class="mono meta" style="position: absolute; right: 0; top: 2px; font-size: 11px">now</div>
+          </div>
+        </div>
+        <div class="timeline-row" style="height: 18px; margin-bottom: 6px">
+          <span class="meta" style="font-size: 11.5px">Events <span class="spec-label">· event band</span></span>
+          <div class="cell-row" style="height: 16px">
+            <sc-for list="{{events}}" as="e" hint-placeholder-count="48"><span style="background: {{e.bg}}"></span></sc-for>
+          </div>
+        </div>
+        <sc-for list="{{tgroups}}" as="g" hint-placeholder-count="2">
+          <div style="display: flex; flex-direction: column; gap: 2px; margin-bottom: 6px">
+            <button class="group-head"aria-expanded="{{g.expanded}}" onClick="{{g.toggle}}"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color: var(--faint)"><path d="{{g.chev}}"></path></svg>{{g.name}}<span class="meta">{{g.meta}}</span></button>
+            <sc-for list="{{g.rows}}" as="r" hint-placeholder-count="3">
+              <div class="timeline-row">
+                <span class="timeline-label" style="color: {{r.color}}">{{r.name}}</span>
+                <div class="cell-row"><sc-for list="{{r.cells}}" as="c" hint-placeholder-count="48"><span style="background: {{c.bg}}; border: 1px solid {{c.b}}"></span></sc-for></div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-for>
+        <div class="meta" style="display: flex; align-items: center; gap: 14px; font-size: 12px; padding-top: 6px">
+          <span style="display: flex; align-items: center; gap: 5px"><span style="width: 10px; height: 10px; border-radius: 2px; background: var(--sla-ok)"></span>Succeeded</span>
+          <span style="display: flex; align-items: center; gap: 5px"><span style="width: 10px; height: 10px; border-radius: 2px; background: var(--amber-bar)"></span>Slow</span>
+          <span style="display: flex; align-items: center; gap: 5px"><span class="bg-red" style="width: 10px; height: 10px; border-radius: 2px"></span>Failed</span>
+          <span style="display: flex; align-items: center; gap: 5px"><span style="width: 10px; height: 10px; border-radius: 2px; box-sizing: border-box; border: 1px solid var(--skip-line)"></span>Skipped</span>
+          <span style="display: flex; align-items: center; gap: 5px"><span style="width: 10px; height: 10px; border-radius: 2px; background: var(--purple-soft)"></span>Planned maintenance</span>
+          <span style="display: flex; align-items: center; gap: 5px"><span style="width: 10px; height: 10px; border-radius: 2px; background: var(--red-soft)"></span>Incident open</span>
+          <span class="spec-label" style="margin-left: auto">.cell-row · .timeline-label · .group-head (click to fold)</span>
+        </div>
+      </div>
+      <aside class="bl" style="width: 320px; flex-shrink: 0; box-sizing: border-box; padding: 14px 20px; background: var(--raised); display: flex; flex-direction: column">
+        <div class="eyebrow">Pattern notes</div>
+        <div class="pattern-note">
+          <b><span class="dot md bg-red"></span>One cause, three failures</b>
+          <span>Jobs reading the historian skipped during maintenance, then failed together.</span>
+        </div>
+        <div class="pattern-note" style="border-bottom: none">
+          <b><span class="dot md" style="background: var(--amber-bar)"></span>LIMS slow since 02:00</b>
+          <span>Four jobs slowed at once with no code change, so the source is the likely cause.</span>
+        </div>
+        <span class="spec-label">.pattern-note</span>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ===== Scale list ===== -->
+  <section class="spec-card">
+    <div class="spec-head"><span class="spec-title">Job list at scale</span><span class="meta" style="font-size: 12.5px">Facets instead of scrolling · problems open, healthy groups folded</span><span class="spec-note">from <a href="PipelinesScale.dc.html">Pipelines · 104 jobs</a></span></div>
+    <div style="display: flex">
+      <div class="br" style="width: 210px; flex-shrink: 0; padding: 14px 10px; display: flex; flex-direction: column; gap: 14px">
+        <div class="facet">
+          <div class="facet-h">Status</div>
+          <sc-for list="{{facets}}" as="f" hint-placeholder-count="4">
+            <label class="facet-item"><input type="checkbox" checked="{{f.on}}" onChange="{{f.toggle}}"><span class="dot" style="background: {{f.color}}"></span>{{f.label}}<span class="facet-count">{{f.n}}</span></label>
+          </sc-for>
+        </div>
+        <span class="spec-label" style="padding: 0 6px">.facet · .facet-h · .facet-item · .facet-count</span>
+      </div>
+      <div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column">
+        <div class="scale-row" style="height: 32px; background: var(--raised)">
+          <span></span><span class="th">Job</span><span class="th">Schedule</span><span class="th">Status</span><span class="th">Last 24 runs</span><span class="th" style="text-align: right">Rate</span><span class="th">Owner</span>
+        </div>
+        <div class="scale-group">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color: var(--faint)"><path d="M4 6l4 4 4-4"></path></svg>
+          <span style="font-weight: 500">Bioreactor</span><span class="meta">14 jobs</span><span class="meta">3 failing · same cause</span>
+          <span class="health-mix"><span style="flex-grow: 11; background: var(--sla-ok)"></span><span style="flex-grow: 3; background: var(--red)"></span></span>
+          <span class="mono meta" style="text-align: right; font-size: 12px">79%</span><span class="meta">Process Dev</span>
+        </div>
+        <sc-for list="{{jobs}}" as="j" hint-placeholder-count="3">
+          <div class="scale-row">
+            <span class="dot" style="background: {{j.dot}}"></span>
+            <span class="mono" style="font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{j.name}}</span>
+            <span class="mono meta" style="font-size: 12px">{{j.cron}}</span>
+            <span style="font-size: 12.5px; color: {{j.statusColor}}">{{j.status}}</span>
+            <span class="mini-cells"><sc-for list="{{j.cells}}" as="c" hint-placeholder-count="24"><span style="background: {{c.bg}}; border: 1px solid {{c.b}}"></span></sc-for></span>
+            <span class="mono meta" style="text-align: right; font-size: 12px">{{j.rate}}</span>
+            <span class="meta">{{j.owner}}</span>
+          </div>
+        </sc-for>
+        <div class="scale-group">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color: var(--faint)"><path d="M6 4l4 4-4 4"></path></svg>
+          <span style="font-weight: 500">Assay · Reporting</span><span class="meta">31 jobs</span><span class="meta">All healthy</span>
+          <span class="health-mix"><span style="flex-grow: 31; background: var(--sla-ok)"></span></span>
+          <span class="mono meta" style="text-align: right; font-size: 12px">100%</span><span class="meta">Assay Dev</span>
+        </div>
+        <div style="display: flex; gap: 18px; padding: 10px 16px">
+          <span class="spec-label">.scale-group · group row, open / folded</span>
+          <span class="spec-label">.scale-row · job row</span>
+          <span class="spec-label">.mini-cells · 24 runs at 5 px</span>
+          <span class="spec-label">.health-mix · group health share</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="spec-grid3">
+
+    <!-- Column 1: charts -->
+    <div class="spec-col">
+      <section class="spec-card">
+        <div class="spec-head"><span class="spec-title">Runs by hour</span><span class="spec-note">from <a href="Overview.dc.html">Overview</a></span></div>
+        <div class="spec-body">
+          <div style="display: flex; align-items: flex-end; gap: 4px; height: 110px; border-bottom: 1px solid var(--grid)">
+            <sc-for list="{{hours}}" as="h" hint-placeholder-count="24">
+              <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px">
+                <sc-if value="{{h.hasFail}}" hint-placeholder-val="{{ false }}"><div class="bg-red" style="height: {{h.failH}}px; border-radius: 2px"></div></sc-if>
+                <div style="height: {{h.okH}}px; background: var(--bar); border-radius: 2px"></div>
+              </div>
+            </sc-for>
+          </div>
+          <span class="spec-label">stacked bars · --bar with --red on top</span>
+        </div>
+      </section>
+
+      <section class="spec-card">
+        <div class="spec-head"><span class="spec-title">Freshness with SLA line</span><span class="spec-note">from <a href="Main.dc.html">Incident #214</a></span></div>
+        <div class="spec-body">
+          <svg width="100%" height="120" viewBox="0 0 400 120" preserveAspectRatio="none" aria-label="Minutes since last load, crossing the 60-minute SLA">
+            <rect x="250" y="0" width="60" height="110" style="fill: var(--purple-soft)"></rect>
+            <line x1="0" y1="110" x2="400" y2="110" style="stroke: var(--grid)"></line>
+            <line x1="0" y1="62" x2="400" y2="62" style="stroke: var(--red); stroke-dasharray: 4 4"></line>
+            <polyline points="0,100 30,96 60,100 90,97 120,100 150,98 180,100 210,97 250,100 280,88 310,74 340,60 370,44 400,28" style="fill: none; stroke: var(--chart-line); stroke-width: 2"></polyline>
+            <polyline points="340,60 370,44 400,28" style="fill: none; stroke: var(--red); stroke-width: 2.5"></polyline>
+          </svg>
+          <div class="meta" style="display: flex; gap: 14px; font-size: 12px">
+            <span style="display: flex; align-items: center; gap: 6px"><span style="width: 14px; border-top: 2px dashed var(--red)"></span>SLA 60 m</span>
+            <span style="display: flex; align-items: center; gap: 6px"><span class="sw" style="background: var(--purple-soft)"></span>Maintenance window</span>
+          </div>
+          <span class="spec-label">--chart-line · breach in --red · window in --purple-soft</span>
+        </div>
+      </section>
+
+      <section class="spec-card">
+        <div class="spec-head"><span class="spec-title">Breakdown bars</span><span class="spec-note">from <a href="Incident211.dc.html">Incident #211</a></span></div>
+        <div class="spec-body" style="gap: 6px">
+          <div class="breakdown-row"><span class="meta">Plate</span><div class="track"><div class="track-fill bg-red" style="width: 100%"></div></div><span class="mono" style="font-size: 12px; text-align: right">P-4471</span></div>
+          <div class="breakdown-row"><span class="meta">Batch</span><div class="track"><div class="track-fill bg-red" style="width: 100%"></div></div><span class="mono" style="font-size: 12px; text-align: right">1 of 6</span></div>
+          <div class="breakdown-row"><span class="meta">Curve fit R²</span><div class="track"><div class="track-fill" style="width: 91%; background: var(--amber-bar)"></div><div style="position: absolute; left: 98%; top: -2px; bottom: -2px; width: 2px; background: var(--text)"></div></div><span class="mono" style="font-size: 12px; text-align: right">0.912</span></div>
+          <span class="spec-label" style="padding-top: 8px">.breakdown-row · .track · .track-fill · threshold tick</span>
+        </div>
+      </section>
+
+      <section class="spec-card">
+        <div class="spec-head"><span class="spec-title">Data flow</span><span class="spec-note">from <a href="Overview.dc.html">Overview</a></span></div>
+        <div class="spec-body">
+          <div style="display: flex; gap: 6px">
+            <div class="layer-card"><div style="display: flex; align-items: center; gap: 6px"><span class="sw lg bg-bronze"></span><span style="font-size: 13px; font-weight: 500">Bronze</span></div><span style="font-size: 20px; font-weight: 500">52</span><div style="display: flex; gap: 2px; height: 5px"><div class="bg-green" style="flex-grow: 49; border-radius: 2px"></div><div class="bg-red" style="flex-grow: 3; border-radius: 2px"></div></div></div>
+            <svg class="flow-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10"></path><path d="M9 4l4 4-4 4"></path></svg>
+            <div class="layer-card"><div style="display: flex; align-items: center; gap: 6px"><span class="sw lg bg-silver"></span><span style="font-size: 13px; font-weight: 500">Silver</span></div><span style="font-size: 20px; font-weight: 500">61</span><div style="display: flex; gap: 2px; height: 5px"><div class="bg-green" style="flex-grow: 59; border-radius: 2px"></div><div class="bg-red" style="flex-grow: 2; border-radius: 2px"></div></div></div>
+            <svg class="flow-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10"></path><path d="M9 4l4 4-4 4"></path></svg>
+            <div class="layer-card"><div style="display: flex; align-items: center; gap: 6px"><span class="sw lg bg-gold"></span><span style="font-size: 13px; font-weight: 500">Gold</span></div><span style="font-size: 20px; font-weight: 500">35</span><div style="display: flex; gap: 2px; height: 5px"><div class="bg-green" style="flex-grow: 33; border-radius: 2px"></div><div class="bg-red" style="flex-grow: 2; border-radius: 2px"></div></div></div>
+          </div>
+          <span class="spec-label">.layer-card · .flow-arrow · health bar</span>
+        </div>
+      </section>
+
+      <section class="spec-card">
+        <div class="spec-head"><span class="spec-title">Lineage and branch graph</span><span class="spec-note">from <a href="AssetDetail.dc.html">Asset detail</a>, <a href="Branches.dc.html">Branches</a></span></div>
+        <div class="spec-body">
+          <svg width="100%" height="70" viewBox="0 0 400 70" aria-label="Lineage from source to gold with the broken table highlighted">
+            <line x1="92" y1="35" x2="118" y2="35" style="stroke: var(--border-strong)"></line>
+            <line x1="212" y1="35" x2="238" y2="35" style="stroke: var(--border-strong)"></line>
+            <line x1="332" y1="35" x2="346" y2="35" style="stroke: var(--border-strong); stroke-dasharray: 3 3"></line>
+            <rect x="2" y="18" width="90" height="34" rx="8" style="fill: var(--panel); stroke: var(--border-strong)"></rect>
+            <text x="47" y="39" text-anchor="middle" style="fill: var(--text-2); font-size: 11px; font-family: Geist, sans-serif">historian</text>
+            <rect x="118" y="18" width="94" height="34" rx="8" style="fill: var(--red-wash); stroke: var(--red)"></rect>
+            <text x="165" y="39" text-anchor="middle" style="fill: var(--red-ink); font-size: 11px; font-family: Geist, sans-serif; font-weight: 500">bronze · stale</text>
+            <rect x="238" y="18" width="94" height="34" rx="8" style="fill: var(--panel); stroke: var(--amber)"></rect>
+            <text x="285" y="39" text-anchor="middle" style="fill: var(--text-2); font-size: 11px; font-family: Geist, sans-serif">silver · 3 stale</text>
+            <rect x="346" y="18" width="52" height="34" rx="8" style="fill: var(--soft); stroke: var(--border)"></rect>
+            <text x="372" y="39" text-anchor="middle" style="fill: var(--muted); font-size: 11px; font-family: Geist, sans-serif">+3</text>
+          </svg>
+          <svg width="100%" height="56" viewBox="0 0 400 56" aria-label="Branch graph: a fix branch leaving main and merging back">
+            <line x1="10" y1="14" x2="390" y2="14" style="stroke: var(--text-3); stroke-width: 2"></line>
+            <path d="M110 14 C 140 14, 140 42, 170 42 L 280 42 C 310 42, 310 14, 340 14" style="fill: none; stroke: var(--purple); stroke-width: 2"></path>
+            <circle cx="60" cy="14" r="5" style="fill: var(--panel); stroke: var(--text-3); stroke-width: 2"></circle>
+            <circle cx="110" cy="14" r="5" style="fill: var(--panel); stroke: var(--text-3); stroke-width: 2"></circle>
+            <circle cx="200" cy="42" r="5" style="fill: var(--panel); stroke: var(--purple); stroke-width: 2"></circle>
+            <circle cx="250" cy="42" r="5" style="fill: var(--purple); stroke: var(--purple); stroke-width: 2"></circle>
+            <circle cx="340" cy="14" r="5" style="fill: var(--panel); stroke: var(--text-3); stroke-dasharray: 2 2; stroke-width: 2"></circle>
+          </svg>
+          <span class="spec-label">broken node in --red-wash · branches in --purple · pending merge dashed</span>
+        </div>
+      </section>
+    </div>
+
+    <!-- Column 2: decisions & change -->
+    <div class="spec-col">
+      <section class="spec-card">
+        <div class="spec-head"><span class="spec-title">Decision options</span><span class="spec-note">from <a href="Incident213.dc.html">#213</a>, <a href="Materialize.dc.html">Materialize</a></span></div>
+        <div class="spec-body" style="gap: 8px">
+          <sc-for list="{{modes}}" as="m" hint-placeholder-count="3">
+            <label class="{{m.cls}}"><input type="radio" name="pt-mode" checked="{{m.on}}" onChange="{{m.pick}}"><span><b>{{m.title}}</b><small>{{m.sub}}</small></span></label>
+          </sc-for>
+          <span class="spec-label" style="padding-top: 6px">.option-card · .option-card.on · b + small (try it)</span>
+        </div>
+      </section>
+
+      <section class="spec-card">
+        <div class="spec-head"><span class="spec-title">Change rows</span><span class="spec-note">from <a href="OverviewStaging.dc.html">Staging</a></span></div>
+        <div class="spec-body" style="gap: 0">
+          <div class="diff-row"><span class="tile t-blue" style="font-size: 11px; font-weight: 600">+</span><div style="display: flex; flex-direction: column; gap: 2px; min-width: 0"><span class="mono" style="font-size: 12.5px">qc_potency_v2</span><span class="meta" style="font-size: 12.5px">New job · replaces qc_potency</span></div><span class="pill p-red">2 of 6 failed</span></div>
+          <div class="diff-row"><span class="tile t-amber" style="font-size: 11px; font-weight: 600">~</span><div style="display: flex; flex-direction: column; gap: 2px; min-width: 0"><span class="mono" style="font-size: 12.5px">bronze.elisa_plate_reads</span><span class="meta" style="font-size: 12.5px">Adds dilution_factor</span></div><span class="pill p-amber">Needs sign-off</span></div>
+          <div class="diff-row" style="border-bottom: none"><span class="tile t-red" style="font-size: 11px; font-weight: 600">−</span><div style="display: flex; flex-direction: column; gap: 2px; min-width: 0"><span class="mono" style="font-size: 12.5px">schedule: legacy_lims_extract</span><span class="meta" style="font-size: 12.5px">Removed</span></div><span class="pill p-grey">Draft</span></div>
+          <div style="display: flex; align-items: center; gap: 12px; padding: 10px 0 4px; flex-wrap: wrap">
+            <span class="check-mark"><span style="color: var(--green-text); font-weight: 600">✓</span>Runs</span>
+            <span class="check-mark"><span style="color: var(--red-text); font-weight: 600">✕</span>2 runs failed</span>
+            <span class="check-mark"><span style="color: var(--amber-ink); font-weight: 600">!</span>Sign-off</span>
+            <span class="check-mark"><span style="color: var(--faint); font-weight: 600">○</span>Not run</span>
+          </div>
+          <span class="spec-label" style="padding-top: 8px">.diff-row · + ~ − tiles · .check-mark marks</span>
+        </div>
+      </section>
+
+      <section class="spec-card">
+        <div class="spec-head"><span class="spec-title">Schema diff and versions</span><span class="spec-note">from <a href="AssetDetail.dc.html">Asset detail</a></span></div>
+        <div class="spec-body">
+          <div class="box mono" style="font-size: 12.5px; line-height: 30px">
+            <div class="schema-diff"><span class="diff-muted">4</span><span>ph</span><span class="diff-muted">double</span><span class="diff-muted">unchanged</span></div>
+            <div class="schema-diff del"><span>−</span><span>do_pct</span><span>double</span><span>removed</span></div>
+            <div class="schema-diff add"><span>+</span><span>do_sat_pct</span><span>double</span><span>added</span></div>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+            <div class="version-card on"><span class="mono" style="font-size: 12.5px; color: var(--purple)">v14 · branch</span><span class="meta" style="font-size: 12px">fix/telemetry-schema</span></div>
+            <div class="version-card" style="border: 1px solid var(--border-card)"><span class="mono" style="font-size: 12.5px">v13 · main</span><span class="meta" style="font-size: 12px">8f3c21a · 3 d ago</span></div>
+          </div>
+          <span class="spec-label">.schema-diff · .schema-diff.del · .schema-diff.add · .version-card · .version-card.on</span>
+        </div>
+      </section>
+
+      <section class="spec-card">
+        <div class="spec-head"><span class="spec-title">Running job</span><span class="spec-note">from <a href="States.dc.html">Harder states</a></span></div>
+        <div class="spec-body" style="gap: 10px">
+          <div class="step-row"><span class="c-green">✓</span><span class="mono" style="font-size: 12.5px">extract</span><div class="progress"><div class="track-fill" style="width: 100%; background: var(--green-bar)"></div></div><span class="mono meta" style="font-size: 12px; text-align: right">1 m 07</span></div>
+          <div class="step-row"><span class="dot md bg-accent"></span><span class="mono" style="font-size: 12.5px">backfill</span><div class="progress"><div class="progress-stripe"style="width: 62%"></div></div><span class="mono meta" style="font-size: 12px; text-align: right">62%</span></div>
+          <div class="step-row"><span class="c-muted">○</span><span class="mono meta" style="font-size: 12.5px">audits</span><div class="progress"></div><span class="meta" style="font-size: 12px; text-align: right">waiting</span></div>
+          <div class="log-block">09:31:04  partition 2026-09-24T07 → 14,220 rows
+09:31:09  partition 2026-09-24T08 → 14,198 rows</div>
+          <span class="spec-label">.step-row · .progress · .progress-stripe (in progress) · .log-block</span>
+        </div>
+      </section>
+
+      <section class="spec-card">
+        <div class="spec-head"><span class="spec-title">Special inputs</span><span class="spec-note">from <a href="NewBranch.dc.html">New branch</a>, <a href="AddAudit.dc.html">Add audit</a></span></div>
+        <div class="spec-body">
+          <div class="spec-example" style="align-items: stretch"><div class="prefix-input"><span>fix/</span><input value="qc-curve-gate" aria-label="Branch name"></div><span class="spec-label">.prefix-input · fixed prefix + free text</span></div>
+          <div class="spec-example" style="align-items: stretch"><div class="unit-input"><input value="0.98" aria-label="Minimum R²"><span>R² min</span></div><span class="spec-label">.unit-input · value + unit</span></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Column 3: navigation & lists -->
+    <div class="spec-col">
+      <section class="spec-card">
+        <div class="spec-head"><span class="spec-title">Command palette</span><span class="spec-note">from <a href="QuickActions.dc.html">Quick actions</a></span></div>
+        <div class="spec-body" style="gap: 2px; padding: 8px">
+          <div class="field" style="height: 38px; display: flex; align-items: center; margin: 0 4px 6px; font-size: 14px">qc<span class="caret-bar" style="margin-left: 1px"></span></div>
+          <div class="palette-group">Assets</div>
+          <a class="palette-item on" href="AssetDetail.dc.html"><span class="palette-icon t-grey"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><ellipse cx="8" cy="4" rx="5" ry="2"></ellipse><path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4"></path></svg></span><span class="mono" style="font-size: 13px">silver.<mark>qc</mark>_results</span><span class="kbd" style="margin-left: auto">↵</span></a>
+          <div class="palette-group">Actions</div>
+          <a class="palette-item" href="Incident211.dc.html"><span class="palette-icon t-red"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 4l8 8"></path><path d="M12 4l-8 8"></path></svg></span><span>Open #211 · <mark>Q</mark>C audit failed</span></a>
+          <span class="spec-label" style="padding: 8px 12px 4px">.palette-group · .palette-item.on · .palette-icon · mark</span>
+        </div>
+      </section>
+
+      <section class="spec-card">
+        <div class="spec-head"><span class="spec-title">Catalog tree and status bar</span><span class="spec-note">from <a href="Query.dc.html">Query</a></span></div>
+        <div class="spec-body" style="gap: 2px; padding: 10px 10px 0">
+          <div class="tree-item"><svg class="tree-chev" width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"></path></svg><span class="sw bg-silver"></span>silver<span class="tree-count">61</span></div>
+          <div class="tree-item on" style="padding-left: 26px">qc_results<span class="tree-meta">4.8 M</span></div>
+          <div class="tree-item" style="padding-left: 26px">sample_lineage<span class="tree-meta">12.6 M</span></div>
+          <div class="tree-item"><svg class="tree-chev" width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4l4 4-4 4"></path></svg><span class="sw bg-gold"></span>gold<span class="tree-count">35</span></div>
+          <span class="spec-label" style="padding: 8px 8px">.tree-item · .tree-item.on · .tree-meta · .tree-count · .tree-chev</span>
+        </div>
+        <div class="status-bar"><span class="c-green">● Done</span><span class="status-sep"></span><span>37 rows</span><span class="status-sep"></span><span>0.41 s</span><span class="status-sep"></span><span class="mono" style="font-size: 12px">main@a41f09c</span></div>
+        <span class="spec-label" style="padding: 8px 16px 12px">.status-bar · .status-sep</span>
+      </section>
+
+      <section class="spec-card">
+        <div class="spec-head"><span class="spec-title">Settings rows</span><span class="spec-note">from <a href="Settings.dc.html">Settings</a>, <a href="Members.dc.html">Members</a></span></div>
+        <div class="spec-body">
+          <div style="display: flex; gap: 14px; align-items: flex-start">
+            <div style="width: 150px; flex-shrink: 0; display: flex; flex-direction: column; gap: 2px">
+              <a class="subnav-link on" href="Settings.dc.html">Lakehouse</a>
+              <a class="subnav-link" href="Members.dc.html">Members</a>
+              <a class="subnav-link" href="OverviewStaging.dc.html">staging</a>
+              <span class="spec-label" style="padding: 6px 10px 0">.subnav-link · .subnav-link.on</span>
+            </div>
+            <div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px">
+              <div class="role-select" style="align-self: flex-start"><span class="avatar teal">JK</span>Editor<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="color: var(--muted)"><path d="M4 6l4 4 4-4"></path></svg></div>
+              <span class="spec-label">.role-select</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="spec-card">
+        <div class="spec-head"><span class="spec-title">Environment switcher</span><span class="spec-note">from <a href="OverviewStaging.dc.html">Staging</a></span></div>
+        <div class="spec-body" style="padding: 8px">
+          <a class="env-option" href="Overview.dc.html"><span class="dot md" style="margin-top: 6px; background: var(--text-3)"></span><div style="display: flex; flex-direction: column; gap: 2px"><div style="display: flex; align-items: center; gap: 8px"><span style="font-size: 14px; font-weight: 500">prod</span><span class="pill p-red" style="font-size: 11px; padding: 1px 6px">5 open</span></div><span class="meta" style="font-size: 12.5px">148 tables · v1.41</span></div></a>
+          <div class="env-option on"><span class="dot md bg-amber" style="margin-top: 6px"></span><div style="display: flex; flex-direction: column; gap: 2px"><div style="display: flex; align-items: center; gap: 8px"><span style="font-size: 14px; font-weight: 500">staging</span><span class="pill p-amber" style="font-size: 11px; padding: 1px 6px">4 to promote</span></div><span class="meta" style="font-size: 12.5px">Nightly copy · v1.42</span></div></div>
+          <span class="spec-label" style="padding: 4px 12px">.env-popover .env-option · current row is .on</span>
+        </div>
+      </section>
+
+      <section class="spec-card">
+        <div class="spec-head"><span class="spec-title">Follow-up checklist</span><span class="spec-note">from <a href="IncidentResolved.dc.html">Resolved incident</a></span></div>
+        <div class="spec-body" style="gap: 10px">
+          <sc-for list="{{fus}}" as="f" hint-placeholder-count="3">
+            <label class="{{f.cls}}"><input type="checkbox" checked="{{f.on}}" onChange="{{f.toggle}}"><span>{{f.label}}</span><span class="meta" style="margin-left: auto; white-space: nowrap">{{f.who}}</span></label>
+          </sc-for>
+          <span class="spec-label">.followup · .followup.done strikes through (try it)</span>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ===== Connection rows ===== -->
+  <section class="spec-card">
+    <div class="spec-head"><span class="spec-title">Connection rows</span><span class="spec-note">from <a href="Settings.dc.html">Settings</a></span></div>
+    <div class="spec-body">
+      <div>
+        <div class="conn-row"><span style="font-size: 14px">Nessie catalog</span><span class="mono uri">[NESSIE_URI]/api/v2</span><span style="display: flex; align-items: center; gap: 8px; font-size: 13.5px"><span class="dot bg-green"></span>Connected<span class="meta">· 38 ms</span></span><button class="btn" style="height: 28px; justify-content: center">Test</button></div>
+        <div class="conn-row"><span style="font-size: 14px">Object store</span><span class="mono uri">[WAREHOUSE_BUCKET]</span><span style="display: flex; align-items: center; gap: 8px; font-size: 13.5px"><span class="dot bg-amber"></span>Degraded<span class="meta">· p95 1.8 s</span></span><button class="btn" style="height: 28px; justify-content: center">Test</button></div>
+      </div>
+      <span class="spec-label">.conn-row · .uri</span>
+    </div>
+  </section>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":2300}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { theme: null, openQC: false, facets: { Failing: true, Slow: true, Paused: false, Healthy: false }, mode: 'Backfill', fu: { a: true, b: true, c: false } };
+this.onStorage = this.onStorage.bind(this);
+}
+componentDidMount() {
+try { var t = window.localStorage.getItem('phlo-theme'); if (t === 'light' || t === 'dark') this.setState({ theme: t }); } catch (e) {}
+try { window.addEventListener('storage', this.onStorage); } catch (e) {}
+}
+componentWillUnmount() {
+try { window.removeEventListener('storage', this.onStorage); } catch (e) {}
+}
+onStorage(e) {
+if (e && e.key === 'phlo-theme' && (e.newValue === 'light' || e.newValue === 'dark')) this.setState({ theme: e.newValue });
+}
+setTheme(t) {
+this.setState({ theme: t });
+try { window.localStorage.setItem('phlo-theme', t); } catch (e) {}
+}
+renderVals() {
+var self = this;
+var st = this.state;
+var th = st.theme || this.props.theme || 'light';
+var C = {
+s: ['var(--sla-ok)', 'var(--sla-ok)'], w: ['var(--amber-bar)', 'var(--amber-bar)'], f: ['var(--red)', 'var(--red)'],
+k: ['transparent', 'var(--skip-line)'], n: ['transparent', 'transparent'], p: ['var(--soft)', 'var(--soft)']
+};
+function build(spec) {
+var out = [];
+for (var i = 0; i < 48; i++) {
+var ch = 'n';
+if (spec.every && i % spec.every === (spec.offset || 0)) ch = 's';
+if (spec.slowFrom !== undefined && i >= spec.slowFrom && ch === 's') ch = 'w';
+if (spec.skip && i >= spec.skip[0] && i <= spec.skip[1] && ch !== 'n') ch = 'k';
+if (spec.fail && i >= spec.fail) ch = 'f';
+out.push({ bg: C[ch][0], b: C[ch][1] });
+}
+return out;
+}
+function row(name, spec, color) { return { name: name, cells: build(spec), color: color || 'var(--text-2)' }; }
+var bad = 'var(--red-text)', slow = 'var(--amber-ink)';
+var OPEN = 'M4 6l4 4 4-4', SHUT = 'M6 4l4 4-4 4';
+var tgroups = [
+{ name: 'Bioreactor', meta: '14 jobs · 3 failing', chev: OPEN, expanded: 'true', toggle: function () {}, rows: [
+row('ingest_bioreactor', { every: 1, skip: [43, 45], fail: 46 }, bad),
+row('ingest_bioreactor_offgas', { every: 1, skip: [43, 45], fail: 46 }, bad),
+row('transform_bioreactor_1min', { every: 1, skip: [43, 47] })
+] },
+{ name: 'QC & LIMS', meta: st.openQC ? '22 jobs · 4 slow' : '22 jobs · 4 slow · folded', chev: st.openQC ? OPEN : SHUT, expanded: st.openQC ? 'true' : 'false',
+toggle: function () { self.setState({ openQC: !st.openQC }); },
+rows: st.openQC ? [
+row('ingest_lims', { every: 2, slowFrom: 32 }, slow),
+row('transform_silver_qc', { every: 2, slowFrom: 33 }, slow),
+row('audits_qc', { every: 2, offset: 1 })
+] : [] }
+];
+var events = [];
+for (var i = 0; i < 48; i++) {
+var bg = 'transparent';
+if ((i >= 43 && i <= 45) || i === 32) bg = 'var(--purple-soft)';
+if (i >= 46) bg = 'var(--red-soft)';
+events.push({ bg: bg });
+}
+var FC = { Failing: 'var(--red)', Slow: 'var(--amber-bar)', Paused: 'var(--skip-line)', Healthy: 'var(--green)' };
+var FN = { Failing: 3, Slow: 7, Paused: 2, Healthy: 92 };
+var facets = ['Failing', 'Slow', 'Paused', 'Healthy'].map(function (k) {
+return { label: k, n: FN[k], color: FC[k], on: !!st.facets[k], toggle: function () { var f = Object.assign({}, st.facets); f[k] = !f[k]; self.setState({ facets: f }); } };
+});
+var RC = { s: ['var(--sla-ok)', 'var(--sla-ok)'], w: ['var(--amber-bar)', 'var(--amber-bar)'], f: ['var(--red)', 'var(--red)'], k: ['transparent', 'var(--skip-line)'] };
+function cells(s) { return s.split('').map(function (k) { return { bg: RC[k][0], b: RC[k][1] }; }); }
+var jobs = [
+{ name: 'ingest_bioreactor', cron: '*/15 * * * *', status: 'Failing · 3 in a row', statusColor: bad, dot: 'var(--red)', cells: cells('sssssssssssssssskkkkkfff'), rate: '79%', owner: 'Gareth' },
+{ name: 'ingest_bioreactor_offgas', cron: '*/15 * * * *', status: 'Failing · same cause', statusColor: bad, dot: 'var(--red)', cells: cells('sssssssssssssssskkkkkfff'), rate: '79%', owner: 'Process Dev' },
+{ name: 'transform_bioreactor_1min', cron: 'on upstream', status: 'Waiting on upstream', statusColor: 'var(--muted)', dot: 'var(--faint)', cells: cells('sssssssssssssssskkkkkkkk'), rate: '100%', owner: 'Process Dev' }
+];
+var ok = [13,12,14,11,13,15,12,14,13,12,11,13,14,12,13,15,14,12,13,12,11,13,12,14];
+var fail = [0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0];
+var hours = ok.map(function (n, i) { return { okH: n * 6, failH: fail[i] * 6, hasFail: fail[i] > 0 }; });
+var modes = [
+['Backfill', 'Re-run the missed window only', 'From the last good watermark · ~14 min'],
+['Full refresh', 'Rebuild the whole table', '1.21 B rows · ~3 h · blocks readers'],
+['Materialize downstream', 'Refresh the 6 stale assets after', 'Runs once the backfill passes audits']
+].map(function (m) {
+return { title: m[1], sub: m[2], on: st.mode === m[0], cls: st.mode === m[0] ? 'option-card on' : 'option-card', pick: function () { self.setState({ mode: m[0] }); } };
+});
+var fus = [
+['a', 'Merge on result_id for all LIMS resources', 'Gareth'],
+['b', 'Add uniqueness audit at bronze', 'QC Analytics'],
+['c', 'Alert when LIMS returns duplicate IDs', 'Gareth']
+].map(function (f) {
+var on = !!st.fu[f[0]];
+return { label: f[1], who: f[2], on: on, cls: on ? 'followup done' : 'followup', toggle: function () { var x = Object.assign({}, st.fu); x[f[0]] = !x[f[0]]; self.setState({ fu: x }); } };
+});
+return {
+rootClass: 'phlo theme-' + th,
+lightCls: th === 'light' ? 'on' : '', darkCls: th === 'dark' ? 'on' : '',
+lightPressed: th === 'light' ? 'true' : 'false', darkPressed: th === 'dark' ? 'true' : 'false',
+setLight: function () { self.setTheme('light'); }, setDark: function () { self.setTheme('dark'); },
+tgroups: tgroups, events: events, facets: facets, jobs: jobs, hours: hours, modes: modes, fus: fus
+};
+}
+}
+</script>
+</body>
+</html>

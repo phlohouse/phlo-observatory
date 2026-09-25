@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mobile · Pipelines</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./theme.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+
+<div class="{{themeClass}}" style="width: 390px; height: 844px; display: flex; flex-direction: column; overflow: hidden; position: relative; background: var(--bg)">
+
+<header class="bb" style="flex-shrink: 0; display: flex; align-items: center; gap: 10px; height: 56px; padding: 0 6px 0 16px; box-sizing: border-box; background: var(--panel)">
+  <span class="brand-mark" role="img" aria-label="phlo" style="width: 28px; height: 28px; border-radius: 7px; font-size: 15px; flex-shrink: 0">φ</span>
+  <h1 style="margin: 0; font-size: 18px; font-weight: 600; letter-spacing: -0.01em">Pipelines</h1>
+  <span class="env" style="margin-left: auto">prod</span>
+  <button type="button" aria-label="{{themeLabel}}" onClick="{{toggleTheme}}" style="width: 44px; height: 44px; border: none; border-radius: 10px; background: transparent; color: var(--text-3); display: flex; align-items: center; justify-content: center; cursor: pointer">
+    <sc-if value="{{isDark}}" hint-placeholder-val="{{ false }}">
+      <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="3"></circle><path d="M8 1.5v1.5M8 13v1.5M1.5 8H3M13 8h1.5M3.4 3.4l1 1M11.6 11.6l1 1M3.4 12.6l1-1M11.6 4.4l1-1"></path></svg>
+    </sc-if>
+    <sc-if value="{{isLight}}" hint-placeholder-val="{{ true }}">
+      <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M13 9.5A5.5 5.5 0 0 1 6.5 3a5.5 5.5 0 1 0 6.5 6.5Z"></path></svg>
+    </sc-if>
+  </button>
+</header>
+
+<main style="flex-grow: 1; min-height: 0; overflow-y: auto; padding: 14px 16px 24px; display: flex; flex-direction: column; gap: 20px">
+
+  <!-- Summary -->
+  <section aria-label="Job health" class="card" style="flex-shrink: 0; padding: 14px; display: flex; flex-direction: column; gap: 10px">
+    <div style="font-size: 14.5px; font-weight: 500">104 jobs · <span class="c-red">3 failing</span> · <span class="c-amber">7 slow</span> · 92 healthy</div>
+    <div class="health-mix" role="img" aria-label="3 failing, 7 slow, 2 paused, 92 healthy" style="height: 10px">
+      <span style="flex-grow: 3; background: var(--red)"></span>
+      <span style="flex-grow: 7; background: var(--amber-bar)"></span>
+      <span style="flex-grow: 2; background: var(--skip-line)"></span>
+      <span style="flex-grow: 92; background: var(--sla-ok)"></span>
+    </div>
+    <div class="meta" style="font-size: 12.5px">2,412 runs in 24 h · 97.9% succeeded · 2 paused</div>
+  </section>
+
+  <!-- Needs attention -->
+  <section aria-labelledby="att-h" style="flex-shrink: 0; display: flex; flex-direction: column; gap: 8px">
+    <div style="display: flex; align-items: baseline">
+      <h2 id="att-h" class="eyebrow" style="margin: 0; font-weight: 400">Needs attention · 10</h2>
+      <span class="meta" style="margin-left: auto; font-size: 12.5px">Last 24 runs</span>
+    </div>
+    <a href="MobileIncident.dc.html" style="display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border-radius: 10px; background: var(--red-wash); border: 1px solid var(--red-line); font-size: 13.5px; line-height: 1.45; color: var(--red-ink)">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px"><circle cx="4" cy="8" r="2"></circle><circle cx="12" cy="3.5" r="2"></circle><circle cx="12" cy="12.5" r="2"></circle><path d="M6 7l4-2.5"></path><path d="M6 9l4 2.5"></path></svg>
+      <span style="flex-grow: 1">All 3 failures read from the process historian. Grouped under <span style="font-weight: 500; text-decoration: underline">#214</span>.</span>
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="flex-shrink: 0; margin-top: 2px"><path d="M6 4l4 4-4 4"></path></svg>
+    </a>
+    <div class="card" style="overflow: hidden">
+      <sc-for list="{{attention}}" as="j" hint-placeholder-count="10">
+        <div style="display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; border-bottom: {{j.border}}">
+          <span class="dot md" style="margin-top: 6px; background: {{j.dot}}"></span>
+          <div style="display: flex; flex-direction: column; gap: 5px; min-width: 0; flex-grow: 1">
+            <div style="display: flex; align-items: baseline; gap: 8px">
+              <span class="mono" style="font-size: 13px; flex-grow: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{j.name}}</span>
+              <span class="meta" style="font-size: 12px; flex-shrink: 0">{{j.last}}</span>
+            </div>
+            <div style="font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: {{j.whyColor}}">{{j.why}}</div>
+            <span class="mini-cells" role="img" aria-label="{{j.cellsLabel}}"><sc-for list="{{j.cells}}" as="c" hint-placeholder-count="24"><span style="background: {{c.bg}}; border: 1px solid {{c.b}}"></span></sc-for></span>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <div class="meta" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; padding: 2px 2px 0">
+      <span style="display: flex; align-items: center; gap: 6px"><span class="legend-cell" style="background: var(--sla-ok)"></span>Succeeded</span>
+      <span style="display: flex; align-items: center; gap: 6px"><span class="legend-cell" style="background: var(--amber-bar)"></span>Slow</span>
+      <span style="display: flex; align-items: center; gap: 6px"><span class="legend-cell bg-red"></span>Failed</span>
+      <span style="display: flex; align-items: center; gap: 6px"><span class="legend-cell" style="border: 1px solid var(--skip-line)"></span>Skipped</span>
+    </div>
+  </section>
+
+  <!-- Healthy groups -->
+  <section aria-labelledby="ok-h" style="flex-shrink: 0; display: flex; flex-direction: column; gap: 8px">
+    <div style="display: flex; align-items: baseline">
+      <h2 id="ok-h" class="eyebrow" style="margin: 0; font-weight: 400">Healthy · 92 jobs</h2>
+      <span class="meta" style="margin-left: auto; font-size: 12.5px">7 groups</span>
+    </div>
+    <div class="card" style="overflow: hidden">
+      <sc-for list="{{groups}}" as="g" hint-placeholder-count="7">
+        <div style="border-bottom: {{g.border}}">
+          <button type="button" onClick="{{g.toggle}}" aria-expanded="{{g.expanded}}" style="width: 100%; display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 8px 14px 8px 10px; box-sizing: border-box; border: none; background: {{g.bg}}; color: var(--text); text-align: left; cursor: pointer; font-family: inherit">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; color: var(--faint); transform: rotate({{g.rot}})"><path d="M6 4l4 4-4 4"></path></svg>
+            <span style="display: flex; flex-direction: column; gap: 3px; min-width: 0; flex-grow: 1">
+              <span style="font-size: 14.5px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{g.name}}</span>
+              <span class="meta" style="font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{g.count}} jobs · {{g.note}}</span>
+            </span>
+            <span style="display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex-shrink: 0">
+              <span class="mono meta" style="font-size: 12px">{{g.rate}}</span>
+              <span class="health-mix" style="width: 56px; height: 6px"><span style="flex-grow: {{g.ok}}; background: var(--sla-ok)"></span><span style="flex-grow: {{g.bad}}; background: {{g.badColor}}"></span></span>
+            </span>
+          </button>
+          <sc-if value="{{g.open}}" hint-placeholder-val="{{ false }}">
+            <div style="padding: 0 14px 8px 34px; background: var(--raised)">
+              <sc-for list="{{g.jobs}}" as="x" hint-placeholder-count="5">
+                <div class="rowline" style="display: flex; align-items: center; gap: 10px; min-height: 44px">
+                  <span class="dot bg-green"></span>
+                  <span class="mono" style="font-size: 12.5px; flex-grow: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{x.name}}</span>
+                  <span class="meta" style="font-size: 12px; flex-shrink: 0">{{x.sched}}</span>
+                </div>
+              </sc-for>
+              <a href="PipelinesScale.dc.html" style="display: flex; align-items: center; gap: 6px; height: 44px; font-size: 13.5px">
+                {{g.moreLabel}}
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 4l4 4-4 4"></path></svg>
+              </a>
+            </div>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+</main>
+
+<nav aria-label="Main" style="flex-shrink: 0; height: 64px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--line); background: var(--panel)">
+  <a href="MobileHome.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 11.5px; color: var(--muted)">
+    <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7L8 2.5 13.5 7"></path><path d="M4 6v7.5h3v-4h2v4h3V6"></path></svg>
+    <span>Home</span>
+  </a>
+  <a href="MobileIncidents.dc.html" aria-label="Incidents, 5 open" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 11.5px; color: var(--muted)">
+    <span style="position: relative; display: flex">
+      <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5L14 13H2z"></path><path d="M8 6.5v3"></path><path d="M8 11.3v.2"></path></svg>
+      <span style="position: absolute; top: -5px; left: 13px; min-width: 16px; height: 16px; padding: 0 4px; box-sizing: border-box; border-radius: 8px; background: var(--red); color: #ffffff; font-size: 10.5px; font-weight: 600; line-height: 16px; text-align: center">5</span>
+    </span>
+    <span>Incidents</span>
+  </a>
+  <a href="MobileAssets.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 11.5px; color: var(--muted)">
+    <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="8" cy="4" rx="5" ry="1.8"></ellipse><path d="M3 4v8c0 1 2.2 1.8 5 1.8s5-.8 5-1.8V4"></path><path d="M3 8c0 1 2.2 1.8 5 1.8s5-.8 5-1.8"></path></svg>
+    <span>Assets</span>
+  </a>
+  <a href="MobilePipelines.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 11.5px; font-weight: 500; color: var(--accent); box-shadow: inset 0 2px 0 var(--accent)">
+    <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="2.5" width="5" height="4" rx="1"></rect><rect x="9.5" y="9.5" width="5" height="4" rx="1"></rect><path d="M4 6.5v2.5a2 2 0 0 0 2 2h3.5"></path></svg>
+    <span>Pipelines</span>
+  </a>
+</nav>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { theme: null, openGroup: null };
+this.onStorage = this.onStorage.bind(this);
+}
+componentDidMount() {
+try { var t = window.localStorage.getItem('phlo-theme'); if (t === 'light' || t === 'dark') this.setState({ theme: t }); } catch (e) {}
+try { window.addEventListener('storage', this.onStorage); } catch (e) {}
+}
+componentWillUnmount() {
+try { window.removeEventListener('storage', this.onStorage); } catch (e) {}
+}
+onStorage(e) {
+if (e && e.key === 'phlo-theme' && (e.newValue === 'light' || e.newValue === 'dark')) this.setState({ theme: e.newValue });
+}
+setTheme(t) {
+this.setState({ theme: t });
+try { window.localStorage.setItem('phlo-theme', t); } catch (e) {}
+}
+renderVals() {
+var self = this;
+var th = this.state.theme || this.props.theme || 'light';
+var openGroup = this.state.openGroup;
+var C = { s: ['var(--sla-ok)', 'var(--sla-ok)'], w: ['var(--amber-bar)', 'var(--amber-bar)'], f: ['var(--red)', 'var(--red)'], k: ['transparent', 'var(--skip-line)'] };
+var CN = { s: 'succeeded', w: 'slow', f: 'failed', k: 'skipped' };
+var D = { fail: 'var(--red)', slow: 'var(--amber-bar)' };
+var W = { fail: 'var(--red-text)', slow: 'var(--amber-ink)' };
+var att = [
+['fail', 'ingest_bioreactor', 'Failing ×3 · schema contract', 'sssssssssssssssskkkkkfff', '6 min ago'],
+['fail', 'ingest_bioreactor_offgas', 'Failing ×3 · schema contract', 'sssssssssssssssskkkkkfff', '8 min ago'],
+['fail', 'ingest_bioreactor_feeds', 'Failing ×2 · schema contract', 'ssssssssssssssssskkkkkff', '11 min ago'],
+['slow', 'ingest_lims', '11 m vs 3 m usual · LIMS API latency', 'sssssssssssssssswwwwwwww', '14 min ago'],
+['slow', 'ingest_lims_results', '8 m vs 2 m usual · LIMS API latency', 'ssssssssssssssssswwwwwww', '14 min ago'],
+['slow', 'transform_silver_qc', 'Waiting on ingest_lims', 'ssssssssssssssssswwwwwww', '9 min ago'],
+['slow', 'transform_gold_release', 'Waiting on transform_silver_qc', 'sssssssssssssssssswwwwww', '4 min ago'],
+['slow', 'ingest_env_monitoring', '2.4× usual · 3 new sensors added', 'ssssssssssssssswwwwwwwww', '2 min ago'],
+['slow', 'ingest_cold_chain_temps', 'Queued behind maintenance at 02:00', 'sssssssswsssssssssssssss', '20 min ago'],
+['slow', 'iceberg_compact_bronze', '48 m vs 20 m · 412 small files', 'wwwwwwwwwwwwwwwwwwwwwwww', '8 h ago']
+];
+var attention = att.map(function (a, i) {
+var ks = a[3].split('');
+var counts = {};
+ks.forEach(function (k) { counts[k] = (counts[k] || 0) + 1; });
+var label = 'Last 24 runs: ' + Object.keys(counts).map(function (k) { return counts[k] + ' ' + CN[k]; }).join(', ');
+return { dot: D[a[0]], name: a[1], why: a[2], whyColor: W[a[0]], cells: ks.map(function (k) { return { bg: C[k][0], b: C[k][1] }; }), cellsLabel: label, last: a[4], border: i === att.length - 1 ? 'none' : '1px solid var(--line-soft)' };
+});
+var gs = [
+['Bioreactor', 11, 'plus 3 failing above', 3, 'var(--red)', '99.6%', [['ingest_bioreactor_alarms', 'every 5 min'], ['ingest_bioreactor_setpoints', 'every 15 min'], ['ingest_bioreactor_batch_meta', 'hourly'], ['ingest_harvest_log', 'hourly'], ['ingest_seed_train', 'every 30 min']]],
+['QC & LIMS', 18, 'plus 4 slow above', 4, 'var(--amber-bar)', '99.9%', [['ingest_lims_methods', 'daily 01:00'], ['ingest_lims_instruments', 'hourly'], ['transform_silver_sample_lineage', 'on upstream'], ['audits_qc', 'hourly at :30'], ['ingest_coa_documents', 'hourly']]],
+['Assay', 18, 'all healthy', 0, 'var(--sla-ok)', '100%', [['ingest_plate_readers', 'every 10 min'], ['ingest_elisa_plate_maps', 'every 10 min'], ['transform_silver_elisa_results', 'on upstream'], ['transform_gold_assay_potency', 'on upstream'], ['ingest_hplc_runs', 'every 15 min']]],
+['Environmental monitoring', 15, 'plus 1 slow above', 1, 'var(--amber-bar)', '100%', [['ingest_env_particles', 'every 5 min'], ['ingest_env_pressure', 'every 5 min'], ['ingest_env_humidity', 'every 5 min'], ['transform_silver_env_excursions', 'on upstream'], ['ingest_cleanroom_doors', 'every 15 min']]],
+['Maintenance', 11, 'plus 1 slow above', 1, 'var(--amber-bar)', '100%', [['iceberg_maintenance', 'daily 02:00'], ['iceberg_expire_snapshots', 'daily 03:00'], ['iceberg_compact_silver', 'daily 02:30'], ['iceberg_compact_gold', 'daily 02:45'], ['nessie_gc', 'weekly']]],
+['ERP & supply', 7, 'plus 1 slow, 1 paused', 2, 'var(--amber-bar)', '99.8%', [['ingest_erp', 'hourly'], ['ingest_erp_materials', 'hourly'], ['ingest_supplier_lots', 'every 30 min'], ['transform_silver_inventory', 'on upstream'], ['ingest_po_lines', 'hourly']]],
+['Reporting', 12, 'plus 1 paused', 1, 'var(--skip-line)', '100%', [['report_qc_release_dashboard', 'every 15 min'], ['report_cpp_weekly', 'weekly'], ['report_deviation_summary', 'daily 06:00'], ['report_audit_trail_export', 'daily 05:00'], ['report_env_monthly', 'monthly']]]
+];
+var groups = gs.map(function (g, i) {
+var open = openGroup === g[0];
+var more = g[1] - g[6].length;
+return {
+name: g[0], count: g[1], note: g[2], ok: g[1], bad: g[3], badColor: g[4], rate: g[5],
+open: open, expanded: open ? 'true' : 'false', rot: open ? '90deg' : '0deg',
+bg: open ? 'var(--raised)' : 'transparent',
+jobs: g[6].map(function (x) { return { name: x[0], sched: x[1] }; }),
+moreLabel: '+ ' + more + ' more on desktop',
+border: i === gs.length - 1 ? 'none' : '1px solid var(--line-soft)',
+toggle: function () { self.setState({ openGroup: open ? null : g[0] }); }
+};
+});
+return {
+themeClass: 'phlo theme-' + th,
+isDark: th === 'dark', isLight: th !== 'dark',
+themeLabel: th === 'dark' ? 'Switch to light theme' : 'Switch to dark theme',
+toggleTheme: function () { self.setTheme(th === 'dark' ? 'light' : 'dark'); },
+attention: attention,
+groups: groups
+};
+}
+}
+</script>
+</body>
+</html>

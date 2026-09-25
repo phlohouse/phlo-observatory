@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Members and access</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./theme.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+
+<div class="{{themeClass}}" style="width: 1440px; height: 960px">
+
+<dc-import name="Sidebar" active="settings" incident="none" env="prod" variant="standard" theme="{{th}}" on-theme="{{pickTheme}}" hint-size="248px,960px"></dc-import>
+
+<main class="panel">
+  <header class="topbar">
+    <a class="crumb" href="Settings.dc.html">Settings</a>
+    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" style="color: var(--faint)"><path d="M6 4l4 4-4 4"></path></svg>
+    <span class="title-sm">Members and access</span>
+    <div style="margin-left: auto; display: flex; align-items: center; gap: 10px">
+      <button class="btn-primary">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 3v10"></path><path d="M3 8h10"></path></svg>
+        Invite people
+      </button>
+    </div>
+  </header>
+
+  <div style="flex-grow: 1; display: flex; min-height: 0">
+    <nav aria-label="Settings sections" class="br" style="width: 196px; flex-shrink: 0; box-sizing: border-box; padding: 16px 10px; display: flex; flex-direction: column; gap: 2px">
+      <div class="meta" style="font-size: 12px; padding: 0 10px 6px">Workspace</div>
+      <a class="subnav-link" href="Settings.dc.html">Lakehouse</a>
+      <a class="subnav-link on" href="Members.dc.html">Members</a>
+      <a class="subnav-link" href="Members.dc.html">Service accounts</a>
+      <a class="subnav-link" href="AuditLog.dc.html">Audit log</a>
+      <div class="meta" style="font-size: 12px; padding: 16px 10px 6px">Environments</div>
+      <a class="subnav-link" href="Overview.dc.html">prod</a>
+      <a class="subnav-link" href="OverviewStaging.dc.html">staging</a>
+    </nav>
+
+    <section style="flex-grow: 1; min-width: 0; overflow: hidden; padding: 20px 24px; display: flex; flex-direction: column; gap: 26px">
+      <div style="display: flex; flex-direction: column">
+        <div style="display: flex; align-items: baseline; gap: 10px; padding-bottom: 8px">
+          <div style="font-size: 15px; font-weight: 500">People</div>
+          <div class="meta">7 members · 1 pending</div>
+        </div>
+        <div class="member-row bb" style="height: 34px"><span class="th">Name</span><span class="th">Team</span><span class="th">Role</span><span class="th">Can sign</span><span class="th">Last active</span></div>
+        <sc-for list="{{people}}" as="p" hint-placeholder-count="8">
+          <div class="member-row">
+            <span style="display: flex; align-items: center; gap: 10px; min-width: 0"><span class="{{p.avCls}}" style="width: 26px; height: 26px; font-size: 10px">{{p.ini}}</span><span style="display: flex; flex-direction: column; gap: 1px; min-width: 0"><span>{{p.name}}</span><span class="meta" style="font-size: 12px">{{p.note}}</span></span></span>
+            <span class="c-text2">{{p.team}}</span>
+            <button type="button" class="role-select">{{p.role}}<svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color: var(--muted)"><path d="M4 6l4 4 4-4"></path></svg></button>
+            <span class="{{p.signCls}}">{{p.sign}}</span>
+            <span class="meta">{{p.last}}</span>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="display: flex; flex-direction: column">
+        <div style="display: flex; align-items: baseline; gap: 10px; padding-bottom: 8px">
+          <div style="font-size: 15px; font-weight: 500">Service accounts</div>
+          <div class="meta">Machines that read or write data</div>
+          <button class="btn" style="margin-left: auto; height: 28px">New service account</button>
+        </div>
+        <div class="service-row bb" style="height: 34px"><span class="th">Account</span><span class="th">Allowed to</span><span class="th">Key</span><span class="th"></span></div>
+        <div class="service-row"><span class="mono" style="font-size: 13px">dagster</span><span class="c-text2">Write to branches, open incidents</span><span class="meta">Rotated 21 d ago</span><button class="btn" style="height: 28px; justify-content: center">Rotate</button></div>
+        <div class="service-row"><span class="mono" style="font-size: 13px">dlt-loader</span><span class="c-text2">Write bronze tables on branches</span><span class="c-amber" style="color: var(--amber-ink)">Expires in 12 d</span><button class="btn" style="height: 28px; justify-content: center">Rotate</button></div>
+        <div class="service-row" style="border-bottom: none"><span class="mono" style="font-size: 13px">bi-readonly</span><span class="c-text2">Read gold tables on main</span><span class="meta">Rotated 64 d ago</span><button class="btn" style="height: 28px; justify-content: center">Rotate</button></div>
+      </div>
+    </section>
+
+    <aside aria-label="Roles" class="bl" style="width: 300px; flex-shrink: 0; box-sizing: border-box; padding: 20px 22px; display: flex; flex-direction: column; background: var(--raised)">
+      <div class="eyebrow" style="padding-bottom: 4px">What each role can do</div>
+      <div class="role-note"><b>Viewer</b><span>See everything, run read-only queries, comment on incidents.</span></div>
+      <div class="role-note"><b>Engineer</b><span>Create branches, run backfills, edit contracts and audits on branches.</span></div>
+      <div class="role-note"><b>Approver</b><span>Everything an engineer can, plus sign merges into <span class="mono" style="font-size: 12px">main</span> and release tags.</span></div>
+      <div class="role-note" style="border-bottom: none"><b>Admin</b><span>Manage people, service accounts and settings. Admin alone doesn't allow signing.</span></div>
+      <div class="note-blue" style="margin-top: auto; font-size: 12.5px">Signing needs an Approver role and a verified identity. Changes to roles are written to the audit log.</div>
+    </aside>
+  </div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { theme: null };
+this.onStorage = this.onStorage.bind(this);
+}
+componentDidMount() {
+try { var t = window.localStorage.getItem('phlo-theme'); if (t === 'light' || t === 'dark') this.setState({ theme: t }); } catch (e) {}
+try { window.addEventListener('storage', this.onStorage); } catch (e) {}
+}
+componentWillUnmount() {
+try { window.removeEventListener('storage', this.onStorage); } catch (e) {}
+}
+onStorage(e) {
+if (e && e.key === 'phlo-theme' && (e.newValue === 'light' || e.newValue === 'dark')) this.setState({ theme: e.newValue });
+}
+setTheme(t) {
+this.setState({ theme: t });
+try { window.localStorage.setItem('phlo-theme', t); } catch (e) {}
+}
+renderVals() {
+var self = this;
+var th = this.state.theme || this.props.theme || 'light';
+var people = [
+['GP', 'Gareth', 'You', 'Data platform', 'Admin, Approver', 'yes', 'Now', ''],
+['SR', 'Sam R.', '', 'QA', 'Approver', 'yes', '12 min ago', 'teal'],
+['AM', 'Alex M.', '', 'Process Dev', 'Engineer', 'no', '1 h ago', 'teal'],
+['JK', 'Jo K.', '', 'Assay Dev', 'Engineer', 'no', '3 h ago', 'teal'],
+['RP', 'Rui P.', '', 'Data platform', 'Engineer', 'no', 'Yesterday', 'teal'],
+['CT', 'Chris T.', '', 'QC Analytics', 'Viewer', 'no', '2 d ago', 'teal'],
+['LW', 'Lee W.', '', 'QA', 'Approver', 'setup', '5 d ago', 'teal'],
+['··', '[Invited person]', 'Invite sent 2 d ago', 'QC Analytics', 'Viewer', 'no', 'Pending', 'grey']
+].map(function (p) {
+var sc = p[5] === 'yes' ? 'pill p-green' : (p[5] === 'setup' ? 'pill p-amber' : 'meta');
+var st = p[5] === 'yes' ? 'Yes' : (p[5] === 'setup' ? 'Not set up' : '—');
+return { ini: p[0], name: p[1], note: p[2], team: p[3], role: p[4], sign: st, signCls: sc, last: p[6], avCls: p[7] === '' ? 'avatar' : 'avatar teal' };
+});
+return {
+themeClass: 'phlo shell theme-' + th,
+th: th, pickTheme: function (t) { self.setTheme(t); },
+people: people
+};
+}
+}
+</script>
+</body>
+</html>

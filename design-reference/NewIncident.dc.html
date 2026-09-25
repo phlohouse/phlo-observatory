@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>New incident</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./theme.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+
+<div class="{{themeClass}}" style="width: 1440px; height: 960px">
+
+  <!-- Backdrop: incident list, faded -->
+  <div aria-hidden="true" style="width: 248px; flex-shrink: 0; box-sizing: border-box; padding: 20px 18px; display: flex; flex-direction: column; gap: 14px">
+    <div class="sk" style="width: 110px; height: 20px"></div>
+    <div class="sk" style="height: 34px; background: var(--panel); border: 1px solid var(--border)"></div>
+    <div class="sk" style="width: 150px; height: 14px"></div>
+    <div class="sk" style="width: 130px; height: 14px; background: var(--border-strong)"></div>
+    <div class="sk" style="width: 140px; height: 14px"></div>
+    <div class="sk" style="width: 120px; height: 14px"></div>
+    <div class="sk" style="width: 150px; height: 14px"></div>
+  </div>
+  <div aria-hidden="true" class="panel">
+    <div class="topbar title-sm">Incidents</div>
+    <div class="bb" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; padding: 18px 20px"><div class="sk soft" style="height: 44px"></div><div class="sk soft" style="height: 44px"></div><div class="sk soft" style="height: 44px"></div><div class="sk soft" style="height: 44px"></div></div>
+    <div style="padding: 16px 20px; display: flex; flex-direction: column; gap: 18px">
+      <div class="sk soft" style="height: 26px"></div><div class="sk soft" style="height: 26px"></div><div class="sk soft" style="height: 26px"></div><div class="sk soft" style="height: 26px"></div><div class="sk soft" style="height: 26px"></div>
+    </div>
+  </div>
+
+  <div class="scrim" style="align-items: center; justify-content: center">
+    <form class="dialog" role="dialog" aria-modal="true" aria-labelledby="ni-title" style="width: 640px; margin: 0">
+
+      <div class="bb" style="padding: 20px 24px 16px; display: flex; align-items: center; gap: 10px">
+        <h2 id="ni-title" style="margin: 0; font-size: 17px; font-weight: 600">New incident</h2>
+        <span class="mono meta" style="font-size: 12.5px">#215</span>
+        <a href="Incidents.dc.html" aria-label="Close" style="margin-left: auto; width: 30px; height: 30px; border-radius: 7px; display: flex; align-items: center; justify-content: center; color: var(--text-3)">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 4l8 8"></path><path d="M12 4l-8 8"></path></svg>
+        </a>
+      </div>
+
+      <div style="padding: 18px 24px 20px; display: flex; flex-direction: column; gap: 18px">
+        <div class="fgroup">
+          <label class="flabel" for="ni-name">Title</label>
+          <input id="ni-name" class="input" type="text" value="Gaps in CPP trends for vessel BR-V05">
+        </div>
+
+        <div class="fgroup">
+          <span class="flabel" id="ni-kind">Kind</span>
+          <div class="choice-row" role="radiogroup" aria-labelledby="ni-kind">
+            <sc-for list="{{kinds}}" as="k" hint-placeholder-count="6">
+              <label class="{{k.cls}}"><input type="radio" name="kind" checked="{{k.on}}" onChange="{{k.pick}}">{{k.label}}</label>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px">
+          <div class="fgroup">
+            <span class="flabel" id="ni-sev">Severity</span>
+            <div class="choice-row" role="radiogroup" aria-labelledby="ni-sev">
+              <sc-for list="{{sevs}}" as="s" hint-placeholder-count="3">
+                <label class="{{s.cls}}"><input type="radio" name="sev" checked="{{s.on}}" onChange="{{s.pick}}"><span class="dot md" style="background: {{s.dot}}"></span>{{s.label}}</label>
+              </sc-for>
+            </div>
+            <span class="fhelp">{{sevHelp}}</span>
+          </div>
+          <div class="fgroup">
+            <span class="flabel">Owner</span>
+            <button type="button" class="select"><span class="avatar">GP</span>Gareth<svg class="caret" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"></path></svg></button>
+            <span class="fhelp">Defaults to the owner of the first asset</span>
+          </div>
+        </div>
+
+        <div class="fgroup">
+          <label class="flabel" for="ni-assets">Affected assets</label>
+          <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-height: 36px; box-sizing: border-box; padding: 4px 6px; border: 1px solid var(--border-strong); border-radius: 8px; background: var(--panel)">
+            <span class="token mono"><span class="sw bg-gold"></span>gold.cpp_trends<button type="button" class="token-remove" aria-label="Remove gold.cpp_trends"><svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8"></path><path d="M12 4l-8 8"></path></svg></button></span>
+            <span class="token mono"><span class="sw bg-silver"></span>silver.run_summaries<button type="button" class="token-remove" aria-label="Remove silver.run_summaries"><svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8"></path><path d="M12 4l-8 8"></path></svg></button></span>
+            <input id="ni-assets" type="text" placeholder="Add a table…" style="flex-grow: 1; min-width: 120px; border: none; outline: none; background: transparent; font-size: 13.5px; color: var(--text); padding: 0 6px; height: 26px">
+          </div>
+          <span class="fhelp">Feeds 1 report: CPP trend report (next run 12:00)</span>
+        </div>
+
+        <div class="fgroup">
+          <label class="flabel" for="ni-desc">What's wrong <span class="opt-tag">Markdown supported</span></label>
+          <textarea id="ni-desc" class="textarea" rows="4">Hourly CPP trend for BR-V05 has no points between 02:00 and 05:00 on 23 Sep. Raw telemetry for the same window looks complete, so the gap is probably in run_summaries.</textarea>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <label class="checkline"><input type="checkbox" checked="{{ true }}">Notify QA — these tables feed data used in batch release</label>
+          <label class="checkline"><input type="checkbox">Pause downstream gold models until this is resolved</label>
+        </div>
+      </div>
+
+      <div class="bt" style="padding: 14px 24px; display: flex; align-items: center; gap: 10px; background: var(--raised)">
+        <span class="meta">Posts to #data-platform</span>
+        <a class="btn lg" href="Incidents.dc.html" style="margin-left: auto; background: var(--panel)">Cancel</a>
+        <a class="btn-primary lg" href="Incidents.dc.html" style="padding: 0 16px">Create incident</a>
+      </div>
+    </form>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { theme: null, kind: 'Data quality', sev: 'Medium' };
+this.onStorage = this.onStorage.bind(this);
+}
+componentDidMount() {
+try { var t = window.localStorage.getItem('phlo-theme'); if (t === 'light' || t === 'dark') this.setState({ theme: t }); } catch (e) {}
+try { window.addEventListener('storage', this.onStorage); } catch (e) {}
+}
+componentWillUnmount() {
+try { window.removeEventListener('storage', this.onStorage); } catch (e) {}
+}
+onStorage(e) {
+if (e && e.key === 'phlo-theme' && (e.newValue === 'light' || e.newValue === 'dark')) this.setState({ theme: e.newValue });
+}
+renderVals() {
+var self = this;
+var th = this.state.theme || this.props.theme || 'light';
+var kinds = ['Freshness', 'Schema', 'Audit', 'Data quality', 'Catalog', 'Performance'].map(function (k) {
+var on = self.state.kind === k;
+return { label: k, on: on, cls: on ? 'choice on' : 'choice', pick: function () { self.setState({ kind: k }); } };
+});
+var SD = { Low: 'var(--faint)', Medium: 'var(--amber)', High: 'var(--red)' };
+var sevs = ['Low', 'Medium', 'High'].map(function (s) {
+var on = self.state.sev === s;
+return { label: s, on: on, dot: SD[s], cls: on ? 'choice on' : 'choice', pick: function () { self.setState({ sev: s }); } };
+});
+var help = { Low: 'Shows in the list, no notifications', Medium: 'Notifies the owner and #data-platform', High: 'Also pages whoever is on call' };
+return {
+themeClass: 'phlo shell theme-' + th,
+kinds: kinds, sevs: sevs, sevHelp: help[this.state.sev]
+};
+}
+}
+</script>
+</body>
+</html>

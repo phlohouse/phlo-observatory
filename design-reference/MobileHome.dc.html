@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mobile · Overview</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./theme.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+
+<div class="{{themeClass}}" style="width: 390px; height: 844px; display: flex; flex-direction: column; overflow: hidden; position: relative; background: var(--bg)">
+
+<header class="bb" style="flex-shrink: 0; display: flex; align-items: center; gap: 10px; height: 56px; padding: 0 6px 0 16px; box-sizing: border-box; background: var(--panel)">
+  <span class="brand-mark" role="img" aria-label="phlo" style="width: 28px; height: 28px; border-radius: 7px; font-size: 15px; flex-shrink: 0">φ</span>
+  <h1 style="margin: 0; font-size: 18px; font-weight: 600; letter-spacing: -0.01em">Overview</h1>
+  <span class="env" style="margin-left: auto">prod</span>
+  <button type="button" aria-label="{{themeLabel}}" onClick="{{toggleTheme}}" style="width: 44px; height: 44px; border: none; border-radius: 10px; background: transparent; color: var(--text-3); display: flex; align-items: center; justify-content: center; cursor: pointer">
+    <sc-if value="{{isDark}}" hint-placeholder-val="{{ false }}">
+      <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="3"></circle><path d="M8 1.5v1.5M8 13v1.5M1.5 8H3M13 8h1.5M3.4 3.4l1 1M11.6 11.6l1 1M3.4 12.6l1-1M11.6 4.4l1-1"></path></svg>
+    </sc-if>
+    <sc-if value="{{isLight}}" hint-placeholder-val="{{ true }}">
+      <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M13 9.5A5.5 5.5 0 0 1 6.5 3a5.5 5.5 0 1 0 6.5 6.5Z"></path></svg>
+    </sc-if>
+  </button>
+</header>
+
+<main style="flex-grow: 1; min-height: 0; overflow-y: auto; padding: 14px 16px 24px; display: flex; flex-direction: column; gap: 22px">
+
+  <div class="meta" style="flex-shrink: 0; font-size: 12.5px">Refreshed 09:41 · updates every 60 s</div>
+
+  <!-- KPIs -->
+  <section aria-label="Lakehouse health" style="flex-shrink: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: -10px">
+    <a class="card" href="MobileAssets.dc.html" style="padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; color: var(--text); min-height: 112px; box-sizing: border-box">
+      <div class="eyebrow">Freshness</div>
+      <div style="font-size: 24px; font-weight: 500; letter-spacing: -0.01em">95.3%</div>
+      <div class="meta" style="font-size: 12.5px">141 of 148 fresh</div>
+      <div style="display: flex; gap: 2px; height: 5px; margin-top: auto"><div class="bg-green" style="flex-grow: 141; border-radius: 2px"></div><div class="bg-red" style="flex-grow: 7; border-radius: 2px"></div></div>
+    </a>
+    <a class="card" href="MobilePipelines.dc.html" style="padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; color: var(--text); min-height: 112px; box-sizing: border-box">
+      <div class="eyebrow">Dagster runs · 24 h</div>
+      <div style="display: flex; align-items: baseline; gap: 6px"><span style="font-size: 24px; font-weight: 500; letter-spacing: -0.01em">312</span><span class="c-red" style="font-size: 13px">4 failed</span></div>
+      <div class="meta" style="font-size: 12.5px">98.7% success</div>
+    </a>
+    <div class="card" style="padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; min-height: 112px; box-sizing: border-box">
+      <div class="eyebrow">Audits</div>
+      <div style="display: flex; align-items: baseline; gap: 6px"><span style="font-size: 24px; font-weight: 500; letter-spacing: -0.01em">425</span><span class="meta" style="font-size: 12.5px">of 431</span></div>
+      <div class="meta" style="font-size: 12.5px">6 failing on 2 models</div>
+    </div>
+    <a class="card" href="MobileIncidents.dc.html" style="padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; color: var(--text); min-height: 112px; box-sizing: border-box">
+      <div class="eyebrow">Open incidents</div>
+      <div style="display: flex; align-items: baseline; gap: 6px"><span style="font-size: 24px; font-weight: 500; letter-spacing: -0.01em">5</span><span class="c-red" style="font-size: 13px">2 high</span></div>
+      <div class="meta" style="font-size: 12.5px">Oldest opened 3 d ago</div>
+    </a>
+  </section>
+
+  <!-- Needs you -->
+  <section aria-labelledby="needs-h" style="flex-shrink: 0; display: flex; flex-direction: column">
+    <div style="display: flex; align-items: center; height: 44px; margin-top: -8px">
+      <h2 id="needs-h" class="eyebrow" style="margin: 0; font-weight: 400">Needs you · 5</h2>
+      <a href="MobileIncidents.dc.html" style="margin-left: auto; display: inline-flex; align-items: center; height: 44px; padding: 0 4px; font-size: 13.5px">All incidents</a>
+    </div>
+    <div class="card" style="overflow: hidden">
+      <sc-for list="{{open}}" as="r" hint-placeholder-count="5">
+        <a href="{{r.href}}" style="display: flex; align-items: center; gap: 12px; min-height: 62px; padding: 10px 12px 10px 14px; box-sizing: border-box; color: var(--text); border-bottom: {{r.border}}">
+          <span class="{{r.tileCls}}"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{r.icon}}"></path></svg></span>
+          <span style="display: flex; flex-direction: column; gap: 3px; min-width: 0; flex-grow: 1">
+            <span style="font-size: 14.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{r.title}}</span>
+            <span class="meta" style="font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis"><span class="mono" style="font-size: 12px">{{r.id}}</span> · {{r.status}}</span>
+          </span>
+          <span style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0">
+            <span class="{{r.sevCls}}">{{r.sev}}</span>
+            <span class="meta" style="font-size: 12px">{{r.age}}</span>
+          </span>
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="flex-shrink: 0; color: var(--faint)"><path d="M6 4l4 4-4 4"></path></svg>
+        </a>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- Layers -->
+  <section aria-labelledby="layers-h" style="flex-shrink: 0; display: flex; flex-direction: column; gap: 8px">
+    <div style="display: flex; align-items: baseline">
+      <h2 id="layers-h" class="eyebrow" style="margin: 0; font-weight: 400">Layers · 148 tables</h2>
+      <span class="meta" style="margin-left: auto; font-size: 12.5px"><span class="c-red">7 stale</span></span>
+    </div>
+    <a class="card" href="MobileAssets.dc.html" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); color: var(--text); overflow: hidden">
+      <div style="padding: 12px; display: flex; flex-direction: column; gap: 6px">
+        <div style="display: flex; align-items: center; gap: 6px; font-size: 13px"><span class="sw lg bg-bronze"></span>Bronze</div>
+        <div style="font-size: 20px; font-weight: 500">52</div>
+        <div style="display: flex; gap: 2px; height: 4px"><div class="bg-green" style="flex-grow: 49; border-radius: 2px"></div><div class="bg-red" style="flex-grow: 3; border-radius: 2px"></div></div>
+        <div class="c-red" style="font-size: 12.5px">3 stale</div>
+      </div>
+      <div class="bl" style="padding: 12px; display: flex; flex-direction: column; gap: 6px">
+        <div style="display: flex; align-items: center; gap: 6px; font-size: 13px"><span class="sw lg bg-silver"></span>Silver</div>
+        <div style="font-size: 20px; font-weight: 500">61</div>
+        <div style="display: flex; gap: 2px; height: 4px"><div class="bg-green" style="flex-grow: 59; border-radius: 2px"></div><div class="bg-red" style="flex-grow: 2; border-radius: 2px"></div></div>
+        <div class="c-red" style="font-size: 12.5px">2 stale</div>
+      </div>
+      <div class="bl" style="padding: 12px; display: flex; flex-direction: column; gap: 6px">
+        <div style="display: flex; align-items: center; gap: 6px; font-size: 13px"><span class="sw lg bg-gold"></span>Gold</div>
+        <div style="font-size: 20px; font-weight: 500">35</div>
+        <div style="display: flex; gap: 2px; height: 4px"><div class="bg-green" style="flex-grow: 33; border-radius: 2px"></div><div class="bg-red" style="flex-grow: 2; border-radius: 2px"></div></div>
+        <div class="c-red" style="font-size: 12.5px">2 stale</div>
+      </div>
+    </a>
+  </section>
+
+  <!-- Services -->
+  <section aria-labelledby="svc-h" style="flex-shrink: 0; display: flex; flex-direction: column; gap: 8px">
+    <h2 id="svc-h" class="eyebrow" style="margin: 0; font-weight: 400">Services</h2>
+    <div class="card" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); overflow: hidden">
+      <div class="rowline br" style="display: flex; align-items: center; gap: 8px; height: 46px; padding: 0 14px; font-size: 14px"><span class="dot md bg-green"></span>Dagster<span class="meta" style="margin-left: auto; font-size: 12.5px">up</span></div>
+      <div class="rowline" style="display: flex; align-items: center; gap: 8px; height: 46px; padding: 0 14px; font-size: 14px"><span class="dot md bg-green"></span>Nessie<span class="meta" style="margin-left: auto; font-size: 12.5px">up</span></div>
+      <div class="br" style="display: flex; align-items: center; gap: 8px; height: 46px; padding: 0 14px; font-size: 14px"><span class="dot md bg-green"></span>Postgres<span class="meta" style="margin-left: auto; font-size: 12.5px">up</span></div>
+      <div style="display: flex; align-items: center; gap: 8px; height: 46px; padding: 0 14px; font-size: 14px"><span class="dot md bg-amber"></span>Object store<span class="c-amber" style="margin-left: auto; font-size: 12.5px">slow</span></div>
+    </div>
+  </section>
+</main>
+
+<nav aria-label="Main" style="flex-shrink: 0; height: 64px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--line); background: var(--panel)">
+  <a href="MobileHome.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 11.5px; font-weight: 500; color: var(--accent); box-shadow: inset 0 2px 0 var(--accent)">
+    <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7L8 2.5 13.5 7"></path><path d="M4 6v7.5h3v-4h2v4h3V6"></path></svg>
+    <span>Home</span>
+  </a>
+  <a href="MobileIncidents.dc.html" aria-label="Incidents, 5 open" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 11.5px; color: var(--muted)">
+    <span style="position: relative; display: flex">
+      <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5L14 13H2z"></path><path d="M8 6.5v3"></path><path d="M8 11.3v.2"></path></svg>
+      <span style="position: absolute; top: -5px; left: 13px; min-width: 16px; height: 16px; padding: 0 4px; box-sizing: border-box; border-radius: 8px; background: var(--red); color: #ffffff; font-size: 10.5px; font-weight: 600; line-height: 16px; text-align: center">5</span>
+    </span>
+    <span>Incidents</span>
+  </a>
+  <a href="MobileAssets.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 11.5px; color: var(--muted)">
+    <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="8" cy="4" rx="5" ry="1.8"></ellipse><path d="M3 4v8c0 1 2.2 1.8 5 1.8s5-.8 5-1.8V4"></path><path d="M3 8c0 1 2.2 1.8 5 1.8s5-.8 5-1.8"></path></svg>
+    <span>Assets</span>
+  </a>
+  <a href="MobilePipelines.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 11.5px; color: var(--muted)">
+    <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="2.5" width="5" height="4" rx="1"></rect><rect x="9.5" y="9.5" width="5" height="4" rx="1"></rect><path d="M4 6.5v2.5a2 2 0 0 0 2 2h3.5"></path></svg>
+    <span>Pipelines</span>
+  </a>
+</nav>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { theme: null };
+this.onStorage = this.onStorage.bind(this);
+}
+componentDidMount() {
+try { var t = window.localStorage.getItem('phlo-theme'); if (t === 'light' || t === 'dark') this.setState({ theme: t }); } catch (e) {}
+try { window.addEventListener('storage', this.onStorage); } catch (e) {}
+}
+componentWillUnmount() {
+try { window.removeEventListener('storage', this.onStorage); } catch (e) {}
+}
+onStorage(e) {
+if (e && e.key === 'phlo-theme' && (e.newValue === 'light' || e.newValue === 'dark')) this.setState({ theme: e.newValue });
+}
+setTheme(t) {
+this.setState({ theme: t });
+try { window.localStorage.setItem('phlo-theme', t); } catch (e) {}
+}
+renderVals() {
+var self = this;
+var th = this.state.theme || this.props.theme || 'light';
+var K = {
+Freshness: ['tile lg t-teal', 'M8 2a6 6 0 1 0 0.01 0Z M8 4.5V8l2.5 1.5'],
+Schema: ['tile lg t-amber', 'M3 3h10v10H3z M3 8h10 M8 3v10'],
+Audit: ['tile lg t-red', 'M4 4l8 8 M12 4l-8 8'],
+Catalog: ['tile lg t-purple', 'M4.5 2v12 M11.5 4v4c0 2-3 2.5-7 3.8'],
+Performance: ['tile lg t-blue', 'M2 12l4-4 3 3 5-6']
+};
+var SV = { High: 'pill p-red', Medium: 'pill p-amber', Low: 'pill p-grey' };
+var rows = [
+['#214', 'Stale table: bioreactor telemetry', 'Freshness', 'High', 'Investigating', '52 min', 'MobileIncident.dc.html'],
+['#211', 'Audit failed: silver.qc_results', 'Audit', 'High', 'In progress', '5 h', 'MobileIncidents.dc.html'],
+['#213', 'Schema drift: elisa_plate_reads', 'Schema', 'Medium', 'Triage', '1 h', 'MobileIncidents.dc.html'],
+['#209', 'Merge conflict on main', 'Catalog', 'Medium', 'Blocked', '1 d', 'MobileIncidents.dc.html'],
+['#207', 'Slow load: LIMS extract', 'Performance', 'Low', 'Monitoring', '3 d', 'MobileIncidents.dc.html']
+];
+var open = rows.map(function (r, i) {
+var k = K[r[2]];
+return { id: r[0], title: r[1], tileCls: k[0], icon: k[1], sev: r[3], sevCls: SV[r[3]], status: r[4], age: r[5], href: r[6], border: i === rows.length - 1 ? 'none' : '1px solid var(--line-soft)' };
+});
+return {
+themeClass: 'phlo theme-' + th,
+isDark: th === 'dark', isLight: th !== 'dark',
+themeLabel: th === 'dark' ? 'Switch to light theme' : 'Switch to dark theme',
+toggleTheme: function () { self.setTheme(th === 'dark' ? 'light' : 'dark'); },
+open: open
+};
+}
+}
+</script>
+</body>
+</html>
