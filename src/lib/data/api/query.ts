@@ -66,6 +66,28 @@ const querySessionSchema = z.object({
 
 const queryInput = z.object({ env: environmentSchema, sql: z.string().min(1).max(64 * 1024) })
 
+export const clientResponseSchemas = {
+  'GET /api/v1/query/catalog': catalogResponse,
+  'GET /api/v1/query/refs': refsResponse,
+  'GET /api/v1/query/engines': enginesResponse,
+  'GET /api/v1/queries/saved': savedQueryResponse,
+  'POST /api/v1/queries': querySessionSchema,
+  'POST /api/v1/queries/explain': querySessionSchema,
+  'GET /api/v1/queries/{query_id}': querySessionSchema,
+  'POST /api/v1/queries/{query_id}/cancel': querySessionSchema,
+  'GET /api/v1/queries/{query_id}/csv': z.string(),
+  'POST /api/v1/queries/saved': savedQuerySchema,
+  'PUT /api/v1/queries/saved/{query_id}': savedQuerySchema,
+}
+
+export const clientRequestSchemas = {
+  'POST /api/v1/queries': z.object({ sql: z.string(), row_limit: z.number().int().min(1).max(100) }),
+  'POST /api/v1/queries/explain': z.object({ sql: z.string(), row_limit: z.number().int().min(1).max(100) }),
+  'POST /api/v1/queries/saved': z.object({ env: environmentSchema, name: z.string(), sql: z.string() }),
+  'PUT /api/v1/queries/saved/{query_id}': z.object({ env: environmentSchema, expected_version: z.number().int().positive(), name: z.string(), sql: z.string() }),
+  'DELETE /api/v1/queries/saved/{query_id}': z.object({ env: environmentSchema, expected_version: z.number().int().positive() }),
+}
+
 export type QueryCatalogLayer = {
   layer: string
   count: number

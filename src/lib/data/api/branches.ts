@@ -41,6 +41,15 @@ const comparison = z.object({
   status: z.enum(['compared', 'unavailable']),
 })
 
+export const clientResponseSchemas = {
+  'GET /api/v1/branches': referencePage,
+  'GET /api/v1/branches/refs': referencePage,
+  'GET /api/v1/branches/{branch_name}': reference,
+  'GET /api/v1/branches/{branch_name}/commits': commitPage,
+  'GET /api/v1/branches/{branch_name}/diff': branchDiff,
+  'GET /api/v1/branches/{branch_name}/compare': comparison,
+}
+
 const input = z.object({ env: environment.default('prod'), branch: z.string().min(1).max(128).optional() })
 
 export type BranchReference = z.infer<typeof reference>

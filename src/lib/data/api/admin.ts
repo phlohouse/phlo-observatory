@@ -12,10 +12,10 @@ const meResponse = z.object({
   principal_type: z.enum(['user', 'service', 'platform']),
   email: z.string().nullable(),
   roles: z.array(z.string()),
-  permissions: z.object({
-    prod: z.array(z.enum(['service.read', 'run.read'])),
-    staging: z.array(z.enum(['service.read', 'run.read'])),
-  }),
+  permissions: z.record(
+    z.enum(['prod', 'staging']),
+    z.array(z.enum(['service.read', 'run.read'])),
+  ),
 })
 const member = z.object({
   subject: z.string(),
@@ -47,6 +47,14 @@ const serviceAccount = z.object({
 const membersResponse = z.object({ items: z.array(member) })
 const invitationsResponse = z.object({ items: z.array(invitation) })
 const serviceAccountsResponse = z.object({ items: z.array(serviceAccount) })
+
+export const clientResponseSchemas = {
+  'GET /api/v1/admin/settings': settingsResponse,
+  'GET /api/v1/me': meResponse,
+  'GET /api/v1/admin/members': membersResponse,
+  'GET /api/v1/admin/invitations': invitationsResponse,
+  'GET /api/v1/admin/service-accounts': serviceAccountsResponse,
+}
 
 export type AdminSettings = z.infer<typeof settingsResponse>
 export type AdminIdentity = {

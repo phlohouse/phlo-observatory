@@ -43,6 +43,12 @@ const assetRuns = z.object({
   next_cursor: z.string().nullable(),
 })
 
+export const clientResponseSchemas = {
+  'GET /api/v1/assets': assetPage,
+  'GET /api/v1/assets/{asset_id}': assetDetail,
+  'GET /api/v1/assets/{asset_id}/runs': assetRuns,
+}
+
 const envInput = z.object({ env: environment.default('prod') })
 
 export type Asset = z.infer<typeof assetView>

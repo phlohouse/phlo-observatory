@@ -21,6 +21,13 @@ const incidentPage = z.object({
 const stats = z.object({ env: z.enum(['prod', 'staging']), counts: z.record(z.string(), z.number().int().nonnegative()) })
 const timeline = z.object({ items: z.array(z.object({ id: z.string(), actor: z.string(), kind: z.string(), payload: z.record(z.string(), z.json()), occurred_at: z.string() })) })
 
+export const clientResponseSchemas = {
+  'GET /api/v1/incidents': incidentPage,
+  'GET /api/v1/incidents/stats': stats,
+  'GET /api/v1/incidents/{incident_id}': incident,
+  'GET /api/v1/incidents/{incident_id}/timeline': timeline,
+}
+
 export const getIncidentList = createServerFn({ method: 'GET' })
   .validator(z.object({ env: z.enum(['prod', 'staging']).default('prod') }))
   .handler(async ({ data: { env } }) => {

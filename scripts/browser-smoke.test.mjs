@@ -38,18 +38,38 @@ test('replacement routes render separate environment data and read-only admin fa
       '/staging',
       '/incidents?env=prod',
       '/incidents/demo-prod-214?env=prod',
+      '/incidents?env=staging',
+      '/incidents/demo-stage-007?env=staging',
       '/assets?env=prod',
       '/assets/gold.batch_release_metrics?env=prod',
+      '/assets?env=staging',
+      '/assets/silver.qc_results?env=staging',
       '/pipelines?env=prod',
       '/pipelines/refresh-release-metrics?env=prod',
       '/pipelines/timeline?env=prod',
+      '/pipelines?env=staging',
+      '/pipelines/validate-qc-results?env=staging',
+      '/pipelines/timeline?env=staging',
       '/branches?env=prod',
+      '/branches?env=staging',
       '/settings?env=prod',
+      '/settings/members',
+      '/settings/audit-log',
     ]) {
       const response = await page.goto(new URL(path, baseUrl).href)
       assert.equal(response?.status(), 200, `${path} should render`)
       assert.ok((await page.locator('main').innerText()).trim().length > 0, `${path} should contain rendered screen content`)
     }
+
+    await page.goto(new URL('/incidents?env=staging', baseUrl).href)
+    const stagingIncidents = await page.locator('main').innerText()
+    assert.ok(stagingIncidents.includes('demo-stage-007'))
+    assert.ok(!stagingIncidents.includes('demo-prod-214'))
+
+    await page.goto(new URL('/pipelines?env=staging', baseUrl).href)
+    const stagingPipelines = await page.locator('main').innerText()
+    assert.ok(stagingPipelines.includes('validate-qc-results'))
+    assert.ok(!stagingPipelines.includes('refresh-release-metrics'))
 
     await page.goto(new URL('/settings/members', baseUrl).href)
     await page.getByText('Identity records are loaded from Phlo.', { exact: false }).waitFor()

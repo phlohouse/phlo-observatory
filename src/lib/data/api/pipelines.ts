@@ -15,14 +15,28 @@ const run = z.object({
   started_at: z.string().nullable(), ended_at: z.string().nullable(), duration_seconds: z.number().nonnegative().nullable(),
   selected_assets: z.array(z.array(z.string())), logs_url: z.string(), resource_id: z.string(),
 })
-const jobsPage = z.object({ env: environment, items: z.array(job), next_cursor: z.null() })
+const jobsPage = z.object({ env: environment, items: z.array(job), next_cursor: z.null().optional() })
 const schedulesPage = z.object({ env: environment, items: z.array(schedule) })
-const runsPage = z.object({ env: environment, items: z.array(run), next_cursor: z.null() })
+const runsPage = z.object({ env: environment, items: z.array(run), next_cursor: z.null().optional() })
 const summary = z.object({ env: environment, job_id: z.string(), scanned_runs: z.number().int().nonnegative(), counts_by_status: z.record(z.string(), z.number().int().nonnegative()), duration_histogram_seconds: z.record(z.string(), z.number().int().nonnegative()) })
-const patterns = z.object({ env: environment, job_id: z.string(), scanned_runs: z.number().int().nonnegative(), items: z.array(z.object({ kind: z.enum(['failure', 'slow_run']), job_id: z.string(), count: z.number().int().positive(), run_ids: z.array(z.string()), typical_duration_seconds: z.number().nonnegative().nullable() })) })
+const patterns = z.object({ env: environment, job_id: z.string(), scanned_runs: z.number().int().nonnegative(), items: z.array(z.object({ kind: z.enum(['failure', 'slow_run']), job_id: z.string(), count: z.number().int().positive(), run_ids: z.array(z.string()), typical_duration_seconds: z.number().nonnegative().nullable().optional() })) })
 const runEvents = z.object({ env: environment, run_id: z.string(), items: z.array(z.object({ event_type: z.string(), message: z.string(), timestamp: z.string(), step_key: z.string().nullable() })), truncated: z.boolean(), next_cursor: z.string().nullable() })
 const runLogs = runEvents.extend({ follow_supported: z.boolean(), status: z.string(), is_terminal: z.boolean() })
 const maintenance = z.object({ env: environment, status: z.enum(['configured', 'unavailable']), items: z.array(z.object({ id: z.string(), starts_at: z.string(), ends_at: z.string(), description: z.string().nullable() })) })
+
+export const clientResponseSchemas = {
+  'GET /api/v1/jobs': jobsPage,
+  'GET /api/v1/schedules': schedulesPage,
+  'GET /api/v1/runs': runsPage,
+  'GET /api/v1/jobs/{job_id}': job,
+  'GET /api/v1/jobs/{job_id}/schedules': schedulesPage,
+  'GET /api/v1/jobs/{job_id}/summary': summary,
+  'GET /api/v1/jobs/{job_id}/patterns': patterns,
+  'GET /api/v1/runs/{run_id}': run,
+  'GET /api/v1/runs/{run_id}/timeline': runEvents,
+  'GET /api/v1/runs/{run_id}/logs': runLogs,
+  'GET /api/v1/maintenance-windows': maintenance,
+}
 
 export type Job = z.infer<typeof job>
 export type Run = z.infer<typeof run>

@@ -1,4 +1,18 @@
 import { readFile } from 'node:fs/promises'
+import { registerHooks } from 'node:module'
+
+registerHooks({
+  resolve(specifier, context, nextResolve) {
+    if (specifier.startsWith('.') && !/\.[a-z]+$/i.test(specifier)) return nextResolve(`${specifier}.ts`, context)
+    return nextResolve(specifier, context)
+  },
+})
+
+const [{ clientRequestSchemas, clientResponseSchemas }, { z }] = await Promise.all([
+  import('../src/lib/data/api/contracts.ts'),
+  import('zod'),
+])
+export { clientRequestSchemas, clientResponseSchemas }
 
 export const requiredOperations = new Map([
   ['/api/v1/environments', ['get']],
@@ -71,24 +85,34 @@ export function validateOpenApi(document) {
 
       const success = Object.entries(operation.responses ?? {}).find(([status]) => /^2\d\d$/.test(status))
       const content = success?.[1]?.content
-      const schema = content?.['application/json']?.schema
-        ?? content?.['text/csv']?.schema
-        ?? content?.['application/octet-stream']?.schema
-      if (!success || (content?.['application/json'] && schema === undefined)) {
+      const clientSchema = clientResponseSchemas[`${method.toUpperCase()} ${path}`]
+      const responseSchemas = Object.values(content ?? {}).map((media) => media.schema).filter(Boolean)
+      const schema = responseSchemas.find(hasSchemaType) ?? responseSchemas[0]
+      if (!success || (clientSchema && schema === undefined) || (content?.['application/json'] && schema === undefined)) {
         errors.push(`Missing successful response schema on ${method.toUpperCase()} ${path}`)
       } else if (schema !== undefined) {
         for (const ref of collectRefs(schema)) {
-          if (!resolveRef(document, ref)) errors.push(`Unresolved response schema ${ref} on ${method.toUpperCase()} ${path}`)
+          if (!ref.startsWith('#/$defs/') && !resolveRef(document, ref)) errors.push(`Unresolved response schema ${ref} on ${method.toUpperCase()} ${path}`)
+        }
+        if (clientSchema) {
+          compareClientSchema(z.toJSONSchema(clientSchema), schema, document, `${method.toUpperCase()} ${path}`, errors)
         }
       }
 
-      if (['post', 'put', 'patch'].includes(method) && operation.requestBody?.required === true) {
+      const clientRequestSchema = clientRequestSchemas[`${method.toUpperCase()} ${path}`]
+      if (clientRequestSchema && operation.requestBody?.required !== true) {
+        errors.push(`Client sends a required JSON request body but API does not require one on ${method.toUpperCase()} ${path}`)
+      }
+      if (['post', 'put', 'patch', 'delete'].includes(method) && operation.requestBody?.required === true) {
         const requestSchema = operation.requestBody?.content?.['application/json']?.schema
         if (requestSchema === undefined) {
           errors.push(`Missing JSON request schema on ${method.toUpperCase()} ${path}`)
         } else {
           for (const ref of collectRefs(requestSchema)) {
             if (!resolveRef(document, ref)) errors.push(`Unresolved request schema ${ref} on ${method.toUpperCase()} ${path}`)
+          }
+          if (clientRequestSchema) {
+            compareClientSchema(z.toJSONSchema(clientRequestSchema), requestSchema, document, `${method.toUpperCase()} ${path} request`, errors)
           }
         }
       }
@@ -107,6 +131,70 @@ function collectRefs(value, refs = []) {
 function resolveRef(document, ref) {
   if (!ref.startsWith('#/')) return undefined
   return ref.slice(2).split('/').reduce((value, part) => value?.[part.replaceAll('~1', '/').replaceAll('~0', '~')], document)
+}
+
+function compareClientSchema(clientSchema, apiSchema, document, location, errors, clientDocument = clientSchema) {
+  if (apiSchema.$ref) {
+    const resolved = resolveRef(document, apiSchema.$ref)
+    if (resolved) compareClientSchema(clientSchema, resolved, document, location, errors, clientDocument)
+    return
+  }
+  if (clientSchema.$ref) {
+    const resolved = resolveRef(clientDocument, clientSchema.$ref)
+    if (resolved) compareClientSchema(resolved, apiSchema, document, location, errors, clientDocument)
+    return
+  }
+
+  const clientTypes = schemaTypes(clientSchema)
+  const apiTypes = schemaTypes(apiSchema)
+  if (clientTypes.size && apiTypes.size) {
+    const incompatible = [...apiTypes].some((type) => !clientTypes.has(type) && !(type === 'integer' && clientTypes.has('number')))
+    if (incompatible) errors.push(`Incompatible schema type at ${location}: client accepts ${[...clientTypes].join('|')}, API documents ${[...apiTypes].join('|')}`)
+  } else if (clientTypes.size && apiTypes.size === 0) {
+    errors.push(`Untyped API schema at ${location}`)
+  }
+
+  if (clientSchema.enum && apiSchema.enum && !clientSchema.enum.every((value) => apiSchema.enum.includes(value))) {
+    errors.push(`Incompatible schema enum at ${location}`)
+  }
+
+  const clientProperties = clientSchema.properties ?? {}
+  const apiProperties = apiSchema.properties ?? {}
+  for (const [name, child] of Object.entries(clientProperties)) {
+    const additional = apiSchema.additionalProperties
+    const propertyNameIsEnumerated = apiSchema.propertyNames?.enum?.includes(name)
+    const additionalCoversProperty = typeof additional === 'object' && propertyNameIsEnumerated
+    const apiProperty = apiProperties[name] ?? (additionalCoversProperty ? additional : undefined)
+    if (!apiProperty) {
+      errors.push(`Schema property ${name} is missing from API contract at ${location}`)
+      continue
+    }
+    if (clientSchema.required?.includes(name) && !additionalCoversProperty && !apiSchema.required?.includes(name) && !Object.hasOwn(apiProperty, 'default')) {
+      errors.push(`Required client property ${name} is not required by the API schema at ${location}`)
+    }
+    compareClientSchema(child, apiProperty, document, `${location}.${name}`, errors, clientDocument)
+  }
+
+  if (clientSchema.items && apiSchema.items) {
+    compareClientSchema(clientSchema.items, apiSchema.items, document, `${location}[]`, errors, clientDocument)
+  } else if (clientSchema.items && apiTypes.has('array') && !apiSchema.items) {
+    errors.push(`Array item schema is missing at ${location}`)
+  }
+
+  if (clientSchema.additionalProperties && apiSchema.additionalProperties && typeof clientSchema.additionalProperties === 'object' && typeof apiSchema.additionalProperties === 'object') {
+    compareClientSchema(clientSchema.additionalProperties, apiSchema.additionalProperties, document, `${location}.*`, errors, clientDocument)
+  }
+}
+
+function schemaTypes(schema) {
+  if (typeof schema.type === 'string') return new Set([schema.type])
+  if (Array.isArray(schema.type)) return new Set(schema.type)
+  const variants = [...(schema.anyOf ?? []), ...(schema.oneOf ?? [])]
+  return new Set(variants.flatMap((variant) => [...schemaTypes(variant)]))
+}
+
+function hasSchemaType(schema) {
+  return schemaTypes(schema).size > 0 || typeof schema.$ref === 'string'
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

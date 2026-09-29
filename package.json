@@ -7,7 +7,7 @@
     "build": "vite build",
     "start": "vite preview --port 3000",
     "typecheck": "tsc --noEmit",
-    "test": "node --experimental-strip-types --test src/lib/data/api/*.test.mjs",
+    "test": "node --experimental-strip-types --test src/lib/data/api/*.test.mjs scripts/architecture-smoke.test.mjs",
     "test:browser": "node --test scripts/browser-smoke.test.mjs",
     "test:api-contract": "node scripts/check-api-contract.mjs",
     "screenshots": "node scripts/screenshot.mjs http://localhost:3000 shots"

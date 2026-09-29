@@ -30,11 +30,17 @@ const auditVerification = z.object({
   surface: z.string(),
   valid: z.boolean(),
   total_records: z.number().int().nonnegative(),
-  first_invalid_sequence: z.number().int().positive().nullable(),
-  error_message: z.string().nullable(),
+  first_invalid_sequence: z.number().int().positive().nullable().optional(),
+  error_message: z.string().nullable().optional(),
 })
 
 const auditExport = z.string()
+
+export const clientResponseSchemas = {
+  'GET /api/v1/admin/audit/records': auditRecordPage,
+  'GET /api/v1/admin/audit/verify': auditVerification,
+  'GET /api/v1/admin/audit/export': auditExport,
+}
 
 export type AuditRecord = z.infer<typeof auditRecord>
 export type AuditVerification = z.infer<typeof auditVerification>

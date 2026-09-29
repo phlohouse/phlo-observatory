@@ -16,7 +16,7 @@ const overviewResponse = z.object({
   quality_checks: z.object({
     status: z.enum(['available', 'unknown']),
     counts: z.object({ passing: z.number(), total: z.number(), unevaluated: z.number() }).nullable(),
-    failing_assets: z.array(z.string()).nullable(),
+    failing_assets: z.array(z.string()).nullable().optional(),
     reason: z.string().nullable(),
   }),
 })
@@ -47,6 +47,14 @@ const incidentStatsResponse = z.object({
   env: environment,
   counts: z.record(z.string(), z.number().int().nonnegative()),
 })
+
+export const clientResponseSchemas = {
+  'GET /api/v1/environments': environmentsResponse,
+  'GET /api/v1/services': servicesResponse,
+  'GET /api/v1/incidents/stats': incidentStatsResponse,
+  'GET /api/v1/overview': overviewResponse,
+  'GET /api/v1/layers': layerResponse,
+}
 
 /** Live API data for the app chrome. */
 export const getShell = createServerFn({ method: 'GET' })
