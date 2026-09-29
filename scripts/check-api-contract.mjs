@@ -59,10 +59,54 @@ export function validateOpenApi(document) {
     for (const method of methods) {
       if (typeof operations?.[method] !== 'object' || operations[method] === null) {
         errors.push(`Missing ${method.toUpperCase()} ${path}`)
+        continue
+      }
+
+      const operation = operations[method]
+      const pathParameters = [...path.matchAll(/\{([^}]+)\}/g)].map((match) => match[1])
+      for (const parameter of pathParameters) {
+        const declared = operation.parameters?.some((item) => item.in === 'path' && item.name === parameter && item.required === true)
+        if (!declared) errors.push(`Missing required path parameter ${parameter} on ${method.toUpperCase()} ${path}`)
+      }
+
+      const success = Object.entries(operation.responses ?? {}).find(([status]) => /^2\d\d$/.test(status))
+      const content = success?.[1]?.content
+      const schema = content?.['application/json']?.schema
+        ?? content?.['text/csv']?.schema
+        ?? content?.['application/octet-stream']?.schema
+      if (!success || (content?.['application/json'] && schema === undefined)) {
+        errors.push(`Missing successful response schema on ${method.toUpperCase()} ${path}`)
+      } else if (schema !== undefined) {
+        for (const ref of collectRefs(schema)) {
+          if (!resolveRef(document, ref)) errors.push(`Unresolved response schema ${ref} on ${method.toUpperCase()} ${path}`)
+        }
+      }
+
+      if (['post', 'put', 'patch'].includes(method) && operation.requestBody?.required === true) {
+        const requestSchema = operation.requestBody?.content?.['application/json']?.schema
+        if (requestSchema === undefined) {
+          errors.push(`Missing JSON request schema on ${method.toUpperCase()} ${path}`)
+        } else {
+          for (const ref of collectRefs(requestSchema)) {
+            if (!resolveRef(document, ref)) errors.push(`Unresolved request schema ${ref} on ${method.toUpperCase()} ${path}`)
+          }
+        }
       }
     }
   }
   return errors
+}
+
+function collectRefs(value, refs = []) {
+  if (!value || typeof value !== 'object') return refs
+  if (typeof value.$ref === 'string') refs.push(value.$ref)
+  for (const child of Object.values(value)) collectRefs(child, refs)
+  return refs
+}
+
+function resolveRef(document, ref) {
+  if (!ref.startsWith('#/')) return undefined
+  return ref.slice(2).split('/').reduce((value, part) => value?.[part.replaceAll('~1', '/').replaceAll('~0', '~')], document)
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

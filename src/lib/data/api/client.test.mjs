@@ -124,3 +124,13 @@ test('surfaces API outages as bounded status errors without retrying or redirect
   })
   assert.equal(requestInit.redirect, 'manual')
 })
+
+test('rejects malformed successful JSON instead of substituting local data', async () => {
+  const request = createApiClient({
+    baseUrl: 'https://api.example.test',
+    getCookie: () => undefined,
+    fetch: async () => new Response('{malformed', { status: 200, headers: { 'content-type': 'application/json' } }),
+  })
+
+  await assert.rejects(request('/api/v1/assets?env=prod'), SyntaxError)
+})
