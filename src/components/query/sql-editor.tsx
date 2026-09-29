@@ -14,10 +14,10 @@ import { autocompletion, closeBrackets, closeBracketsKeymap, completionKeymap, t
 import { PostgreSQL, sql, type SQLNamespace } from '@codemirror/lang-sql'
 import { tags as t } from '@lezer/highlight'
 import { cn } from '@/lib/utils'
-import type { CatalogLayer } from '@/lib/data/fixtures/query'
+import type { QueryCatalogLayer } from '@/lib/data/api/query'
 
 /** Catalog → lang-sql schema: `layer.table` → columns (with their type as the completion detail). */
-function toSchema(catalog: CatalogLayer[]): SQLNamespace {
+function toSchema(catalog: QueryCatalogLayer[]): SQLNamespace {
   const ns: Record<string, Record<string, Completion[]>> = {}
   for (const l of catalog) {
     const tables: Record<string, Completion[]> = {}
@@ -93,7 +93,7 @@ export function SqlEditor({
   onChange: (v: string) => void
   onRun?: () => void
   /** Tables and columns for autocomplete */
-  catalog?: CatalogLayer[]
+  catalog?: QueryCatalogLayer[]
   className?: string
   label?: string
 }) {

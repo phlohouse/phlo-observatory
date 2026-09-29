@@ -1,14 +1,7 @@
-/**
- * Server functions for the staging environment. Later: diffs come from comparing the staging
- * Dagster code location and Nessie branch with prod; promotions from open staging → prod merges.
- */
 import { createServerFn } from '@tanstack/react-start'
-import * as fx from '../fixtures/staging'
+import { fetchOverview } from './core'
 
-export const getStagingOverview = createServerFn({ method: 'GET' }).handler(async () => ({
-  kpis: fx.stagingKpis,
-  diffs: fx.stagingDiffs,
-  groupTitles: fx.stagingGroupTitles,
-  promotions: fx.promotions,
-  source: fx.stagingSource,
-}))
+export const getStagingOverview = createServerFn({ method: 'GET' }).handler(async () => {
+  const [prod, staging] = await Promise.all([fetchOverview('prod'), fetchOverview('staging')])
+  return { prod, staging }
+})

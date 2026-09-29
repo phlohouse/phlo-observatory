@@ -2,11 +2,10 @@ import { Link } from '@tanstack/react-router'
 import { CheckIcon, ChevronDownIcon, SearchIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Kbd } from '@/components/ui/separator'
-import { Badge } from '@/components/ui/badge'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/menu'
-import type { Env, Incident, Service } from '@/lib/data/types'
+import type { Env } from '@/lib/data/types'
 import { navItems } from './nav-items'
-import { Dot, IncidentTile } from './status'
+import { Dot } from './status'
 import { ThemeSwitch } from './theme-switch'
 import { useCommandPalette } from './command-palette'
 
@@ -35,7 +34,7 @@ export function EnvPill({ env }: { env: Env }) {
 }
 
 /** Brand + environment switcher. Anything that isn't prod is amber. */
-export function EnvSwitcher({ env, openIncidents }: { env: Env; openIncidents: number }) {
+export function EnvSwitcher({ env, environments }: { env: Env; environments: Array<{ env: Env; status: 'available' | 'unavailable' }> }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1 text-foreground outline-none hover:bg-nav-hover focus-visible:outline-2 focus-visible:outline-ring">
@@ -45,27 +44,19 @@ export function EnvSwitcher({ env, openIncidents }: { env: Env; openIncidents: n
         <ChevronDownIcon className="ml-auto size-3.5 text-muted-foreground" />
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-[280px]">
-        <DropdownMenuLabel>Switch environment</DropdownMenuLabel>
-        <DropdownMenuItem render={<Link to="/" />} className={cn('items-start', env === 'prod' && 'bg-soft')}>
-          <Dot tone="neutral" size="md" className="mt-1.5 bg-text-3" />
-          <span className="flex flex-1 flex-col gap-0.5">
-            <span className="flex items-center gap-2 font-medium">
-              prod <Badge variant="bad" size="sm">{openIncidents} open</Badge>
-            </span>
-            <span className="text-[12.5px] text-muted-foreground">Production · 148 tables · deploy v1.41</span>
-          </span>
-          {env === 'prod' ? <CheckIcon className="mt-1 size-3.5 text-link" /> : null}
-        </DropdownMenuItem>
-        <DropdownMenuItem render={<Link to="/staging" />} className={cn('items-start', env === 'staging' && 'bg-soft')}>
-          <Dot tone="warn" size="md" className="mt-1.5" />
-          <span className="flex flex-1 flex-col gap-0.5">
-            <span className="flex items-center gap-2 font-medium">
-              staging <Badge variant="warn" size="sm">4 to promote</Badge>
-            </span>
-            <span className="text-[12.5px] text-muted-foreground">Nightly copy of prod · deploy v1.42</span>
-          </span>
-          {env === 'staging' ? <CheckIcon className="mt-1 size-3.5 text-link" /> : null}
-        </DropdownMenuItem>
+        <DropdownMenuLabel>Environments with access</DropdownMenuLabel>
+        {environments.map((item) => (
+          <DropdownMenuItem
+            key={item.env}
+            render={<Link to={item.env === 'prod' ? '/' : '/staging'} />}
+            className={cn('items-center', env === item.env && 'bg-soft')}
+          >
+            <Dot tone={item.status === 'available' ? 'ok' : 'neutral'} size="md" />
+            <span className="flex-1 font-medium">{item.env}</span>
+            <span className="text-xs text-muted-foreground">{item.status}</span>
+            {env === item.env ? <CheckIcon className="size-3.5 text-link" /> : null}
+          </DropdownMenuItem>
+        ))}
       </DropdownMenuContent>
     </DropdownMenu>
   )
@@ -92,23 +83,30 @@ const activeCls = 'bg-nav-on text-foreground hover:bg-nav-on'
 
 export function Sidebar({
   env,
-  openIncidents,
+  openIncidentCount,
   services,
+  environments,
 }: {
   env: Env
-  openIncidents: Incident[]
-  services: Service[]
+  openIncidentCount: number
+  services: Array<{ name: string; status: 'healthy' | 'degraded' | 'unhealthy' | 'unknown'; observedAt: string | null; responseTimeSeconds: number | null }>
+  environments: Array<{ env: Env; status: 'available' | 'unavailable' }>
 }) {
   const staging = env === 'staging'
-  const calm = openIncidents.length === 0
   return (
     <nav aria-label="Primary" className="flex h-full w-[248px] shrink-0 flex-col gap-[18px] px-2.5 py-3.5">
-      <EnvSwitcher env={env} openIncidents={openIncidents.length} />
+      <EnvSwitcher env={env} environments={environments} />
       <QuickActionsButton />
 
       <div className="flex flex-col gap-0.5">
         {navItems.map(({ to, label, Icon, exact }) => {
-          const target = staging && to === '/' ? '/staging' : to
+          const target = staging
+            ? to === '/'
+              ? '/staging'
+              : to === '/incidents' || to === '/query'
+                ? `${to}?env=staging`
+                : to
+            : to
           return (
             <Link
               key={to}
@@ -119,66 +117,33 @@ export function Sidebar({
             >
               <Icon className="size-4 shrink-0" strokeWidth={1.7} />
               <span className="min-w-0 truncate">{label}</span>
-              {to === '/incidents' && !staging && !calm ? (
-                <span className="ml-auto rounded-[5px] bg-bad px-1.5 py-px text-xs text-white">{openIncidents.length}</span>
+              {to === '/incidents' && openIncidentCount > 0 ? (
+                <span className="ml-auto rounded-[5px] bg-bad px-1.5 py-px text-xs text-white">{openIncidentCount}</span>
               ) : null}
-              {staging && to !== '/' && to !== '/settings' ? (
-                <span className="ml-auto rounded border border-border px-1.5 text-[11px] text-muted-foreground">prod</span>
+              {staging && to !== '/' && to !== '/settings' && to !== '/incidents' && to !== '/query' ? (
+                <span className="ml-auto rounded border border-border px-1.5 text-[11px] text-muted-foreground">preview</span>
               ) : null}
             </Link>
           )
         })}
       </div>
 
-      {staging ? (
-        <div className="flex flex-col gap-0.5">
-          <div className="px-2.5 pb-1.5 text-xs tracking-wide text-muted-foreground">Blocking promotion</div>
-          <Link to="/staging" hash="promote" className={itemCls}>
-            <IncidentTile kind="audit" />
-            <span className="truncate">qc_potency_v2 · 2 runs failed</span>
-          </Link>
-          <Link to="/staging" hash="promote" className={itemCls}>
-            <IncidentTile kind="schema" />
-            <span className="truncate">Contract: elisa_plate_reads</span>
-          </Link>
-          <p className="m-0 px-2.5 pt-1.5 text-xs leading-snug text-muted-foreground">
-            Pages marked <span className="rounded border border-border px-1 text-[11px]">prod</span> open the production view. Staging only has its own overview.
-          </p>
-        </div>
-      ) : calm ? (
-        <div className="flex flex-col gap-1.5">
-          <div className="px-2.5 text-xs tracking-wide text-muted-foreground">Open incidents</div>
-          <p className="m-0 px-2.5 text-[13.5px] leading-normal text-text-3">None open. Last one closed 4 h ago.</p>
-        </div>
-      ) : (
-        <div className="flex min-h-0 flex-col gap-0.5">
-          <div className="px-2.5 pb-1.5 text-xs tracking-wide text-muted-foreground">Open incidents</div>
-          {openIncidents.map((i) => (
-            <Link
-              key={i.id}
-              to="/incidents/$incidentId"
-              params={{ incidentId: i.id }}
-              className={cn(itemCls, 'text-[13.5px]')}
-              activeProps={{ className: activeCls }}
-            >
-              <IncidentTile kind={i.kind} />
-              <span className="min-w-0 truncate">
-                #{i.id} {i.title}
-              </span>
-            </Link>
-          ))}
-        </div>
-      )}
+      <div className="flex flex-col gap-1.5">
+        <div className="px-2.5 text-xs tracking-wide text-muted-foreground">Open incidents · {env}</div>
+        <Link to="/incidents" className="px-2.5 text-[13.5px] leading-normal text-text-3 hover:text-foreground">
+          {openIncidentCount} open or acknowledged
+        </Link>
+      </div>
 
       <div className="mt-auto flex flex-col gap-2 border-t border-border px-2.5 pt-3 pb-1">
-        <div className="text-xs tracking-wide text-muted-foreground">{staging ? 'Services · staging' : 'Services'}</div>
+        <div className="text-xs tracking-wide text-muted-foreground">Services · {env}</div>
         {services.map((s) => {
-          const state = staging || calm ? 'up' : s.state
+          const tone = s.status === 'healthy' ? 'ok' : s.status === 'degraded' ? 'warn' : s.status === 'unhealthy' ? 'bad' : 'neutral'
           return (
-            <div key={s.name} className="flex items-center gap-2 text-[13px] text-text-2">
-              <Dot tone={state === 'up' ? 'ok' : state === 'slow' ? 'warn' : 'bad'} />
+            <div key={s.name} className="flex items-center gap-2 text-[13px] text-text-2" title={s.observedAt ? `Observed ${s.observedAt}` : 'No observation'}>
+              <Dot tone={tone} />
               {s.name}
-              <span className="ml-auto font-mono text-xs text-muted-foreground">{state}</span>
+              <span className="ml-auto font-mono text-xs text-muted-foreground">{s.status}</span>
             </div>
           )
         })}

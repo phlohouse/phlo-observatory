@@ -85,7 +85,7 @@ export function Incident214({ incident, detail }: { incident: Incident; asset?: 
               items={[
                 [
                   'Asset',
-                  <Link key="a" to="/assets/$assetId" params={{ assetId: ASSET }} className="min-w-0 truncate font-mono text-[13px]">
+                  <Link key="a" to="/assets/$assetId" params={{ assetId: ASSET }} search={{ env: undefined }} className="min-w-0 truncate font-mono text-[13px]">
                     {ASSET}
                   </Link>,
                 ],
@@ -129,7 +129,7 @@ export function Incident214({ incident, detail }: { incident: Incident; asset?: 
             <Stat className="[&>span:first-of-type]:text-[15px]" label="Regression" value="Yes · historian upgrade" tone="bad" />
             <Link
               to="/assets"
-              search={{ filter: 'attention' }}
+              search={{ env: undefined }}
               className="rounded-[10px] text-foreground hover:bg-raised hover:text-foreground"
             >
               <Stat
@@ -221,7 +221,7 @@ export function Incident214({ incident, detail }: { incident: Incident; asset?: 
             title="Blast radius"
             note="Everything downstream of the stale table"
             link={
-              <Link to="/assets" search={{ filter: 'attention' }}>
+              <Link to="/assets" search={{ env: undefined }}>
                 View in Assets
               </Link>
             }

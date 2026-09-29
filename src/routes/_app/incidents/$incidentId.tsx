@@ -1,62 +1,69 @@
-import type { ReactNode } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
-import { getIncident } from '@/lib/data/api/core'
 import { getIncidentDetail } from '@/lib/data/api/incidents'
 import { PageBody, PageHeader } from '@/components/phlo/page'
 import { EmptyState, NotFound } from '@/components/phlo/states'
-import { Incident214 } from '@/components/incidents/incident-214'
-import { ResolvedIncident } from '@/components/incidents/resolved'
-import { OpenIncidentActions, ResolvedIncidentActions } from '@/components/incidents/header-actions'
-import {
-  IncidentAuditFailed,
-  IncidentMergeConflict,
-  IncidentSchemaDrift,
-  IncidentSlowLoad,
-} from '@/components/incidents/others'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export const Route = createFileRoute('/_app/incidents/$incidentId')({
-  loader: async ({ params }) => {
-    const [base, detail] = await Promise.all([
-      getIncident({ data: params.incidentId }),
-      getIncidentDetail({ data: params.incidentId }),
-    ])
-    return { ...base, ...detail }
-  },
-  head: ({ loaderData }) => ({
-    meta: [{ title: loaderData ? `#${loaderData.incident.id} ${loaderData.incident.title} · phlo` : 'Incident · phlo' }],
+  validateSearch: (search: Record<string, unknown>): { env?: 'staging' } => ({
+    ...(search.env === 'staging' ? { env: 'staging' } : {}),
   }),
+  loaderDeps: ({ search }) => ({ env: search.env ?? ('prod' as const) }),
+  loader: ({ params, deps }) => getIncidentDetail({ data: { id: params.incidentId, env: deps.env } }),
+  head: ({ loaderData }) => ({ meta: [{ title: loaderData ? `${loaderData.incident.title} · phlo` : 'Incident · phlo' }] }),
   notFoundComponent: NotFound,
   component: IncidentPage,
 })
 
-/** Dispatcher: shared chrome, then the body for this kind of incident. */
 function IncidentPage() {
-  const { incident, asset, open214, resolved } = Route.useLoaderData()
-
-  let body: ReactNode
-  if (open214) body = <Incident214 incident={incident} asset={asset} detail={open214} />
-  else if (resolved) body = <ResolvedIncident incident={incident} detail={resolved} />
-  else if (incident.id === '213') body = <IncidentSchemaDrift incident={incident} asset={asset} />
-  else if (incident.id === '211') body = <IncidentAuditFailed incident={incident} asset={asset} />
-  else if (incident.id === '209') body = <IncidentMergeConflict incident={incident} asset={asset} />
-  else if (incident.id === '207') body = <IncidentSlowLoad incident={incident} asset={asset} />
-  else
-    body = (
-      <PageBody>
-        <EmptyState title="No detail yet">This incident has no investigation notes yet.</EmptyState>
-      </PageBody>
-    )
-
+  const { incident, timeline, env } = Route.useLoaderData()
   return (
     <>
       <PageHeader
-        crumbs={[{ label: 'Incidents', to: '/incidents' }]}
-        title={`#${incident.id} ${incident.title}`}
-        actions={
-          resolved ? <ResolvedIncidentActions incident={incident} detail={resolved} /> : <OpenIncidentActions incident={incident} />
-        }
+        crumbs={[{ label: 'Incidents', to: env === 'staging' ? '/incidents?env=staging' : '/incidents' }]}
+        title={incident.title}
+        meta={`${env} · version ${incident.version}`}
+        actions={<Badge variant={incident.status === 'resolved' ? 'ok' : incident.status === 'acknowledged' ? 'info' : 'warn'}>{incident.status}</Badge>}
       />
-      {body}
+      <PageBody>
+        <Card>
+          <CardHeader><CardTitle>Incident record</CardTitle></CardHeader>
+          <CardContent className="grid gap-x-6 gap-y-4 sm:grid-cols-2">
+            <Fact label="ID" value={incident.id} mono />
+            <Fact label="Kind" value={incident.kind} />
+            <Fact label="Asset" value={incident.asset_id} mono />
+            <Fact label="Owner" value={incident.owner ?? 'Unassigned'} />
+            <Fact label="Created" value={incident.created_at} mono />
+            <Fact label="Updated" value={incident.updated_at} mono />
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader><CardTitle>Timeline</CardTitle></CardHeader>
+          <CardContent>
+            {timeline.length ? (
+              <ol className="m-0 flex list-none flex-col gap-0 p-0">
+                {timeline.map((item) => (
+                  <li key={item.id} className="grid gap-1 border-b border-line-soft py-3 last:border-0 sm:grid-cols-[180px_minmax(0,1fr)]">
+                    <time dateTime={item.occurred_at} className="font-mono text-xs text-muted-foreground">{item.occurred_at}</time>
+                    <div className="min-w-0">
+                      <div className="text-sm font-medium">{item.kind.replaceAll('_', ' ')}</div>
+                      <div className="mt-1 text-xs text-muted-foreground">{item.actor}</div>
+                      <pre className="m-0 mt-2 overflow-x-auto rounded bg-raised p-2 font-mono text-xs whitespace-pre-wrap">{JSON.stringify(item.payload, null, 2)}</pre>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <EmptyState title="No timeline events">No incident activity has been recorded for this environment.</EmptyState>
+            )}
+          </CardContent>
+        </Card>
+      </PageBody>
     </>
   )
+}
+
+function Fact({ label, value, mono = false }: { label: string; value: string; mono?: boolean }) {
+  return <div className="min-w-0"><div className="text-xs text-muted-foreground">{label}</div><div className={`mt-1 break-words text-sm ${mono ? 'font-mono text-xs' : ''}`}>{value}</div></div>
 }
