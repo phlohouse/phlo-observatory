@@ -89,7 +89,7 @@ export function Sidebar({
 }: {
   env: Env
   openIncidentCount: number
-  services: Array<{ name: string; status: 'healthy' | 'degraded' | 'unhealthy' | 'unknown'; observedAt: string | null; responseTimeSeconds: number | null }>
+  services: Array<{ name: string; status: 'healthy' | 'degraded' | 'unhealthy' | 'unknown' | 'unavailable'; observedAt: string | null; responseTimeSeconds: number | null }>
   environments: Array<{ env: Env; status: 'available' | 'unavailable' }>
 }) {
   const staging = env === 'staging'

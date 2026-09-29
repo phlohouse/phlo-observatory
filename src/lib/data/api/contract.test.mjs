@@ -71,6 +71,29 @@ test('detects incompatible API request field types against the actual client Zod
   assert.ok(validateOpenApi(document).includes('Incompatible schema type at POST /api/v1/queries request.row_limit: client accepts integer, API documents string'))
 })
 
+test('detects response enum values the client cannot parse', () => {
+  const document = completeDocument()
+  document.paths['/api/v1/overview'].get.responses[200].content['application/json'].schema.properties.env.enum.push('development')
+
+  assert.ok(validateOpenApi(document).includes('Incompatible schema enum at GET /api/v1/overview.env'))
+})
+
+test('detects API request fields required beyond the client schema', () => {
+  const document = completeDocument()
+  const schema = document.paths['/api/v1/queries'].post.requestBody.content['application/json'].schema
+  schema.properties.server_mode = { type: 'string' }
+  schema.required.push('server_mode')
+
+  assert.ok(validateOpenApi(document).includes('API-required property server_mode is missing from the client schema at POST /api/v1/queries request'))
+})
+
+test('detects API request enums that reject client values', () => {
+  const document = completeDocument()
+  document.paths['/api/v1/queries/saved'].post.requestBody.content['application/json'].schema.properties.env.enum = ['prod']
+
+  assert.ok(validateOpenApi(document).includes('Incompatible schema enum at POST /api/v1/queries/saved request.env'))
+})
+
 test('rejects an OpenAPI document without paths', () => {
   assert.deepEqual(validateOpenApi({}), ['OpenAPI document has no paths object.'])
 })

@@ -24,7 +24,7 @@ const servicesResponse = z.object({
   env: environment,
   items: z.array(z.object({
     id: z.string(),
-    status: z.enum(['healthy', 'degraded', 'unhealthy', 'unknown']),
+    status: z.enum(['healthy', 'degraded', 'unhealthy', 'unknown', 'unavailable']),
     observed_at: z.string().nullable(),
     response_time_seconds: z.number().nullable(),
   })),
