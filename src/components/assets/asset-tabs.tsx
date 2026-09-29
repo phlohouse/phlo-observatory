@@ -126,6 +126,7 @@ export function OverviewTab({ asset, detail }: P) {
                 key={x.id}
                 to="/assets/$assetId"
                 params={{ assetId: x.id }}
+                search={{ env: undefined }}
                 className="flex min-w-0 items-center gap-2 text-foreground hover:text-link"
               >
                 <LayerSwatch layer={x.layer} />

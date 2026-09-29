@@ -191,7 +191,7 @@ function Help({ className, ...props }: React.ComponentProps<'p'>) {
 
 function AssetLink({ id }: { id: string }) {
   return (
-    <Link to="/assets/$assetId" params={{ assetId: id }} className="font-mono text-[13px]">
+    <Link to="/assets/$assetId" params={{ assetId: id }} search={{ env: undefined }} className="font-mono text-[13px]">
       {id}
     </Link>
   )
@@ -689,7 +689,6 @@ export function IncidentMergeConflict({ incident }: Props) {
   const [picks, setPicks] = React.useState<Record<string, ConflictPick | null>>(d.initialPicks)
   const [rebased, setRebased] = React.useState(false)
   const done = d.conflicts.filter((c) => picks[c.id]).length
-  const all = done === d.conflicts.length
   const mergeIcon = <GitMergeIcon />
 
   return (
@@ -791,16 +790,10 @@ export function IncidentMergeConflict({ incident }: Props) {
 
           <div className="flex flex-col gap-2.5">
             <div className="flex flex-wrap items-center gap-2.5">
-              {all ? (
-                <Link to="/branches" search={{ dialog: 'merge' }} className={buttonVariants({ size: 'lg', className: 'h-10 px-4 lg:h-9' })}>
-                  {mergeIcon} Sign and merge
-                </Link>
-              ) : (
-                <Button size="lg" className="h-10 px-4 lg:h-9" disabled>
-                  {mergeIcon} Sign and merge
-                </Button>
-              )}
-              <Meta className="ml-auto">{all ? 'Ready to sign' : 'Resolve every conflict first'}</Meta>
+              <Button size="lg" className="h-10 px-4 lg:h-9" disabled title="Signed branch merge is unavailable in this read-only preview.">
+                {mergeIcon} Sign and merge
+              </Button>
+              <Meta className="ml-auto">Signed branch merge is unavailable</Meta>
             </div>
             <Help>
               Signing writes the resolution commit, runs the downstream audits on the branch, then merges into main. Needs Approver role;

@@ -1,8 +1,9 @@
 import * as React from 'react'
 import { ChevronDownIcon, ChevronRightIcon, SearchIcon, StarIcon } from 'lucide-react'
-import { Dot, LayerSwatch } from '@/components/phlo/status'
+import { LayerSwatch } from '@/components/phlo/status'
 import { cn } from '@/lib/utils'
-import type { CatalogLayer, SavedQuery } from '@/lib/data/fixtures/query'
+import type { QueryCatalogLayer, SavedQuery } from '@/lib/data/api/query'
+import type { Layer } from '@/lib/data/types'
 
 const row =
   'flex h-7 w-full min-w-0 cursor-pointer items-center gap-1.5 rounded-md px-2 text-left text-[13px] whitespace-nowrap text-text-2 hover:bg-soft'
@@ -14,14 +15,16 @@ export function CatalogTree({
   selected,
   onSelect,
   onOpenSaved,
+  onDeleteSaved,
   activeSaved,
   className,
 }: {
-  catalog: CatalogLayer[]
+  catalog: QueryCatalogLayer[]
   saved: SavedQuery[]
   selected: string
   onSelect: (fq: string) => void
   onOpenSaved: (id: string) => void
+  onDeleteSaved?: (id: string) => void
   activeSaved?: string
   className?: string
 }) {
@@ -54,7 +57,7 @@ export function CatalogTree({
       <ul role="tree" aria-label="Catalog" className="m-0 flex list-none flex-col gap-0.5 p-0">
         {catalog.map((l) => {
           const tables = needle
-            ? l.tables.filter((t) => t.name.includes(needle) || t.columns.some((c) => c.name.includes(needle)))
+            ? l.tables.filter((t) => t.name.toLowerCase().includes(needle))
             : l.tables
           if (needle && tables.length === 0) return null
           const lOpen = needle ? true : open.has(l.layer)
@@ -62,17 +65,19 @@ export function CatalogTree({
             <li key={l.layer} role="treeitem" aria-expanded={lOpen} aria-selected={false}>
               <button type="button" className={row} onClick={() => toggle(l.layer)}>
                 {lOpen ? <ChevronDownIcon className="size-3 shrink-0 text-faint" /> : <ChevronRightIcon className="size-3 shrink-0 text-faint" />}
-                <LayerSwatch layer={l.layer} />
+                {isLayer(l.layer) ? <LayerSwatch layer={l.layer} /> : <span className="size-2.5 rounded-sm bg-muted-foreground" aria-hidden />}
                 <span className="font-medium text-foreground">{l.layer}</span>
-                <span className="ml-auto text-[11.5px] text-muted-foreground">{l.count}</span>
+                <span className="ml-auto text-[11.5px] text-muted-foreground">
+                  {l.truncated ? `≥ ${l.count}` : l.count}
+                </span>
               </button>
               {lOpen ? (
                 <ul role="group" className="m-0 flex list-none flex-col gap-0.5 p-0">
                   {tables.map((t) => {
                     const fq = `${l.layer}.${t.name}`
-                    const tOpen = needle ? t.columns.some((c) => c.name.includes(needle)) || open.has(fq) : open.has(fq)
+                    const tOpen = open.has(fq)
                     const on = selected === fq
-                    const cols = needle && !t.name.includes(needle) ? t.columns.filter((c) => c.name.includes(needle)) : t.columns
+                    const cols = t.columns
                     return (
                       <li key={fq} role="treeitem" aria-expanded={tOpen} aria-selected={on}>
                         <button
@@ -85,12 +90,6 @@ export function CatalogTree({
                         >
                           {tOpen ? <ChevronDownIcon className="size-3 shrink-0 text-faint" /> : <ChevronRightIcon className="size-3 shrink-0 text-faint" />}
                           <span className="truncate font-mono text-[12.5px]">{t.name}</span>
-                          {t.stale ? (
-                            <>
-                              <Dot tone="bad" className="ml-auto" />
-                              <span className="sr-only">(stale)</span>
-                            </>
-                          ) : null}
                         </button>
                         {tOpen ? (
                           <ul role="group" className="m-0 flex list-none flex-col gap-0.5 p-0">
@@ -124,16 +123,30 @@ export function CatalogTree({
               aria-current={activeSaved === s.id ? 'true' : undefined}
               onClick={() => onOpenSaved(s.id)}
             >
-              {s.starred ? (
+              {s.metadata.starred === true ? (
                 <StarIcon className="size-3 shrink-0 fill-warn text-warn" aria-label="Starred" />
               ) : (
                 <span className="w-3 shrink-0" />
               )}
               <span className="truncate">{s.name}</span>
             </button>
+            {onDeleteSaved ? (
+              <button
+                type="button"
+                aria-label={`Delete saved query ${s.name}`}
+                className="ml-2 cursor-pointer text-xs text-muted-foreground hover:text-bad-ink"
+                onClick={() => onDeleteSaved(s.id)}
+              >
+                Delete
+              </button>
+            ) : null}
           </li>
         ))}
       </ul>
     </div>
   )
+}
+
+function isLayer(value: string): value is Layer {
+  return value === 'bronze' || value === 'silver' || value === 'gold'
 }

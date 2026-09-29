@@ -1,6 +1,6 @@
 # phlo web — mission control
 
-The phlo lakehouse mission-control app, built from the design canvas with **TanStack Start**, **shadcn-style components on Base UI**, and **Tailwind v4**. Every screen from the canvas is here, in light and dark mode, for desktop and phone. For now it runs on typed mock data.
+The replacement Phlo Observatory, built with **TanStack Start**, **Base UI**, and **Tailwind v4**. It is being cut over screen by screen to Phlo's canonical `/api/v1` API. Local preview uses a disposable demo API, never a live Phlo installation.
 
 ## Run it
 
@@ -21,14 +21,13 @@ pnpm start        # serves the production build on :3000 (vite preview)
 | Route | Screen |
 |---|---|
 | `/` | Overview (prod) |
-| `/staging` | Staging overview: differences from prod and promotion |
-| `/incidents`, `/incidents/:id` | Incident list; #214, #213, #211, #209, #207 open, #198 resolved (`?dialog=new-incident`) |
-| `/assets`, `/assets/:name` | Asset catalogue and detail; tabs in `?tab=`, plus `?dialog=materialize` and `?dialog=add-audit` |
+| `/staging` | Independently fetched staging and production overview evidence; promotion remains unavailable |
+| `/incidents`, `/incidents/:id` | Environment-scoped incident list, detail, and API timeline |
+| `/assets`, `/assets/:name` | Environment-scoped asset catalogue, schema, lineage, and run history |
 | `/query` | SQL editor, catalog tree, results as a table, chart or plan |
-| `/pipelines`, `/pipelines/:job`, `/pipelines/timeline` | Jobs by domain, owner or source; job detail; 24 h run timeline |
-| `/branches` | Nessie branches and tags, commit graph (`?dialog=new-branch`, `?dialog=merge`) |
-| `/settings`, `/settings/members`, `/settings/audit-log` | Lakehouse settings, members and access, signed audit log |
-| `/states` | Gallery of the harder states: running, failed, empty, no permission, offline |
+| `/pipelines`, `/pipelines/:job`, `/pipelines/timeline` | Environment-scoped jobs, schedules, run evidence, logs, patterns, and maintenance windows |
+| `/branches` | Environment-scoped refs, commits, diffs, and comparisons; write workflows remain unavailable |
+| `/settings`, `/settings/members`, `/settings/audit-log` | Read-only settings and identity records; audit search, verification, and export |
 
 ⌘K (or the search button) opens the command palette. At `lg` and wider the sidebar shows. Below `lg` the app switches to the phone layout: a top bar plus a tab bar with Home, Incidents, Assets and Pipelines.
 
@@ -45,7 +44,7 @@ src/
   components/phlo/        shared app pieces (PageHeader, KpiCard, RunStrip, SeverityBadge, Sidebar…)
   components/<area>/      pieces used by one area only
   lib/data/types.ts       domain types
-  lib/data/fixtures/      mock data
+  lib/data/fixtures/      design fixtures; not a source for migrated screen data
   lib/data/api/           createServerFn wrappers — the only thing routes call for data
 design-reference/         the original design boards (.dc.html + theme.css) — the visual spec
 docs/CONVENTIONS.md       rules for tokens, status colours, data, responsive design, accessibility
@@ -53,22 +52,15 @@ docs/CONVENTIONS.md       rules for tokens, status colours, data, responsive des
 
 Read `docs/CONVENTIONS.md` before adding screens. In short: use colours only through tokens, keep to the fixed status language (bad/warn/ok/branch/info/neutral), fetch data only through server functions, and make every page work at 390 px.
 
-## Switching to real data
+## API integration status
 
-Routes never import fixtures directly; they call server functions in `src/lib/data/api/*.ts`, for example:
+The shared server-side client in `src/lib/data/api/client.ts` is the integration seam for the canonical Phlo API. Set `PHLO_API_BASE_URL` to the API's HTTPS origin; do not point the app directly at Dagster, Nessie or the query engine. The client forwards the incoming OAuth2 Proxy session cookie to that configured origin, disables caching, and never forwards a browser-supplied `Authorization` header. In local development, `http://localhost` is accepted for a disposable API; production requires HTTPS. See `.env.example`.
 
-```ts
-export const getIncidents = createServerFn({ method: 'GET' }).handler(async () => incidents)
-```
+Run `pnpm test` for API client and drift-check unit tests. To check a running API's OpenAPI contract, use `PHLO_API_BASE_URL=<disposable-api-origin> pnpm test:api-contract`; to check an OpenAPI document exported from a local disposable API, pass its path as the command's argument. The checker verifies that app-required paths and methods remain present.
 
-To go live, replace each handler body with a real call and keep the return type from `types.ts`. Server functions run only on the server, so credentials stay out of the browser. Where each part would likely come from:
+Run `pnpm test:browser` with the disposable API and app preview running to verify production/staging separation, read-only identity and audit screens, and stale branch selection. Playwright Chromium must be installed; `CHROME_PATH` can select an existing Chromium binary.
 
-- **Pipelines, runs, assets, freshness:** Dagster GraphQL (`DAGSTER_URL`)
-- **Branches, tags, commits, merges:** Nessie REST API v2 (`NESSIE_URI`)
-- **Incidents, members, audit log, settings:** the Postgres metadata DB (`POSTGRES_DSN`)
-- **Query:** the engine you use for Iceberg (Trino, DuckDB and so on)
-
-Mutations such as materialize, merge, promote and invite are currently UI-only. Add them as `createServerFn({ method: 'POST' })` functions and call `router.invalidate()` afterwards.
+The app uses typed API adapters for the migrated screens and omits mutations that are unavailable or not yet integrated. Do not add local-only substitutes for Phlo actions or reimplement API permissions, signatures, or idempotency in the UI. Promotion stays unavailable while the staging/promotion API is deferred.
 
 ## Charts, graphs and editor
 
@@ -101,7 +93,8 @@ npx shadcn@latest add <component>
 
 ## Known gaps
 
-- Everything runs on mock data; buttons that change things only update the UI.
-- There's no auth yet. The "You" in members is hard-coded as Gareth.
+- This is not yet a complete Wave 9 cutover: some unused design components and fixture files remain, and real-service integration/security/browser checks still need to pass before a cutover PR.
+- The preview demo uses disposable API responses and is not evidence of production service connectivity, authorization, or multi-replica behavior.
+- Several API actions and evidence fields are not exposed in the UI yet; these are shown as unavailable rather than simulated.
 - React Flow shows a small attribution link (MIT licence; it can be hidden with a React Flow Pro subscription).
 - Possible shared refactors: a `size` prop on `Stat`; PageHeader actions that collapse into a menu on phones; a title slot on PageHeader; an inverse token for the selected filter chip.

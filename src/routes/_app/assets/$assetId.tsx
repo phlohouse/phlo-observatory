@@ -1,164 +1,118 @@
-import * as React from 'react'
-import { Link, createFileRoute } from '@tanstack/react-router'
-import { CodeIcon, PlusIcon } from 'lucide-react'
+import { createFileRoute } from '@tanstack/react-router'
 import { getAssetDetail } from '@/lib/data/api/assets'
-import { PageHeader } from '@/components/phlo/page'
-import { LayerSwatch, Mono } from '@/components/phlo/status'
+import { PageBody, PageHeader } from '@/components/phlo/page'
+import { EmptyState } from '@/components/phlo/states'
 import { Badge } from '@/components/ui/badge'
-import { buttonVariants } from '@/components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { AuditsTab, DataTab, LineageTab, OverviewTab, SchemaTab, SnapshotsTab } from '@/components/assets/asset-tabs'
-import { MaterializeDialog } from '@/components/assets/materialize-dialog'
-import { AddAuditDialog } from '@/components/assets/add-audit-dialog'
-import { cn } from '@/lib/utils'
-import type { Layer } from '@/lib/data/types'
-
-type Tab = 'overview' | 'data' | 'schema' | 'lineage' | 'snapshots' | 'audits'
-const tabs: Tab[] = ['overview', 'data', 'schema', 'lineage', 'snapshots', 'audits']
-type Search = { tab?: Tab; dialog?: 'materialize' | 'add-audit' }
-
-const tabLabel: Record<Tab, string> = {
-  overview: 'Overview',
-  data: 'Data',
-  schema: 'Schema history',
-  lineage: 'Lineage',
-  snapshots: 'Snapshots',
-  audits: 'Audits',
-}
-
-const layerSoft: Record<Layer, string> = { bronze: 'bg-bronze-soft', silver: 'bg-silver-soft', gold: 'bg-gold-soft' }
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export const Route = createFileRoute('/_app/assets/$assetId')({
-  validateSearch: (s: Record<string, unknown>): Search => ({
-    tab: tabs.includes(s.tab as Tab) ? (s.tab as Tab) : undefined,
-    dialog: s.dialog === 'materialize' || s.dialog === 'add-audit' ? s.dialog : undefined,
+  validateSearch: (search: Record<string, unknown>) => ({
+    env: search.env === 'staging' ? 'staging' as const : undefined,
   }),
-  loader: ({ params }) => getAssetDetail({ data: params.assetId }),
+  loaderDeps: ({ search }) => ({ env: search.env ?? ('prod' as const) }),
+  loader: ({ params, deps }) => getAssetDetail({ data: { id: params.assetId, env: deps.env } }),
   head: ({ params }) => ({ meta: [{ title: `${params.assetId} · phlo` }] }),
   component: AssetPage,
 })
 
 function AssetPage() {
-  const { asset, incidents, detail, window } = Route.useLoaderData()
-  const search = Route.useSearch()
-  const navigate = Route.useNavigate()
-  const tab = search.tab ?? 'overview'
-  const lag = asset.lag.split(' / ')[0]!.replace(/(\d) m$/, '$1 min')
-  const tabList = React.useRef<HTMLDivElement>(null)
-  React.useEffect(() => {
-    tabList.current?.querySelector('[data-active]')?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
-  }, [tab])
-  const closeDialog = () => navigate({ search: (p) => ({ ...p, dialog: undefined }), replace: true })
-
-  const addAuditButton = (
-    <Link from={Route.fullPath} to="." search={(p) => ({ ...p, dialog: 'add-audit' as const })} className={buttonVariants({ variant: 'outline' })}>
-      <PlusIcon /> Add audit
-    </Link>
-  )
+  const { env, asset, runs } = Route.useLoaderData()
+  const lineage = asset.column_lineage ?? {}
+  const dependencies = asset.dependencies
 
   return (
     <>
       <PageHeader
-        crumbs={[{ label: 'Assets', to: '/assets' }]}
-        title={<Mono className="text-[13.5px]">{asset.id}</Mono>}
-        actions={
-          <>
-            <Link to="/query" className={buttonVariants({ variant: 'outline' })}>
-              <CodeIcon /> Query
-            </Link>
-            <Link from={Route.fullPath} to="." search={(p) => ({ ...p, dialog: 'materialize' as const })} className={buttonVariants()}>
-              Materialize
-            </Link>
-          </>
-        }
+        crumbs={[{ label: 'Assets', to: env === 'staging' ? '/assets?env=staging' : '/assets' }]}
+        title={asset.id}
+        meta={`${env} · ${asset.compute_kind ?? 'compute kind unavailable'}`}
       />
-      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
-        <Tabs
-          value={tab}
-          onValueChange={(v) => navigate({ search: (p) => ({ ...p, tab: v === 'overview' ? undefined : (v as Tab) }), replace: true })}
-        >
-          <div className="flex flex-col gap-2.5 border-b border-line px-4 pt-5 lg:px-7 lg:pt-[22px]">
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge size="lg" className={cn('text-text-2', layerSoft[asset.layer])}>
-                <LayerSwatch layer={asset.layer} />
-                {asset.layer[0]!.toUpperCase() + asset.layer.slice(1)}
-              </Badge>
-              {asset.health === 'stale' ? (
-                <Badge variant="bad" size="lg">
-                  Stale · {lag}
-                </Badge>
-              ) : asset.health === 'warn' ? (
-                <Badge variant="warn" size="lg">
-                  Needs attention · {lag}
-                </Badge>
-              ) : (
-                <Badge variant="ok" size="lg">
-                  Fresh · {lag}
-                </Badge>
-              )}
-              <Badge variant="outline" size="lg">
-                {detail.format}
-              </Badge>
-              {incidents.map((i) => (
-                <Link key={i.id} to="/incidents/$incidentId" params={{ incidentId: i.id }} className="ml-1 text-[13px]">
-                  Incident #{i.id}
-                </Link>
-              ))}
-            </div>
-            <h1 className="m-0 font-mono text-lg font-medium tracking-[-0.01em] [overflow-wrap:anywhere] lg:text-[22px]">{asset.id}</h1>
-            <p className="m-0 max-w-[900px] text-sm leading-normal text-text-3">{detail.description}</p>
-            <TabsList ref={tabList} aria-label="Asset views" className="-mx-4 overflow-x-auto border-b-0 px-4 pt-2 pb-3 [scrollbar-width:none] lg:mx-0 lg:px-0">
-              {tabs.map((t) => (
-                <TabsTrigger key={t} value={t} className="shrink-0 whitespace-nowrap">
-                  {tabLabel[t]}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </div>
+      <PageBody>
+        <Card>
+          <CardHeader><CardTitle>Asset record</CardTitle></CardHeader>
+          <CardContent className="grid gap-x-6 gap-y-4 sm:grid-cols-2">
+            <Fact label="Description" value={asset.description ?? 'Not provided'} />
+            <Fact label="Group" value={asset.group_name ?? 'Not assigned'} />
+            <Fact label="Kind" value={asset.compute_kind ?? 'Unknown'} />
+            <Fact label="Source" value={asset.is_source ? 'Yes' : 'No'} />
+            <Fact label="Latest materialization" value={asset.last_materialization_at ?? 'No materialization evidence'} mono />
+            <Fact label="Latest run" value={asset.last_run_id ?? 'No run evidence'} mono />
+          </CardContent>
+        </Card>
 
-          <TabsContent value="overview">
-            <OverviewTab asset={asset} detail={detail} />
-          </TabsContent>
-          <TabsContent value="data">
-            <DataTab asset={asset} detail={detail} />
-          </TabsContent>
-          <TabsContent value="schema">
-            <SchemaTab asset={asset} detail={detail} />
-          </TabsContent>
-          <TabsContent value="lineage">
-            <LineageTab asset={asset} detail={detail} />
-          </TabsContent>
-          <TabsContent value="snapshots">
-            <SnapshotsTab asset={asset} detail={detail} />
-          </TabsContent>
-          <TabsContent value="audits">
-            <AuditsTab asset={asset} detail={detail} addAudit={addAuditButton} />
-          </TabsContent>
-        </Tabs>
-      </div>
+        <Card>
+          <CardHeader><CardTitle>Schema</CardTitle></CardHeader>
+          <CardContent>
+            {asset.columns.length ? (
+              <div className="overflow-x-auto rounded-lg border border-border-card">
+                <table className="w-full min-w-[520px] border-collapse text-left text-sm">
+                  <thead><tr className="border-b border-line bg-raised text-xs text-muted-foreground">
+                    <th scope="col" className="px-3 py-2.5 font-medium">Column</th>
+                    <th scope="col" className="px-3 py-2.5 font-medium">Type</th>
+                    <th scope="col" className="px-3 py-2.5 font-medium">Description</th>
+                  </tr></thead>
+                  <tbody>{asset.columns.map((column) => (
+                    <tr key={column.name} className="border-b border-line-soft last:border-0">
+                      <td className="px-3 py-2 font-mono text-xs">{column.name}</td>
+                      <td className="px-3 py-2 font-mono text-xs text-muted-foreground">{column.type ?? 'Unknown'}</td>
+                      <td className="px-3 py-2 text-muted-foreground">{column.description ?? '—'}</td>
+                    </tr>
+                  ))}</tbody>
+                </table>
+              </div>
+            ) : <EmptyState title="Schema unavailable">The API returned no column schema for this asset.</EmptyState>}
+            <p className="mb-0 mt-3 text-xs text-muted-foreground">{asset.schema_observed_at ? `Observed ${asset.schema_observed_at}` : 'Schema observation time unavailable'}</p>
+          </CardContent>
+        </Card>
 
-      <MaterializeDialog
-        key={`mz-${asset.id}`}
-        open={search.dialog === 'materialize'}
-        onClose={closeDialog}
-        onStart={() => navigate({ to: '/pipelines/$jobName', params: { jobName: detail.job } })}
-        assetId={asset.id}
-        via={detail.materialize.via}
-        modes={detail.materialize.modes}
-        rebuild={detail.materialize.rebuild}
-        workBranch={detail.workBranch}
-        window={window}
-      />
-      <AddAuditDialog
-        key={`aa-${asset.id}`}
-        open={search.dialog === 'add-audit'}
-        onClose={closeDialog}
-        onAdd={() => navigate({ search: (p) => ({ ...p, dialog: undefined, tab: 'audits' }) })}
-        assetId={asset.id}
-        columns={detail.columns}
-        dryRun={detail.addAudit.dryRun}
-        footer={detail.addAudit.footer}
-      />
+        <div className="grid gap-4 lg:grid-cols-2">
+          <Card>
+            <CardHeader><CardTitle>Dependencies</CardTitle></CardHeader>
+            <CardContent>
+              {dependencies.length ? <ul className="m-0 flex list-none flex-col gap-2 p-0">{dependencies.map((key) => <li key={key.join('/')} className="font-mono text-xs">{key.join('/')}</li>)}</ul> : <p className="m-0 text-sm text-muted-foreground">No dependency edges returned.</p>}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader><CardTitle>Column lineage</CardTitle></CardHeader>
+            <CardContent>
+              {Object.keys(lineage).length ? <ul className="m-0 flex list-none flex-col gap-2 p-0">{Object.entries(lineage).map(([column, sources]) => <li key={column}><span className="font-mono text-xs">{column}</span><ul className="mt-1 list-disc pl-5 text-xs text-muted-foreground">{sources.map((source) => <li key={`${source.asset_key.join('/')}.${source.column_name}`}>{source.asset_key.join('/')}.{source.column_name}</li>)}</ul></li>)}</ul> : <p className="m-0 text-sm text-muted-foreground">No column-lineage evidence returned.</p>}
+            </CardContent>
+          </Card>
+        </div>
+
+        <Card>
+          <CardHeader><CardTitle>Recent runs</CardTitle></CardHeader>
+          <CardContent>
+            {!runs ? <p className="m-0 text-sm text-muted-foreground">Run history is not scoped to this environment for this asset.</p> : runs.items.length ? (
+              <div className="overflow-x-auto rounded-lg border border-border-card">
+                <table className="w-full min-w-[560px] border-collapse text-left text-sm">
+                  <thead><tr className="border-b border-line bg-raised text-xs text-muted-foreground">
+                    <th scope="col" className="px-3 py-2.5 font-medium">Run</th>
+                    <th scope="col" className="px-3 py-2.5 font-medium">Status</th>
+                    <th scope="col" className="px-3 py-2.5 font-medium">Created</th>
+                    <th scope="col" className="px-3 py-2.5 font-medium">Started</th>
+                    <th scope="col" className="px-3 py-2.5 font-medium">Ended</th>
+                  </tr></thead>
+                  <tbody>{runs.items.map((run) => (
+                    <tr key={run.run_id} className="border-b border-line-soft last:border-0">
+                      <td className="px-3 py-2 font-mono text-xs">{run.run_id}</td>
+                      <td className="px-3 py-2"><Badge variant={run.status === 'SUCCESS' ? 'ok' : run.status === 'FAILURE' ? 'bad' : 'neutral'}>{run.status}</Badge></td>
+                      <td className="px-3 py-2 font-mono text-xs text-muted-foreground">{run.created_at}</td>
+                      <td className="px-3 py-2 font-mono text-xs text-muted-foreground">{run.started_at ?? '—'}</td>
+                      <td className="px-3 py-2 font-mono text-xs text-muted-foreground">{run.ended_at ?? '—'}</td>
+                    </tr>
+                  ))}</tbody>
+                </table>
+              </div>
+            ) : <EmptyState title="No run history">The API returned no runs for this asset.</EmptyState>}
+          </CardContent>
+        </Card>
+        <p className="m-0 text-xs text-muted-foreground">Preview, materialization, backfill and audit-creation actions are omitted here until their API workflows and confirmation steps are integrated.</p>
+      </PageBody>
     </>
   )
+}
+
+function Fact({ label, value, mono = false }: { label: string; value: string; mono?: boolean }) {
+  return <div className="min-w-0"><div className="text-xs text-muted-foreground">{label}</div><div className={`mt-1 break-words text-sm ${mono ? 'font-mono text-xs' : ''}`}>{value}</div></div>
 }
