@@ -14,15 +14,18 @@ import { autocompletion, closeBrackets, closeBracketsKeymap, completionKeymap, t
 import { PostgreSQL, sql, type SQLNamespace } from '@codemirror/lang-sql'
 import { tags as t } from '@lezer/highlight'
 import { cn } from '@/lib/utils'
-import type { CatalogLayer } from '@/lib/data/fixtures/query'
 
-/** Catalog → lang-sql schema: `layer.table` → columns (with their type as the completion detail). */
-function toSchema(catalog: CatalogLayer[]): SQLNamespace {
+type QueryCatalog = Array<{ name: string; schemas: Array<{ name: string; tables: string[] }> }>
+
+/** Catalog → lang-sql schema. The API currently exposes table names, not columns. */
+function toSchema(catalog: QueryCatalog): SQLNamespace {
   const ns: Record<string, Record<string, Completion[]>> = {}
-  for (const l of catalog) {
-    const tables: Record<string, Completion[]> = {}
-    for (const tbl of l.tables) tables[tbl.name] = tbl.columns.map((c) => ({ label: c.name, type: 'property', detail: c.type }))
-    ns[l.layer] = tables
+  for (const catalogItem of catalog) {
+    for (const schema of catalogItem.schemas) {
+      const tables = ns[schema.name] ?? {}
+      for (const table of schema.tables) tables[table] = []
+      ns[schema.name] = tables
+    }
   }
   return ns
 }
@@ -93,7 +96,7 @@ export function SqlEditor({
   onChange: (v: string) => void
   onRun?: () => void
   /** Tables and columns for autocomplete */
-  catalog?: CatalogLayer[]
+  catalog?: QueryCatalog
   className?: string
   label?: string
 }) {

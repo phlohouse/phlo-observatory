@@ -1,7 +1,9 @@
 import * as React from 'react'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { Loader2Icon } from 'lucide-react'
-import { getShell } from '@/lib/data/api/core'
+import { getOverview } from '@/lib/data/api/core'
+import { emptySettings, getSettings, saveSettings, type Settings } from '@/lib/data/api/settings'
+import type { ObservatoryServiceList } from '@/lib/data/api/client'
 import { PageHeader } from '@/components/phlo/page'
 import { Dot, LayerSwatch, Mono } from '@/components/phlo/status'
 import { SettingsFrame } from '@/components/settings/frame'
@@ -11,49 +13,66 @@ import { CheckLine } from '@/components/ui/checkbox'
 import { Field, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
-import type { Layer, ServiceState } from '@/lib/data/types'
 
 export const Route = createFileRoute('/_app/settings/')({
-  loader: () => getShell(),
+  loaderDeps: ({ search }) => ({ env: search.env }),
+  loader: async ({ deps }) => {
+    const [health, configuration] = await Promise.all([
+      getOverview({ data: deps.env }),
+      getSettings().then((value) => ({ value, error: null })).catch((error: unknown) => ({ value: null, error: error instanceof Error ? error.message : 'Settings could not be loaded.' })),
+    ])
+    return { ...health, configuration }
+  },
   head: () => ({ meta: [{ title: 'Settings · phlo' }] }),
   component: SettingsPage,
 })
 
-const initial = {
-  sla: { bronze: '60', silver: '60', gold: '90' } as Record<Layer, string>,
-  openIncidentOnBreach: true,
-  holdDownstream: false,
-  chat: '#data-platform',
-  digest: 'Weekdays at 08:00',
-  notifyOwners: true,
-  notifyConsumers: true,
-  fileSize: '512',
-  expireDays: '7',
-  orphan: 'Sundays 03:00',
-  keepTagged: true,
-  compactNightly: true,
-  protectMain: true,
-  requireReason: true,
-  signTags: true,
-  secondReviewer: false,
-  retention: '[YEARS]',
-}
-type Settings = typeof initial
-
 const connections: Array<{ name: string; uri: string; service: string; latency: string }> = [
-  { name: 'Nessie catalog', uri: '[NESSIE_URI]/api/v2', service: 'Nessie catalog', latency: '38 ms' },
-  { name: 'Dagster', uri: '[DAGSTER_URL]', service: 'Dagster', latency: '52 ms' },
-  { name: 'Postgres', uri: '[POSTGRES_DSN]', service: 'Postgres', latency: '4 ms' },
-  { name: 'Object store', uri: '[WAREHOUSE_BUCKET]', service: 'Object store', latency: '' },
+  { name: 'Nessie catalog', uri: '[NESSIE_URI]/api/v2', service: 'nessie', latency: '' },
+  { name: 'Dagster', uri: '[DAGSTER_URL]', service: 'dagster', latency: '' },
+  { name: 'Postgres', uri: '[POSTGRES_DSN]', service: 'postgres', latency: '' },
+  { name: 'Object store', uri: '[WAREHOUSE_BUCKET]', service: 'minio', latency: '' },
 ]
 
 function SettingsPage() {
-  const { services } = Route.useLoaderData()
-  const [s, setS] = React.useState<Settings>(initial)
-  const [savedS, setSavedS] = React.useState<Settings>(initial)
-  const [savedAt, setSavedAt] = React.useState<string | null>(null)
+  const { overview, services, configuration } = Route.useLoaderData()
+  const loaded = configuration.value
+  const [s, setS] = React.useState<Settings>(loaded?.settings ?? emptySettings)
+  const [savedS, setSavedS] = React.useState<Settings>(loaded?.settings ?? emptySettings)
+  const [version, setVersion] = React.useState(loaded?.version ?? 0)
+  const [pending, setPending] = React.useState(false)
+  const [error, setError] = React.useState<string | null>(configuration.error)
+  const [saved, setSaved] = React.useState(false)
   const dirty = JSON.stringify(s) !== JSON.stringify(savedS)
   const set = <K extends keyof Settings>(k: K, v: Settings[K]) => setS((p) => ({ ...p, [k]: v }))
+
+  React.useEffect(() => {
+    if (!loaded || loaded.version <= version) return
+    if (dirty) {
+      setError(`Saved settings changed to version ${loaded.version} while you were editing. Discard or reload before saving.`)
+      return
+    }
+    setS(loaded.settings)
+    setSavedS(loaded.settings)
+    setVersion(loaded.version)
+    setError(null)
+  }, [loaded?.version])
+
+  const save = async () => {
+    setPending(true)
+    setError(null)
+    try {
+      const result = await saveSettings({ data: { expectedVersion: version, settings: s, idempotencyKey: crypto.randomUUID() } })
+      setS(result.settings)
+      setSavedS(result.settings)
+      setVersion(result.version)
+      setSaved(true)
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Settings could not be saved.')
+    } finally {
+      setPending(false)
+    }
+  }
 
   return (
     <SettingsFrame
@@ -62,26 +81,23 @@ function SettingsPage() {
           title="Settings"
           meta={
             <>
-              Lakehouse · <Mono>prod</Mono>
+              Lakehouse · <Mono>{overview.env}</Mono>
             </>
           }
           actions={
             <>
               <span className="hidden text-[13px] text-muted-foreground sm:inline" aria-live="polite">
-                {dirty ? 'Unsaved changes' : savedAt ? `Saved ${savedAt}` : 'Last changed by Gareth · 3 d ago'}
+                {pending ? 'Saving…' : dirty ? 'Unsaved changes' : saved ? 'Saved' : loaded ? `Saved configuration · version ${version}` : 'Configuration unavailable'}
               </span>
-              <Button variant="outline" className="h-10 lg:h-8" disabled={!dirty} onClick={() => setS(savedS)}>
+              <Button variant="outline" className="h-10 lg:h-8" disabled={!dirty || pending} onClick={() => { setS(savedS); setError(null) }}>
                 Discard
               </Button>
               <Button
                 className="h-10 lg:h-8"
-                disabled={!dirty}
-                onClick={() => {
-                  setSavedS(s)
-                  setSavedAt('just now')
-                }}
+                disabled={!dirty || pending || !loaded}
+                onClick={save}
               >
-                Save changes
+                {pending ? <Loader2Icon className="animate-spin" /> : null} Save changes
               </Button>
             </>
           }
@@ -89,16 +105,18 @@ function SettingsPage() {
       }
     >
       <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4 lg:px-6 lg:py-5">
+        {error ? <div role="alert" className="rounded-lg border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm text-destructive">{error}</div> : null}
         <SettingsCard title="Connections" description="Services phlo reads from and writes to" inline className="gap-2">
           <div className="flex flex-col">
-            {connections.map((c) => (
-              <ConnectionRow key={c.name} conn={c} state={services.find((x) => x.name === c.service)?.state ?? 'up'} detail={services.find((x) => x.name === c.service)?.detail} />
-            ))}
+            {connections.map((c) => {
+              const service = services.find((x) => x.id === c.service)
+              return <ConnectionRow key={c.name} conn={c} state={service?.status ?? 'unknown'} detail={service?.response_time_seconds == null ? undefined : `${service.response_time_seconds.toFixed(3)} s`} />
+            })}
           </div>
         </SettingsCard>
 
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-          <SettingsCard title="Freshness targets" description="Default SLA per layer. Assets can override.">
+          <SettingsCard title="Freshness targets" description="Saved defaults only. Activate freshness and owner overrides through each asset's incident policy.">
             {(['bronze', 'silver', 'gold'] as const).map((l) => (
               <NumberRow
                 key={l}
@@ -124,7 +142,7 @@ function SettingsPage() {
             </Split>
           </SettingsCard>
 
-          <SettingsCard title="Alerts" description="Where incidents and digests go">
+          <SettingsCard title="Alerts" description="Saved preferences only; this does not configure or deliver notifications.">
             <TextRow label="Chat channel" labelWidth="w-[110px]" value={s.chat} onChange={(v) => set('chat', v)} />
             <TextRow label="Email digest" labelWidth="w-[110px]" value={s.digest} onChange={(v) => set('digest', v)} />
             <Split>
@@ -137,7 +155,7 @@ function SettingsPage() {
             </Split>
           </SettingsCard>
 
-          <SettingsCard title="Table maintenance" description="Iceberg compaction and snapshot housekeeping">
+          <SettingsCard title="Table maintenance" description="Saved preferences only; this does not schedule compaction or snapshot housekeeping.">
             <NumberRow label="Target file size" labelWidth="w-[150px]" value={s.fileSize} onChange={(v) => set('fileSize', v)} unit="MB" />
             <NumberRow label="Expire snapshots after" labelWidth="w-[150px]" value={s.expireDays} onChange={(v) => set('expireDays', v)} unit="days" />
             <TextRow label="Orphan file cleanup" labelWidth="w-[150px]" value={s.orphan} onChange={(v) => set('orphan', v)} />
@@ -155,7 +173,7 @@ function SettingsPage() {
             title="Audit & data integrity"
             description={
               <>
-                Controls for the GxP audit trail on <Mono className="text-xs">main</Mono>
+                Saved preferences only; branch protection and audit enforcement are configured by their owning services.
               </>
             }
           >
@@ -252,20 +270,19 @@ function ConnectionRow({
   detail,
 }: {
   conn: { name: string; uri: string; latency: string }
-  state: ServiceState
+  state: ObservatoryServiceList['items'][number]['status']
   detail?: string
 }) {
+  const router = useRouter()
   const [testing, setTesting] = React.useState(false)
-  const [tested, setTested] = React.useState(false)
-  const label = state === 'up' ? 'Connected' : state === 'slow' ? 'Degraded' : 'Down'
   return (
     <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1 border-t border-line-soft py-2.5 md:h-11 md:grid-cols-[150px_minmax(0,1fr)_190px_64px] md:py-0">
       <span className="text-sm">{conn.name}</span>
       <span className="col-start-1 row-start-2 truncate font-mono text-[12.5px] text-text-3 md:col-start-auto md:row-start-auto">{conn.uri}</span>
       <span className="col-start-1 row-start-3 flex items-center gap-2 text-[13.5px] md:col-start-auto md:row-start-auto" aria-live="polite">
-        <Dot tone={state === 'up' ? 'ok' : state === 'slow' ? 'warn' : 'bad'} />
-        {label}
-        <span className="text-[13px] text-muted-foreground">· {tested ? 'just now' : state === 'slow' ? detail : conn.latency}</span>
+        <Dot tone={state === 'healthy' ? 'ok' : state === 'degraded' ? 'warn' : state === 'unknown' ? 'neutral' : 'bad'} />
+        {state}
+        {detail ? <span className="text-[13px] text-muted-foreground">· {detail}</span> : null}
       </span>
       <Button
         variant="outline"
@@ -273,12 +290,13 @@ function ConnectionRow({
         className="col-start-2 row-span-3 row-start-1 h-10 md:col-start-auto md:row-span-1 md:row-start-auto md:h-7"
         disabled={testing}
         aria-label={`Test ${conn.name} connection`}
-        onClick={() => {
+        onClick={async () => {
           setTesting(true)
-          setTimeout(() => {
+          try {
+            await router.invalidate()
+          } finally {
             setTesting(false)
-            setTested(true)
-          }, 600)
+          }
         }}
       >
         {testing ? <Loader2Icon className="animate-spin" /> : 'Test'}

@@ -1,118 +1,156 @@
 import * as React from 'react'
+import { Link } from '@tanstack/react-router'
+import { materializeAsset } from '@/lib/data/api/assets'
 import { Button } from '@/components/ui/button'
-import { CheckLine, OptionCard, RadioGroup } from '@/components/ui/checkbox'
-import { Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Field, FieldLabel } from '@/components/ui/field'
-import { Input } from '@/components/ui/input'
-import { Segmented } from '@/components/ui/toggle-group'
-import { Stat } from '@/components/phlo/kpi'
+import {
+  Dialog,
+  DialogBody,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { Mono } from '@/components/phlo/status'
-import type { MaterializeMode } from '@/lib/data/fixtures/assets'
+import type { Env } from '@/lib/data/types'
 
-type Mode = MaterializeMode['value']
+type State =
+  | { kind: 'idle' }
+  | { kind: 'pending' }
+  | { kind: 'failed'; message: string }
+  | { kind: 'accepted'; runId: string; ref: string }
 
 export function MaterializeDialog({
   open,
   onClose,
-  onStart,
   assetId,
-  via,
-  modes,
-  rebuild,
-  workBranch,
-  window,
+  env,
+  jobs,
 }: {
   open: boolean
   onClose: () => void
-  onStart: () => void
   assetId: string
-  via: string
-  modes: MaterializeMode[]
-  rebuild?: string
-  workBranch?: string
-  window: { from: string; to: string }
+  env: Env
+  jobs: string[]
 }) {
-  const [mode, setMode] = React.useState<Mode>('backfill')
-  const branch = workBranch ?? `dev/${assetId.split('.')[1]}-backfill`
-  const [target, setTarget] = React.useState(branch)
-  const cur = modes.find((m) => m.value === mode) ?? modes[0]!
-  const e = cur.estimate
-
+  const [job, setJob] = React.useState(jobs[0] ?? '')
+  const [confirmed, setConfirmed] = React.useState(false)
+  const [state, setState] = React.useState<State>({ kind: 'idle' })
+  const key = React.useRef<string | null>(null)
+  const submitting = React.useRef(false)
+  const storageKey = `phlo:materialize:${env}:${assetId}:${job}`
+  async function submit(event: React.FormEvent) {
+    event.preventDefault()
+    if (submitting.current || state.kind === 'accepted' || !confirmed || !job) return
+    submitting.current = true
+    setState({ kind: 'pending' })
+    try {
+      key.current ??= sessionStorage.getItem(storageKey) ?? crypto.randomUUID()
+      sessionStorage.setItem(storageKey, key.current)
+      const result = await materializeAsset({
+        data: { env, id: assetId, job_name: job, idempotency_key: key.current, confirmed: true },
+      })
+      setState({ kind: 'accepted', runId: result.run_id, ref: result.nessie_ref })
+    } catch (error) {
+      setState({
+        kind: 'failed',
+        message: error instanceof Error ? error.message : 'Materialization request failed.',
+      })
+    } finally {
+      submitting.current = false
+    }
+  }
   return (
-    <Dialog open={open} onOpenChange={(o) => (!o ? onClose() : undefined)}>
+    <Dialog
+      open={open}
+      onOpenChange={(value) => {
+        if (!value && state.kind !== 'pending') onClose()
+      }}
+    >
       <DialogContent>
-        <form
-          className="flex min-h-0 flex-col"
-          onSubmit={(ev) => {
-            ev.preventDefault()
-            onStart()
-          }}
-        >
+        <form onSubmit={(event) => void submit(event)} className="flex min-h-0 flex-col">
           <DialogHeader>
             <DialogTitle>Materialize</DialogTitle>
             <DialogDescription>
-              <Mono className="text-foreground">{assetId}</Mono> · via <Mono>{via}</Mono>
+              <Mono>{assetId}</Mono> · {env}
             </DialogDescription>
           </DialogHeader>
           <DialogBody>
-            <div className="flex flex-col gap-1.5">
-              <span id="mz-mode" className="text-[13.5px] font-medium">
-                What to load
-              </span>
-              <RadioGroup aria-labelledby="mz-mode" value={mode} onValueChange={(v) => setMode(v as Mode)} className="flex-col flex-nowrap">
-                {modes.map((m) => (
-                  <OptionCard key={m.value} value={m.value} title={m.title} hint={m.hint} />
+            <label className="flex flex-col gap-2 text-sm">
+              Job
+              <select
+                value={job}
+                disabled={key.current !== null}
+                onChange={(event) => setJob(event.target.value)}
+                className="h-10 rounded-lg border border-border bg-card px-3 text-foreground"
+              >
+                {jobs.map((name) => (
+                  <option key={name} value={name}>
+                    {name}
+                  </option>
                 ))}
-              </RadioGroup>
-            </div>
-
-            {mode === 'backfill' ? (
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <Field>
-                  <FieldLabel>From</FieldLabel>
-                  <Input defaultValue={window.from} className="font-mono text-[13.5px]" />
-                </Field>
-                <Field>
-                  <FieldLabel>To</FieldLabel>
-                  <Input defaultValue={window.to} className="font-mono text-[13.5px]" />
-                </Field>
+              </select>
+            </label>
+            <p className="m-0 text-sm text-muted-foreground">
+              This submits a real Dagster run in {env}, using its configured Nessie reference. Partition
+              backfills and cost estimates are not connected in this dialog.
+            </p>
+            <label className="flex items-start gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={confirmed}
+                disabled={state.kind === 'pending' || state.kind === 'accepted'}
+                onChange={(event) => setConfirmed(event.target.checked)}
+                className="mt-1"
+              />
+              I confirm this materialization in {env}.
+            </label>
+            {state.kind === 'failed' ? (
+              <div role="alert" className="text-sm text-bad-text">
+                {state.message} Retrying here or after a reload reuses the same operation key. Check the run
+                history if the response was lost.
               </div>
             ) : null}
-
-            <div className="flex flex-col gap-1.5">
-              <span id="mz-target" className="text-[13.5px] font-medium">
-                Write to
-              </span>
-              <Segmented
-                aria-label="Write to"
-                className="self-start"
-                value={target}
-                onValueChange={setTarget}
-                options={[branch, 'main'].map((b) => ({ value: b, label: <Mono className="text-[12.5px]">{b}</Mono> }))}
-              />
-              {target === 'main' ? (
-                <p className="m-0 text-[12.5px] leading-snug text-warn-ink">
-                  Writing straight to main is blocked by your audit settings. This will create a branch and ask for a signed merge afterwards.
-                </p>
-              ) : null}
-            </div>
-
-            {rebuild ? <CheckLine defaultChecked>{rebuild}</CheckLine> : null}
-
-            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-              <Stat label="Rows" value={`~${e.rows}`} className="[&>span:first-of-type]:text-[15px]" />
-              <Stat label="Runs" value={e.runs} className="[&>span:first-of-type]:text-[15px]" />
-              <Stat label="Time" value={`~${e.time}`} className="[&>span:first-of-type]:text-[15px]" />
-              <Stat label="Compute" value={e.cost} className="[&>span:first-of-type]:text-[15px]" />
-            </div>
+            {state.kind === 'accepted' ? (
+              <div role="status" className="flex flex-col gap-2 text-sm">
+                Dagster accepted run {state.runId} on ref {state.ref}. This is not a success result.
+                <Link to="/pipelines/$jobName" params={{ jobName: job }} search={{ env, run: state.runId }}>
+                  View run
+                </Link>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    sessionStorage.removeItem(storageKey)
+                    key.current = null
+                    setConfirmed(false)
+                    setState({ kind: 'idle' })
+                  }}
+                >
+                  New materialization
+                </Button>
+              </div>
+            ) : null}
           </DialogBody>
-          <DialogFooter className="flex-wrap">
-            <span className="w-full text-[13px] text-muted-foreground sm:w-auto">Runs in Dagster as a tagged backfill</span>
-            <Button type="button" variant="outline" size="lg" className="ml-auto h-10 bg-card sm:h-9" onClick={onClose}>
-              Cancel
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={state.kind === 'pending'}
+              onClick={onClose}
+              className="ml-auto"
+            >
+              Close
             </Button>
-            <Button type="submit" size="lg" className="h-10 sm:h-9">
-              {e.cta}
+            <Button
+              type="submit"
+              disabled={!confirmed || !job || state.kind === 'pending' || state.kind === 'accepted'}
+            >
+              {state.kind === 'pending'
+                ? 'Submitting…'
+                : state.kind === 'failed'
+                  ? 'Retry request'
+                  : 'Start materialization'}
             </Button>
           </DialogFooter>
         </form>

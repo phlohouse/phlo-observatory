@@ -1,218 +1,104 @@
 import * as React from 'react'
-import { Link, createFileRoute } from '@tanstack/react-router'
+import { Link, createFileRoute, useRouter } from '@tanstack/react-router'
 import { ArrowRightIcon, Loader2Icon, RefreshCwIcon } from 'lucide-react'
-import { getStagingOverview } from '@/lib/data/api/staging'
+import { getStagingOverview, promoteStaging, resyncStaging, runStagingChecks, type StagingCandidate, type StagingChecks } from '@/lib/data/api/staging'
 import { Eyebrow, PageBody, PageHeader } from '@/components/phlo/page'
-import { KpiCard } from '@/components/phlo/kpi'
-import { Dot, Mono } from '@/components/phlo/status'
+import { EmptyState } from '@/components/phlo/states'
+import { Mono } from '@/components/phlo/status'
 import { Badge } from '@/components/ui/badge'
 import { Button, buttonVariants } from '@/components/ui/button'
-import { Card, CardAction, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
-import type { Promotion, StagingDiff } from '@/lib/data/types'
+import { Card } from '@/components/ui/card'
+import { CheckLine } from '@/components/ui/checkbox'
+import { Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Field, FieldLabel } from '@/components/ui/field'
+import { Textarea } from '@/components/ui/input'
 
 export const Route = createFileRoute('/_app/staging')({
-  loader: () => getStagingOverview(),
-  head: () => ({ meta: [{ title: 'Overview · staging · phlo' }] }),
+  loaderDeps: ({ search }) => ({ env: search.env }),
+  loader: ({ deps }) => getStagingOverview({ data: { env: deps.env } }),
+  head: () => ({ meta: [{ title: 'Staging · phlo' }] }),
   component: StagingPage,
 })
 
-const groupOrder: StagingDiff['group'][] = ['jobs', 'contracts', 'audits', 'config']
-const changeTile: Record<StagingDiff['change'], { sign: string; cls: string; word: string }> = {
-  add: { sign: '+', cls: 'bg-info-soft text-info', word: 'Added' },
-  change: { sign: '~', cls: 'bg-warn-soft text-warn-ink', word: 'Changed' },
-  remove: { sign: '−', cls: 'bg-bad-soft text-bad-text', word: 'Removed' },
+function operationKey(action: string, intent: string) {
+  const storageKey = `phlo:staging:${action}:${intent}`
+  const existing = sessionStorage.getItem(storageKey)
+  if (existing) return existing
+  const value = crypto.randomUUID()
+  sessionStorage.setItem(storageKey, value)
+  return value
 }
-const checkMark = {
-  pass: { mark: '✓', cls: 'text-ok-text', word: 'passed' },
-  fail: { mark: '✕', cls: 'text-bad-text', word: 'failed' },
-  warn: { mark: '!', cls: 'text-warn-ink', word: 'waiting' },
-  pending: { mark: '○', cls: 'text-faint', word: 'pending' },
-} as const
 
 function StagingPage() {
-  const { kpis, diffs, groupTitles, promotions, source } = Route.useLoaderData()
-  const [sync, setSync] = React.useState<'idle' | 'running' | 'done'>('idle')
-  const ready = promotions.filter((p) => p.ready).length
-
-  return (
-    <>
-      <PageHeader
-        title={
-          <span className="flex items-center gap-2.5">
-            Overview <Badge variant="warn">staging</Badge>
-          </span>
-        }
-        meta="Copy of prod data from 02:10 today · changes here never reach prod until promoted"
-        actions={
-          <>
-            <Button
-              variant="outline"
-              className="h-10 lg:h-8"
-              disabled={sync === 'running'}
-              onClick={() => {
-                setSync('running')
-                setTimeout(() => setSync('done'), 900)
-              }}
-            >
-              {sync === 'running' ? <Loader2Icon className="animate-spin" /> : <RefreshCwIcon />}
-              {sync === 'running' ? 'Re-syncing…' : sync === 'done' ? 'Re-synced just now' : 'Re-sync from prod'}
-            </Button>
-            <Link to="/branches" search={{ dialog: 'merge' }} className={cn(buttonVariants(), 'h-10 lg:h-8')}>
-              Promote {ready} ready changes
-            </Link>
-          </>
-        }
-      />
-      <PageBody className="gap-4">
-        <p className="m-0 text-[13px] text-muted-foreground md:hidden">Copy of prod data from 02:10 today · changes here never reach prod until promoted.</p>
-
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-3.5">
-          <KpiCard label="Differs from prod" value={kpis.diffs.count} qualifier="changes waiting" footer={kpis.diffs.note} />
-          <KpiCard
-            label="Staging runs · since sync"
-            value={kpis.runs.total}
-            qualifier={`${kpis.runs.failed} failed`}
-            qualifierTone="bad"
-            footer={
-              <>
-                Both failures in new job <Mono className="text-xs">{kpis.runs.note}</Mono>
-              </>
-            }
-          />
-          <KpiCard label="Audits" value={kpis.audits.passing} qualifier={`of ${kpis.audits.total} passing`} footer={kpis.audits.note} />
-          <KpiCard label="Data copy" value={sync === 'done' ? '09:41' : kpis.copy.at} qualifier={sync === 'done' ? 'just now' : kpis.copy.age} footer={kpis.copy.note} />
-        </div>
-
-        <div className="grid shrink-0 grid-cols-1 gap-4 lg:min-h-0 lg:flex-1 lg:shrink lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
-          <Card className="px-4 py-4 lg:min-h-0 lg:px-5">
-            <div className="flex flex-wrap items-center gap-2.5">
-              <h2 className="m-0 text-[15px] font-medium">Differences from prod</h2>
-              <div className="ml-auto flex items-center gap-1.5 text-muted-foreground">
-                <Badge className="font-mono text-[11.5px]">{kpis.versions.prod}</Badge>
-                <ArrowRightIcon className="size-3.5" aria-label="to" />
-                <Badge variant="warn" className="font-mono text-[11.5px]">
-                  {kpis.versions.staging}
-                </Badge>
-              </div>
-            </div>
-            <div className="mt-1 min-h-0 lg:overflow-y-auto">
-              {groupOrder.map((g) => {
-                const items = diffs.filter((d) => d.group === g)
-                if (!items.length) return null
-                return (
-                  <section key={g} aria-label={groupTitles[g]}>
-                    <div className="flex items-center gap-2 pt-3.5 pb-1">
-                      <Eyebrow>{groupTitles[g]}</Eyebrow>
-                      <span className="font-mono text-[11.5px] text-muted-foreground">{items.length}</span>
-                    </div>
-                    {items.map((d, i) => (
-                      <DiffRow key={d.name} d={d} last={i === items.length - 1} />
-                    ))}
-                  </section>
-                )
-              })}
-            </div>
-          </Card>
-
-          <div className="flex flex-col gap-4 lg:min-h-0">
-            <Card id="promote" className="scroll-mt-4 px-4 py-4 lg:min-h-0 lg:flex-1 lg:px-5">
-              <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-0.5">
-                <h2 className="m-0 text-[15px] font-medium">Promote to prod</h2>
-                <span className="text-[13px] text-muted-foreground">Each promotion is a signed merge into prod main</span>
-              </div>
-              <div className="min-h-0 lg:overflow-y-auto">
-                {promotions.map((p, i) => (
-                  <PromoRow key={p.title} p={p} last={i === promotions.length - 1} />
-                ))}
-              </div>
-            </Card>
-
-            <Card className="shrink-0">
-              <CardHeader className="px-4 lg:px-5">
-                <CardTitle>Where staging data comes from</CardTitle>
-                <CardAction>
-                  <Link to="/settings" className="text-[13px]">
-                    Sync settings
-                  </Link>
-                </CardAction>
-              </CardHeader>
-              <CardDescription className="sr-only">How the staging copy is made</CardDescription>
-              <dl className="m-0 grid grid-cols-[96px_minmax(0,1fr)] gap-y-2 px-4 pt-2.5 pb-4 text-[13.5px] sm:grid-cols-[130px_minmax(0,1fr)] lg:px-5">
-                <dt className="text-muted-foreground">Source</dt>
-                <dd className="m-0">
-                  Zero-copy branch of prod <Mono className="text-xs text-muted-foreground">{source.source}</Mono>
-                </dd>
-                <dt className="text-muted-foreground">Schedule</dt>
-                <dd className="m-0">{source.schedule}</dd>
-                <dt className="text-muted-foreground">Masked</dt>
-                <dd className="m-0 flex flex-wrap gap-1.5">
-                  {source.masked.map((m) => (
-                    <span key={m} className="inline-flex h-[26px] items-center rounded-md bg-soft px-2 font-mono text-xs">
-                      {m}
-                    </span>
-                  ))}
-                </dd>
-                <dt className="text-muted-foreground">Writes</dt>
-                <dd className="m-0">{source.writes}</dd>
-              </dl>
-            </Card>
-          </div>
-        </div>
-      </PageBody>
-    </>
-  )
+  const data = Route.useLoaderData()
+  if (data.kind === 'prod') return <><PageHeader title="Staging" /><PageBody><EmptyState title="Staging controls are not available from prod" action={<Link to="/staging" search={{ env: 'staging' }} className={buttonVariants()}>Switch to staging</Link>}>Switch environment to inspect or operate on the staging candidate. No staging request was made.</EmptyState></PageBody></>
+  return <StagingOverview candidate={data.candidate} history={data.history.items} />
 }
 
-function DiffRow({ d, last }: { d: StagingDiff; last: boolean }) {
-  const t = changeTile[d.change]
-  return (
-    <div className={cn('grid min-h-10 grid-cols-[22px_minmax(0,1fr)_auto] items-center gap-2.5 py-1.5', !last && 'border-b border-line-soft')}>
-      <span className={cn('flex size-[18px] items-center justify-center rounded-[5px] text-[11px] font-semibold', t.cls)} aria-label={t.word}>
-        {t.sign}
-      </span>
-      <div className="flex min-w-0 flex-col gap-0.5">
-        <span className="truncate font-mono text-[12.5px]" title={d.name}>
-          {d.name}
-        </span>
-        <span className="text-[12.5px] text-muted-foreground lg:truncate" title={d.detail}>
-          {d.detail}
-        </span>
+function StagingOverview({ candidate, history }: { candidate: StagingCandidate; history: Array<{ timestamp: string; operation: string; target: string; subject: string; result: { status?: string } }> }) {
+  const router = useRouter()
+  const [checks, setChecks] = React.useState<StagingChecks>()
+  const [busy, setBusy] = React.useState<'checks' | 'promote' | 'resync'>()
+  const [error, setError] = React.useState<string>()
+  const [dialog, setDialog] = React.useState<'promote' | 'resync'>()
+  const candidateId = candidate.candidate_id
+  React.useEffect(() => { setChecks(undefined); setError(undefined); setDialog(undefined) }, [candidateId])
+
+  const run = async (kind: NonNullable<typeof busy>, work: () => Promise<unknown>) => {
+    if (busy) return
+    setBusy(kind); setError(undefined)
+    try { await work() } catch (caught) { setError(caught instanceof Error ? caught.message : 'The staging operation failed.') } finally { setBusy(undefined) }
+  }
+  const refresh = async () => { setChecks(undefined); setDialog(undefined); await router.invalidate() }
+  const checkCandidate = async () => {
+    setChecks(undefined)
+    const result = await runStagingChecks({ data: { candidateId, idempotencyKey: operationKey('checks', candidateId) } })
+    sessionStorage.removeItem(`phlo:staging:checks:${candidateId}`)
+    setChecks(result)
+  }
+  const codeChanges = candidate.code_changes.map((entry, index) => {
+    const separator = entry.indexOf('\t')
+    return { status: separator < 0 ? '?' : entry.slice(0, separator), path: separator < 0 ? candidate.code_paths[index] ?? entry : entry.slice(separator + 1) }
+  })
+  const jobInventory = environmentInventory(candidate.jobs.prod, candidate.jobs.staging)
+  const copyInventory = environmentInventory(candidate.copy_inventory.prod, candidate.copy_inventory.staging)
+
+  return <>
+    <PageHeader title={<span className="flex items-center gap-2.5">Staging cutover <Badge variant="warn">staging</Badge></span>} meta={`Observed ${formatTime(candidate.observed_at)}`} actions={<><Button variant="outline" disabled={Boolean(busy)} onClick={() => void refresh()}><RefreshCwIcon /> Refresh evidence</Button><Button variant="outline" disabled={Boolean(busy)} onClick={() => setDialog('resync')}>Re-sync data…</Button><Button disabled={Boolean(busy) || !checks?.passed || !candidate.code_paths.length} onClick={() => setDialog('promote')}>Promote code…</Button></>} />
+    <PageBody className="gap-4">
+      {error ? <div role="alert" className="rounded-lg border border-bad-line bg-bad-wash p-3 text-sm text-bad-ink">{error} <Button variant="outline" size="sm" className="ml-2" onClick={() => void refresh()}>Reload current evidence</Button></div> : null}
+      <Card className="p-4 lg:p-5">
+        <div className="flex flex-wrap items-center gap-2"><Eyebrow>Promotion candidate</Eyebrow><Mono className="break-all text-xs">{candidateId}</Mono></div>
+        <dl className="mt-3 grid gap-3 text-sm md:grid-cols-2">
+          <Evidence label="Git"><Mono className="break-all text-xs">{candidate.prod_git_revision}</Mono><ArrowRightIcon className="inline size-3 mx-2" /><Mono className="break-all text-xs">{candidate.staging_git_revision}</Mono></Evidence>
+          <Evidence label="Nessie"><Mono>{candidate.prod_ref}</Mono> @ <Mono className="break-all text-xs">{candidate.prod_hash}</Mono><br /><Mono>{candidate.staging_ref}</Mono> @ <Mono className="break-all text-xs">{candidate.staging_hash}</Mono></Evidence>
+          <Evidence label="Dagster locations">prod: <Mono>{candidate.dagster_location}</Mono><br />staging: <Mono>{candidate.staging_location}</Mono></Evidence>
+          <Evidence label="Scope">Promotion advances Git/code/config and reloads prod Dagster. Nessie data is not promoted.</Evidence>
+        </dl>
+      </Card>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Inventory title={`Git path changes (${codeChanges.length})`} items={codeChanges.map((item) => ({ name: item.path, note: gitStatus(item.status) }))} empty="No code paths differ." />
+        <Card className="p-4 lg:p-5"><div className="flex items-center gap-3"><div><h2 className="m-0 text-[15px] font-medium">Candidate checks</h2><p className="m-0 text-xs text-muted-foreground">Tests, contracts and audits run against this exact candidate.</p></div><Button className="ml-auto" variant="outline" disabled={Boolean(busy)} onClick={() => void run('checks', checkCandidate)}>{busy === 'checks' ? <Loader2Icon className="animate-spin" /> : null}Run checks</Button></div>{checks ? <ul className="mt-3 list-none p-0">{checks.items.map((item) => <li key={item.name} className="border-t border-line-soft py-2 text-sm"><Badge variant={item.status === 'passed' ? 'ok' : item.status === 'failed' ? 'bad' : 'warn'}>{item.status}</Badge> <span className="ml-2">{item.name}</span>{item.run_id ? <Mono className="ml-2 text-xs">{item.run_id}</Mono> : null}{item.message ? <div className="text-xs text-muted-foreground">{item.message}</div> : null}</li>)}</ul> : <p className="mb-0 text-sm text-muted-foreground">No check evidence has been run for this candidate in this session.</p>}</Card>
+        <Inventory title={`Dagster job inventory (${candidate.jobs.prod.length} prod / ${candidate.jobs.staging.length} staging)`} items={jobInventory} empty="No jobs were returned." />
+        <Inventory title={`Nessie table inventory (${candidate.copy_inventory.prod.length} prod / ${candidate.copy_inventory.staging.length} staging)`} items={copyInventory} empty="No tables were returned." />
       </div>
-      <Badge variant={d.status.tone === 'neutral' ? 'neutral' : d.status.tone}>{d.status.label}</Badge>
-    </div>
-  )
+
+      <Card className="p-4 lg:p-5"><h2 className="m-0 text-[15px] font-medium">Promotion history</h2>{history.length ? <div className="mt-2 overflow-x-auto"><table className="w-full text-left text-sm"><thead><tr className="text-muted-foreground"><th className="py-2">When</th><th>Subject</th><th>Target</th><th>Status</th></tr></thead><tbody>{[...history].reverse().map((item, index) => <tr key={`${item.timestamp}:${index}`} className="border-t border-line-soft"><td className="py-2 pr-4 whitespace-nowrap">{formatTime(item.timestamp)}</td><td className="pr-4">{item.subject}</td><td className="pr-4"><Mono className="break-all text-xs">{item.target}</Mono></td><td>{typeof item.result.status === 'string' ? item.result.status : 'recorded'}</td></tr>)}</tbody></table></div> : <p className="mb-0 text-sm text-muted-foreground">No promotion operations are recorded.</p>}</Card>
+    </PageBody>
+    <ConfirmDialog kind="resync" open={dialog === 'resync'} busy={busy === 'resync'} error={error} candidate={candidate} onClose={() => !busy && setDialog(undefined)} onSubmit={() => run('resync', async () => { await resyncStaging({ data: { expectedProdHash: candidate.prod_hash, expectedStagingHash: candidate.staging_hash, confirm: true, idempotencyKey: operationKey('resync', `${candidate.prod_hash}<-${candidate.staging_hash}`) } }); await refresh() })} />
+    <ConfirmDialog kind="promote" open={dialog === 'promote'} busy={busy === 'promote'} error={error} candidate={candidate} onClose={() => !busy && setDialog(undefined)} onSubmit={(justification) => run('promote', async () => { await promoteStaging({ data: { candidateId, prodRef: candidate.prod_ref, stagingRef: candidate.staging_ref, justification, confirm: true, signatureKey: operationKey('signature', `${candidateId}:${justification}`), idempotencyKey: operationKey('promote', `${candidateId}:${justification}`) } }); await refresh() })} />
+  </>
 }
 
-function PromoRow({ p, last }: { p: Promotion; last: boolean }) {
-  return (
-    <div className={cn('flex flex-col gap-2 py-3', !last && 'border-b border-line-soft')}>
-      <div className="flex flex-wrap items-center gap-x-2.5 gap-y-0.5">
-        <Dot tone={p.tone} size="md" />
-        <span className="text-sm font-medium">{p.title}</span>
-        <span className="ml-auto text-[12.5px] text-muted-foreground">{p.who}</span>
-      </div>
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 pl-[18px]">
-        {p.checks.map((c) => {
-          const m = checkMark[c.state]
-          return (
-            <span key={c.label} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <span className={cn('font-semibold', m.cls)} aria-hidden>
-                {m.mark}
-              </span>
-              <span className="sr-only">{m.word}: </span>
-              {c.label}
-            </span>
-          )
-        })}
-        {p.ready ? (
-          <Link to="/branches" search={{ dialog: 'merge' }} className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'ml-auto h-10 lg:h-7')}>
-            Promote…
-          </Link>
-        ) : (
-          <span className="ml-auto text-[12.5px] text-muted-foreground">{p.why}</span>
-        )}
-      </div>
-    </div>
-  )
+function ConfirmDialog({ kind, open, busy, error, candidate, onClose, onSubmit }: { kind: 'promote' | 'resync'; open: boolean; busy: boolean; error?: string; candidate: StagingCandidate; onClose: () => void; onSubmit: (justification: string) => void }) {
+  const [confirmed, setConfirmed] = React.useState(false), [justification, setJustification] = React.useState('')
+  const promote = kind === 'promote'
+  return <Dialog open={open} onOpenChange={(value) => { if (!value && !busy) onClose() }}><DialogContent><form onSubmit={(event) => { event.preventDefault(); if (!busy && confirmed && (!promote || justification.trim())) onSubmit(justification.trim()) }}><DialogHeader><DialogTitle>{promote ? 'Promote staging code to prod' : 'Destructively re-sync staging data'}</DialogTitle><DialogDescription>{promote ? `Advance ${candidate.prod_ref} to staging Git revision and reload prod Dagster. Nessie data stays unchanged.` : `Move ${candidate.staging_ref} from ${candidate.staging_hash} to prod hash ${candidate.prod_hash}. Staging-only data changes may be lost.`}</DialogDescription></DialogHeader><DialogBody>{promote ? <Field><FieldLabel>Justification</FieldLabel><Textarea required maxLength={1000} rows={3} value={justification} onChange={(event) => setJustification(event.target.value)} /></Field> : null}<CheckLine checked={confirmed} onCheckedChange={(value) => setConfirmed(value === true)}>{promote ? 'I confirm this signed promotion of the displayed candidate.' : 'I confirm this destructive Nessie staging re-sync.'}</CheckLine>{error ? <p role="alert" className="m-0 text-sm text-bad-ink">{error}</p> : null}</DialogBody><DialogFooter><Button type="button" variant="outline" disabled={busy} onClick={onClose}>Cancel</Button><Button type="submit" variant={promote ? 'default' : 'destructive'} disabled={busy || !confirmed || (promote && !justification.trim())}>{busy ? 'Working…' : promote ? 'Sign and promote' : 'Re-sync staging data'}</Button></DialogFooter></form></DialogContent></Dialog>
 }
+
+function Evidence({ label, children }: { label: string; children: React.ReactNode }) { return <div><dt className="text-xs text-muted-foreground">{label}</dt><dd className="m-0 mt-1 break-all">{children}</dd></div> }
+function Inventory({ title, items, empty }: { title: string; items: Array<{ name: string; note: string }>; empty: string }) { return <Card className="p-4 lg:p-5"><h2 className="m-0 text-[15px] font-medium">{title}</h2>{items.length ? <ul className="mt-2 max-h-64 list-none overflow-y-auto p-0">{items.map((item) => <li key={`${item.note}:${item.name}`} className="flex gap-2 border-t border-line-soft py-2 text-sm"><Badge variant="outline">{item.note}</Badge><Mono className="break-all text-xs">{item.name}</Mono></li>)}</ul> : <p className="mb-0 text-sm text-muted-foreground">{empty}</p>}</Card> }
+function environmentInventory(prod: string[], staging: string[]) { return [...prod.map((name) => ({ name, note: 'prod' })), ...staging.map((name) => ({ name, note: 'staging' }))] }
+function gitStatus(status: string) { return status === 'A' ? 'added' : status === 'M' ? 'modified' : status === 'D' ? 'deleted' : `Git ${status}` }
+function formatTime(value: string) { const date = new Date(value); return Number.isNaN(date.valueOf()) ? value : date.toLocaleString('en-GB') }

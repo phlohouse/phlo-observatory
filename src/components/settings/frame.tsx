@@ -16,10 +16,12 @@ const environments: NavItem[] = [
 ]
 
 function SubnavLink({ item, on }: { item: NavItem; on: boolean }) {
+  const search = useRouterState({ select: (s) => s.location.search })
   return (
     <Link
       to={item.to}
       hash={item.hash}
+      search={search}
       aria-current={on ? 'page' : undefined}
       className={cn(
         'flex h-10 shrink-0 items-center rounded-md px-2.5 text-[13.5px] whitespace-nowrap text-text-2 hover:bg-soft hover:text-foreground lg:h-8',
