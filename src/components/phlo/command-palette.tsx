@@ -1,14 +1,15 @@
 import * as React from 'react'
 import { Dialog as DialogPrimitive } from '@base-ui/react/dialog'
 import { useNavigate } from '@tanstack/react-router'
-import { CornerDownLeftIcon, DatabaseIcon, GitBranchIcon, PauseIcon, PlayIcon, SearchIcon, TriangleAlertIcon, WorkflowIcon } from 'lucide-react'
+import { CornerDownLeftIcon, SearchIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Kbd } from '@/components/ui/separator'
-import { assets, incidents, jobs } from '@/lib/data/fixtures/core'
+import type { Env } from '@/lib/data/types'
+import { navItems } from './nav-items'
 
 type Cmd = {
   id: string
-  group: 'Assets' | 'Jobs' | 'Incidents' | 'Actions'
+  group: 'Navigation'
   label: string
   mono?: boolean
   hint?: string
@@ -23,7 +24,7 @@ const PaletteContext = React.createContext<{ open: boolean; setOpen: (o: boolean
 
 export const useCommandPalette = () => React.useContext(PaletteContext)
 
-export function CommandPaletteProvider({ children }: { children: React.ReactNode }) {
+export function CommandPaletteProvider({ env, children }: { env: Env; children: React.ReactNode }) {
   const [open, setOpen] = React.useState(false)
   React.useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -38,77 +39,21 @@ export function CommandPaletteProvider({ children }: { children: React.ReactNode
   return (
     <PaletteContext.Provider value={{ open, setOpen }}>
       {children}
-      <CommandPalette open={open} onOpenChange={setOpen} />
+      <CommandPalette env={env} open={open} onOpenChange={setOpen} />
     </PaletteContext.Provider>
   )
 }
 
 const iconCls = 'inline-flex size-6 shrink-0 items-center justify-center rounded-md'
 
-function buildCommands(): Cmd[] {
-  const list: Cmd[] = []
-  for (const a of assets) {
-    list.push({
-      id: `a:${a.id}`,
-      group: 'Assets',
-      label: a.id,
-      mono: true,
-      hint: a.health === 'stale' ? 'stale' : undefined,
-      icon: <span className={cn(iconCls, 'bg-soft text-muted-foreground')}><DatabaseIcon className="size-3.5" /></span>,
-      run: (nav) => nav({ to: '/assets/$assetId', params: { assetId: a.id } }),
-    })
-  }
-  for (const j of jobs) {
-    list.push({
-      id: `j:${j.name}`,
-      group: 'Jobs',
-      label: j.name,
-      mono: true,
-      hint: j.statusLabel,
-      icon: <span className={cn(iconCls, 'bg-soft text-muted-foreground')}><WorkflowIcon className="size-3.5" /></span>,
-      run: (nav) => nav({ to: '/pipelines/$jobName', params: { jobName: j.name } }),
-    })
-  }
-  for (const i of incidents.filter((x) => x.status !== 'resolved')) {
-    list.push({
-      id: `i:${i.id}`,
-      group: 'Incidents',
-      label: `#${i.id} ${i.title}`,
-      icon: <span className={cn(iconCls, 'bg-teal-soft text-teal')}><TriangleAlertIcon className="size-3.5" /></span>,
-      run: (nav) => nav({ to: '/incidents/$incidentId', params: { incidentId: i.id } }),
-    })
-  }
-  list.push(
-    {
-      id: 'x:rerun',
-      group: 'Actions',
-      label: 'Re-run ingest_bioreactor from failed step',
-      icon: <span className={cn(iconCls, 'bg-primary-soft text-primary')}><PlayIcon className="size-3.5" /></span>,
-      run: (nav) => nav({ to: '/pipelines/$jobName', params: { jobName: 'ingest_bioreactor' } }),
-    },
-    {
-      id: 'x:pause',
-      group: 'Actions',
-      label: 'Pause ingest_bioreactor schedule',
-      icon: <span className={cn(iconCls, 'bg-soft text-muted-foreground')}><PauseIcon className="size-3.5" /></span>,
-      run: (nav) => nav({ to: '/pipelines/$jobName', params: { jobName: 'ingest_bioreactor' } }),
-    },
-    {
-      id: 'x:branch',
-      group: 'Actions',
-      label: 'Create branch from main',
-      icon: <span className={cn(iconCls, 'bg-branch-soft text-branch')}><GitBranchIcon className="size-3.5" /></span>,
-      run: (nav) => nav({ to: '/branches', search: { dialog: 'new-branch' } }),
-    },
-    {
-      id: 'x:incident',
-      group: 'Actions',
-      label: 'Open a new incident',
-      icon: <span className={cn(iconCls, 'bg-bad-soft text-bad-text')}><TriangleAlertIcon className="size-3.5" /></span>,
-      run: (nav) => nav({ to: '/incidents', search: { dialog: 'new-incident' } }),
-    },
-  )
-  return list
+function buildCommands(env: Env): Cmd[] {
+  return navItems.map(({ to, label, Icon }) => ({
+    id: to,
+    group: 'Navigation',
+    label,
+    icon: <span className={cn(iconCls, 'bg-soft text-muted-foreground')}><Icon className="size-3.5" /></span>,
+    run: (nav) => nav({ to, search: { env } }),
+  }))
 }
 
 function Highlight({ text, q }: { text: string; q: string }) {
@@ -124,14 +69,14 @@ function Highlight({ text, q }: { text: string; q: string }) {
   )
 }
 
-function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) {
+function CommandPalette({ env, open, onOpenChange }: { env: Env; open: boolean; onOpenChange: (o: boolean) => void }) {
   const navigate = useNavigate()
   const [q, setQ] = React.useState('')
   const [active, setActive] = React.useState(0)
-  const all = React.useMemo(buildCommands, [])
+  const all = React.useMemo(() => buildCommands(env), [env])
   const results = React.useMemo(() => {
     const s = q.trim().toLowerCase()
-    const r = s ? all.filter((c) => c.label.toLowerCase().includes(s)) : all.filter((c) => c.group !== 'Jobs').slice(0, 9)
+    const r = s ? all.filter((c) => c.label.toLowerCase().includes(s)) : all
     return r.slice(0, 12)
   }, [q, all])
 
@@ -174,7 +119,7 @@ function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenChange: (
                   runAt(active)
                 }
               }}
-              placeholder="Search tables, jobs, incidents, or type a command"
+              placeholder="Search pages"
               aria-label="Search"
               className="h-12 flex-1 bg-transparent text-[15px] outline-none placeholder:text-faint"
             />

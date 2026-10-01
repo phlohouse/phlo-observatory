@@ -30,7 +30,7 @@ export function PageHeader({
       <div className="flex min-w-0 items-center gap-2.5">
         {crumbs?.map((c) => (
           <React.Fragment key={c.to}>
-            <Link to={c.to} className="text-sm whitespace-nowrap text-muted-foreground hover:text-foreground">
+            <Link to={c.to} search={(previous) => previous} className="text-sm whitespace-nowrap text-muted-foreground hover:text-foreground">
               {c.label}
             </Link>
             <ChevronRightIcon className="size-3 shrink-0 text-faint" aria-hidden />

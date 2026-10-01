@@ -2,6 +2,18 @@ import * as React from 'react'
 import { Link } from '@tanstack/react-router'
 import { cn } from '@/lib/utils'
 import type { ScaleStatus } from '@/lib/data/fixtures/pipelines'
+import type { Env } from '@/lib/data/types'
+import type { ApiRun } from '@/lib/data/api/pipelines'
+
+export function runColor(status: ApiRun['status']) {
+  return status === 'FAILURE'
+    ? 'bg-bad'
+    : status === 'SUCCESS'
+      ? 'bg-sla-ok'
+      : status === 'CANCELED'
+        ? 'bg-skip-line'
+        : 'bg-warn-bar'
+}
 
 export const statusDot: Record<ScaleStatus, string> = {
   failing: 'bg-bad',
@@ -18,7 +30,12 @@ export const statusText: Record<ScaleStatus, string> = {
 }
 
 export function StatusDot({ status, className }: { status: ScaleStatus; className?: string }) {
-  return <span aria-hidden className={cn('inline-block size-2 shrink-0 rounded-full', statusDot[status], className)} />
+  return (
+    <span
+      aria-hidden
+      className={cn('inline-block size-2 shrink-0 rounded-full', statusDot[status], className)}
+    />
+  )
 }
 
 /** Proportional bar: failing · slow · paused · healthy. */
@@ -48,16 +65,22 @@ export function HealthMix({
 }
 
 /** "List | Timeline" switch. Real links, styled like the segmented control. */
-export function ViewSwitch({ current }: { current: 'list' | 'timeline' }) {
+export function ViewSwitch({ current, env }: { current: 'list' | 'timeline'; env: Env }) {
   const item = 'flex h-[26px] items-center rounded-md px-2.5 text-[13px] text-text-3 hover:text-foreground'
   const on = 'bg-card text-foreground shadow-[0_0_0_1px_var(--border)]'
   return (
     <nav aria-label="Pipelines view" className="inline-flex rounded-lg border border-border bg-raised p-0.5">
-      <Link to="/pipelines" aria-current={current === 'list' ? 'page' : undefined} className={cn(item, current === 'list' && on)}>
+      <Link
+        to="/pipelines"
+        search={{ env }}
+        aria-current={current === 'list' ? 'page' : undefined}
+        className={cn(item, current === 'list' && on)}
+      >
         List
       </Link>
       <Link
         to="/pipelines/timeline"
+        search={{ env }}
         aria-current={current === 'timeline' ? 'page' : undefined}
         className={cn(item, current === 'timeline' && on)}
       >
@@ -92,7 +115,9 @@ export function LinkedIcon({ className }: { className?: string }) {
 export function Facet({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <fieldset className="m-0 flex flex-col gap-0.5 border-0 p-0">
-      <legend className="px-1.5 pb-1.5 text-[11.5px] tracking-[0.06em] text-muted-foreground uppercase">{title}</legend>
+      <legend className="px-1.5 pb-1.5 text-[11.5px] tracking-[0.06em] text-muted-foreground uppercase">
+        {title}
+      </legend>
       {children}
     </fieldset>
   )

@@ -11,7 +11,7 @@ export function MobileTopBar({ env }: { env: Env }) {
   const { setOpen } = useCommandPalette()
   return (
     <header className="flex h-14 shrink-0 items-center gap-2.5 border-b border-line bg-card px-4 lg:hidden">
-      <Link to={env === 'staging' ? '/staging' : '/'} className="flex items-center gap-2.5 text-foreground">
+      <Link to="/" search={{ env }} className="flex items-center gap-2.5 text-foreground">
         <BrandMark className="size-7 text-sm" />
         <span className="text-[17px] font-semibold">phlo</span>
       </Link>
@@ -30,7 +30,7 @@ export function MobileTopBar({ env }: { env: Env }) {
 }
 
 /** Bottom tab bar on phones: Home, Incidents, Assets, Pipelines. */
-export function MobileTabBar({ openIncidents }: { openIncidents: number }) {
+export function MobileTabBar({ env, openIncidents }: { env: Env; openIncidents: number | null }) {
   return (
     <nav
       aria-label="Primary"
@@ -42,13 +42,14 @@ export function MobileTabBar({ openIncidents }: { openIncidents: number }) {
           <Link
             key={to}
             to={to}
+            search={{ env }}
             activeOptions={{ exact }}
             className="relative flex flex-col items-center justify-center gap-1 text-xs text-muted-foreground hover:text-foreground"
             activeProps={{ className: 'text-link hover:text-link', 'aria-current': 'page' }}
           >
             <span className="relative">
               <Icon className="size-5" strokeWidth={1.7} />
-              {to === '/incidents' && openIncidents > 0 ? (
+              {to === '/incidents' && openIncidents !== null && openIncidents > 0 ? (
                 <span className="absolute -top-1.5 -right-2.5 min-w-4 rounded-full bg-bad px-1 text-center text-[10px] leading-4 text-white">
                   {openIncidents}
                 </span>

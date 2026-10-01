@@ -1,315 +1,83 @@
 import * as React from 'react'
-import { Link, createFileRoute } from '@tanstack/react-router'
-import { CircleCheckIcon, CircleDashedIcon, CircleXIcon, GitCompareIcon, GitMergeIcon, PlusIcon } from 'lucide-react'
-import { getBranchesPage } from '@/lib/data/api/branches'
-import { Eyebrow, PageHeader } from '@/components/phlo/page'
+import { Link, createFileRoute, useRouter } from '@tanstack/react-router'
+import { GitMergeIcon, PlusIcon, RefreshCwIcon, Trash2Icon } from 'lucide-react'
+import { createBranch, deleteBranch, getBranchDetail, getBranchesPage, rebaseBranch, runBranchChecks, signAndMerge, trialMerge, type BranchAction, type BranchCheck } from '@/lib/data/api/branches'
+import { PageHeader, Eyebrow } from '@/components/phlo/page'
 import { EmptyState } from '@/components/phlo/states'
-import { LayerSwatch, Mono } from '@/components/phlo/status'
-import { BranchGraph } from '@/components/branches/branch-graph'
+import { Mono } from '@/components/phlo/status'
 import { MergeDialog } from '@/components/branches/merge-dialog'
 import { NewBranchDialog } from '@/components/branches/new-branch-dialog'
 import { Badge } from '@/components/ui/badge'
 import { Button, buttonVariants } from '@/components/ui/button'
-import { emptyBranchDetail, type BranchDetail, type MergeCheck } from '@/lib/data/fixtures/branches'
 import { cn } from '@/lib/utils'
-import type { Branch, Tone } from '@/lib/data/types'
+import { z } from 'zod'
 
-type Search = { dialog?: 'new-branch' | 'merge' }
+const searchSchema = z.object({ dialog: z.enum(['new-branch', 'merge']).optional(), branch: z.string().optional() })
 export const Route = createFileRoute('/_app/branches')({
-  validateSearch: (s: Record<string, unknown>): Search => ({
-    dialog: s.dialog === 'new-branch' || s.dialog === 'merge' ? s.dialog : undefined,
-  }),
-  loader: () => getBranchesPage(),
+  validateSearch: searchSchema,
+  loaderDeps: ({ search }) => ({ env: search.env }),
+  loader: ({ deps }) => getBranchesPage({ data: { env: deps.env } }),
   head: () => ({ meta: [{ title: 'Branches · phlo' }] }),
   component: BranchesPage,
 })
 
-const badgeFor = (t: Tone) => (t === 'neutral' ? 'neutral' : t)
+function operationKey(env: string, action: string, intent: string) {
+  const storageKey = `phlo:branch:${env}:${action}:${intent}`
+  const existing = sessionStorage.getItem(storageKey)
+  if (existing) return existing
+  const key = crypto.randomUUID(); sessionStorage.setItem(storageKey, key); return key
+}
 
 function BranchesPage() {
-  const data = Route.useLoaderData()
-  const search = Route.useSearch()
-  const navigate = Route.useNavigate()
-  const [extra, setExtra] = React.useState<Array<{ branch: Branch; detail: BranchDetail }>>([])
-  const [selected, setSelected] = React.useState('fix/telemetry-schema')
+  const data = Route.useLoaderData(), { env, dialog, branch: selectedName } = Route.useSearch(), navigate = Route.useNavigate(), router = useRouter()
+  const target = data.branches.find((branch) => branch.protected)
+  const selected = data.branches.find((branch) => branch.name === selectedName) ?? target ?? data.branches[0]
+  const [detail, setDetail] = React.useState<Awaited<ReturnType<typeof getBranchDetail>>>()
+  const [busy, setBusy] = React.useState(false), [error, setError] = React.useState<string>(), [checks, setChecks] = React.useState<BranchCheck[]>(), [trial, setTrial] = React.useState<BranchAction>()
+  React.useEffect(() => {
+    let current = true
+    setDetail(undefined); setChecks(undefined); setTrial(undefined); setError(undefined)
+    if (selected && target) getBranchDetail({ data: { env, branch: selected.name, target: target.name } }).then((value) => { if (current) setDetail(value) }).catch((caught) => { if (current) setError(caught instanceof Error ? caught.message : 'Could not load branch.') })
+    return () => { current = false }
+  }, [env, selected?.name, selected?.hash, target?.name, target?.hash])
+  const close = () => navigate({ search: (current) => ({ ...current, dialog: undefined }), replace: true })
+  const run = async (work: () => Promise<BranchAction | void>, done?: () => void) => {
+    if (busy) return
+    setBusy(true); setError(undefined)
+    try {
+      const result = await work()
+      if (result && result.status !== 'succeeded') throw new Error(`Branch operation reported ${result.status}. Reload branch evidence before retrying.`)
+      await done?.()
+    } catch (caught) { setError(caught instanceof Error ? caught.message : 'Branch operation failed.') }
+    finally { setBusy(false) }
+  }
+  const refresh = async () => { close(); await router.invalidate() }
+  const checkBranch = async () => {
+    if (!selected) return
+    setChecks(undefined); setTrial(undefined)
+    const intent = `${selected.name}@${selected.hash}`
+    const result = await runBranchChecks({ data: { env, branch: selected.name, expectedHash: selected.hash, confirmed: true, idempotencyKey: operationKey(env, 'checks', intent) } })
+    sessionStorage.removeItem(`phlo:branch:${env}:checks:${intent}`)
+    setChecks(result.items)
+  }
 
-  const branches = [...data.branches, ...extra.map((e) => e.branch)]
-  const details: Record<string, BranchDetail> = { ...data.details, ...Object.fromEntries(extra.map((e) => [e.branch.name, e.detail])) }
-  const detail = details[selected] ?? details['fix/telemetry-schema']!
-  const mergeTarget = details['fix/telemetry-schema']!
-  const closeDialog = () => navigate({ search: (p) => ({ ...p, dialog: undefined }), replace: true })
-
-  return (
-    <>
-      <PageHeader
-        title="Branches"
-        meta={`Nessie catalog · ${branches.length} branches, ${data.tags.length} tags`}
-        actions={
-          <Link from={Route.fullPath} to="." search={{ dialog: 'new-branch' }} className={cn(buttonVariants({ variant: 'outline' }), 'h-10 lg:h-8')}>
-            <PlusIcon /> New branch
-          </Link>
-        }
-      />
-
-      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto lg:flex-row lg:overflow-hidden">
-        <section aria-label="Branches" className="flex shrink-0 flex-col gap-1 border-b border-line p-3 lg:w-[340px] lg:overflow-y-auto lg:border-r lg:border-b-0">
-          {branches.map((b) => {
-            const inner = (
-              <>
-                <span className="flex items-center gap-2">
-                  <span className="truncate font-mono text-[13.5px] font-medium">{b.name}</span>
-                  {b.kind === 'main' ? (
-                    <Badge variant="outline" className="px-1.5 py-0 text-[11.5px]">
-                      {b.status.label}
-                    </Badge>
-                  ) : (
-                    <Badge variant={badgeFor(b.status.tone)} className="ml-auto px-1.5 text-[11.5px]">
-                      {b.status.label}
-                    </Badge>
-                  )}
-                  {b.kind === 'main' ? <span className="ml-auto font-mono text-xs text-muted-foreground">{b.head}</span> : null}
-                </span>
-                <span className="text-[13px] text-muted-foreground">{b.note}</span>
-              </>
-            )
-            const cls = 'flex w-full flex-col gap-1.5 rounded-[10px] px-4 py-3.5 text-left text-foreground hover:bg-sunken hover:text-foreground'
-            if (b.name === 'feat/qc-trend-alerts')
-              return (
-                <Link key={b.name} to="/incidents/$incidentId" params={{ incidentId: '209' }} className={cls}>
-                  {inner}
-                </Link>
-              )
-            const on = b.name === selected
-            return (
-              <button
-                key={b.name}
-                type="button"
-                aria-pressed={on}
-                onClick={() => setSelected(b.name)}
-                className={cn(cls, 'cursor-pointer', on && 'bg-soft hover:bg-soft')}
-              >
-                {inner}
-              </button>
-            )
-          })}
-          <Eyebrow className="px-4 pt-[18px] pb-1.5">Tags</Eyebrow>
-          {data.tags.map((t) => (
-            <Link
-              key={t.name}
-              to="/settings/audit-log"
-              className="flex items-center gap-2 rounded-[10px] px-4 py-2.5 text-foreground hover:bg-sunken hover:text-foreground"
-            >
-              <span className="truncate font-mono text-[13px]">{t.name}</span>
-              <span className="ml-auto font-mono text-xs text-muted-foreground">{t.commit}</span>
-            </Link>
-          ))}
-        </section>
-
-        <BranchDetailView detail={detail} />
-      </div>
-
-      <MergeDialog
-        open={search.dialog === 'merge'}
-        onClose={closeDialog}
-        onMerged={() => navigate({ to: '/settings/audit-log' })}
-        branch={mergeTarget}
-        me={data.me}
-      />
-      <NewBranchDialog
-        open={search.dialog === 'new-branch'}
-        onClose={closeDialog}
-        startPoints={data.startPoints}
-        incidents={data.incidents}
-        onCreate={({ name, from, incidentId }) => {
-          const kind = name.split('/')[0] as Branch['kind']
-          setExtra((x) => [
-            ...x.filter((e) => e.branch.name !== name),
-            {
-              branch: {
-                name,
-                kind,
-                owner: 'Gareth',
-                head: from.split('@')[1] ?? '',
-                ahead: 0,
-                behind: 0,
-                status: { tone: 'neutral', label: 'new' },
-                note: `Gareth · 0 ahead · 0 behind${incidentId ? ` · #${incidentId}` : ''}`,
-                incidentId,
-              },
-              detail: { ...emptyBranchDetail(name, from), resolves: incidentId },
-            },
-          ])
-          setSelected(name)
-          closeDialog()
-        }}
-      />
-    </>
-  )
-}
-
-function BranchDetailView({ detail: d }: { detail: BranchDetail }) {
-  return (
-    <section aria-label={d.name} className="flex min-w-0 flex-1 flex-col lg:overflow-y-auto">
-      <div className="flex flex-col gap-4 border-b border-line px-4 pt-5 pb-4 sm:flex-row sm:items-start lg:px-7 lg:pt-[22px] lg:pb-[18px]">
-        <div className="flex min-w-0 flex-col gap-2">
-          <h2 className="m-0 font-mono text-lg font-medium break-all lg:text-xl">{d.name}</h2>
-          <div className="text-[13px] text-muted-foreground">
-            {d.from ? (
-              <>
-                Branched from <Mono className="rounded bg-branch-soft px-1 text-[12.5px] text-branch">{d.from}</Mono> {d.created} by {d.by}
-                {d.resolves ? (
-                  <>
-                    {' '}
-                    · resolves{' '}
-                    <Link to="/incidents/$incidentId" params={{ incidentId: d.resolves }}>
-                      #{d.resolves}
-                    </Link>
-                  </>
-                ) : null}
-                {d.summary ? <> · {d.summary}</> : null}
-              </>
-            ) : (
-              d.summary
-            )}
-          </div>
-        </div>
-        {d.merge !== 'protected' ? (
-          <div className="flex gap-2.5 sm:ml-auto">
-            <a href="#changes" className={cn(buttonVariants({ variant: 'outline', size: 'lg' }), 'h-10 sm:h-9')}>
-              <GitCompareIcon /> Compare
-            </a>
-            {d.merge === 'ready' ? (
-              <Link from="/branches" to="." search={{ dialog: 'merge' }} className={cn(buttonVariants({ size: 'lg' }), 'h-10 px-4 sm:h-9')}>
-                <GitMergeIcon /> Merge into main
-              </Link>
-            ) : (
-              <Button size="lg" className="h-10 px-4 sm:h-9" disabled title={d.merge === 'sandbox' ? 'Sandbox branches can’t be merged' : 'Nothing to merge yet'}>
-                <GitMergeIcon /> Merge into main
-              </Button>
-            )}
-          </div>
-        ) : null}
-      </div>
-
-      <div className="px-4 pt-5 pb-2 lg:px-7">
-        <BranchGraph name={d.name} graph={d.graph} commits={d.commits} />
-      </div>
-
-      <div className="grid grid-cols-1 gap-7 px-4 pt-3 pb-6 lg:grid-cols-2 lg:px-7">
-        <div className="flex flex-col">
-          <Eyebrow className="pb-1">{d.merge === 'protected' ? 'Protection' : 'Pre-merge checks'}</Eyebrow>
-          {d.merge === 'protected' ? (
-            <>
-              <CheckRow check={{ state: 'pass', label: 'Direct writes blocked', detail: 'Changes arrive only through signed merges' }} />
-              <CheckRow check={{ state: 'pass', label: 'Signed approval required', detail: 'Approvers: Gareth, Sam R.' }} last />
-            </>
-          ) : d.checks.length ? (
-            d.checks.map((c, i) => <CheckRow key={c.label} check={c} last={i === d.checks.length - 1} />)
-          ) : (
-            <EmptyState title="No checks yet" className="mt-2">
-              Checks run on the first commit to this branch.
-            </EmptyState>
-          )}
-        </div>
-
-        <div className="flex min-w-0 flex-col gap-[22px]">
-          <div id="changes" className="flex scroll-mt-4 flex-col gap-2">
-            <Eyebrow>Table changes</Eyebrow>
-            {d.tableChanges.length ? (
-              <div className="overflow-hidden rounded-[10px] border border-border-card">
-                {d.tableChanges.map((t, i) => (
-                  <React.Fragment key={t.table}>
-                    <div className={cn('flex items-center gap-2.5 px-3.5 py-3', i > 0 && 'border-t border-line-soft', t.diff && 'border-b border-line-soft')}>
-                      <LayerSwatch layer={t.layer} />
-                      <Link to="/assets/$assetId" params={{ assetId: t.table }} className="min-w-0 truncate font-mono text-[12.5px] text-foreground hover:text-link">
-                        {t.table}
-                      </Link>
-                      <span className="ml-auto shrink-0 font-mono text-xs text-ok-text">{t.rows}</span>
-                    </div>
-                    {t.diff ? (
-                      <div className="overflow-x-auto py-1.5 font-mono text-xs leading-[22px]" aria-label="Schema diff">
-                        {t.diff.map((l) => (
-                          <div
-                            key={l.text}
-                            className={cn(
-                              'border-l-2 px-3.5 pl-3 whitespace-pre',
-                              l.kind === 'del' ? 'border-bad bg-bad-wash text-bad-ink' : 'border-ok bg-ok-soft text-ok-ink',
-                            )}
-                          >
-                            <span className="sr-only">{l.kind === 'del' ? 'Removed: ' : 'Added: '}</span>
-                            {l.text}
-                          </div>
-                        ))}
-                      </div>
-                    ) : null}
-                  </React.Fragment>
-                ))}
-              </div>
-            ) : (
-              <EmptyState title={d.merge === 'protected' ? 'This is main' : 'No changes yet'}>
-                {d.merge === 'protected' ? 'Pick a branch to see what it changes.' : 'Nothing has been written to this branch.'}
-              </EmptyState>
-            )}
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <Eyebrow className="pb-1.5">Commits</Eyebrow>
-            {d.commits.length ? (
-              d.commits.map((c, i) => (
-                <div key={c.id} className={cn('flex gap-3 py-2', i < d.commits.length - 1 && 'border-b border-line-soft')}>
-                  <span className="w-16 shrink-0 font-mono text-[12.5px] text-branch">{c.id}</span>
-                  <div className="flex min-w-0 flex-col gap-0.5">
-                    <span className="text-sm">{c.message}</span>
-                    <span className="text-[13px] text-muted-foreground">
-                      {c.who} · {c.ago}
-                    </span>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <span className="py-2 text-[13px] text-muted-foreground">No commits yet</span>
-            )}
-          </div>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-function CheckRow({ check: c, last }: { check: MergeCheck; last?: boolean }) {
-  const Icon = c.state === 'pass' ? CircleCheckIcon : c.state === 'fail' ? CircleXIcon : CircleDashedIcon
-  return (
-    <div className={cn('flex items-center gap-3 py-3 text-sm', !last && 'border-b border-line-soft')}>
-      <Icon
-        className={cn('size-[18px] shrink-0', c.state === 'pass' ? 'text-ok' : c.state === 'fail' ? 'text-bad' : 'text-warn')}
-        aria-label={c.state === 'pass' ? 'Passed' : c.state === 'fail' ? 'Failed' : 'Running'}
-      />
-      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span>{c.label}</span>
-        {c.detailMono ? (
-          <span className="text-[13px] text-muted-foreground">
-            <Mono className="text-xs">{c.detailMono[0]}</Mono> → <Mono className="text-xs">{c.detailMono[1]}</Mono>
-          </span>
-        ) : c.detail ? (
-          <span className="text-[13px] text-muted-foreground">{c.detail}</span>
-        ) : null}
-        {c.progress ? (
-          <div className="mt-1 flex items-center gap-2.5">
-            <div
-              className="relative h-[5px] flex-1 rounded-[3px] bg-soft"
-              role="progressbar"
-              aria-label={c.label}
-              aria-valuenow={c.progress.done}
-              aria-valuemax={c.progress.total}
-            >
-              <div className="absolute inset-y-0 left-0 rounded-[3px] bg-warn" style={{ width: `${(c.progress.done / c.progress.total) * 100}%` }} />
-            </div>
-            <span className="font-mono text-xs text-muted-foreground">
-              {c.progress.done} / {c.progress.total}
-            </span>
-          </div>
-        ) : null}
-      </div>
+  return <>
+    <PageHeader title="Branches" meta={`Nessie catalog · ${data.branches.length} branches, ${data.tags.length} tags`} actions={<Link to="/branches" search={{ env, dialog: 'new-branch' }} className={cn(buttonVariants({ variant: 'outline' }), 'h-10 lg:h-8')}><PlusIcon /> New branch</Link>} />
+    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto lg:flex-row lg:overflow-hidden">
+      <section aria-label="References" className="shrink-0 border-b border-line p-3 lg:w-[340px] lg:overflow-y-auto lg:border-r lg:border-b-0">
+        {data.branches.map((branch) => <Link key={branch.name} to="/branches" search={{ env, branch: branch.name }} className={cn('flex min-w-0 flex-col gap-1 rounded-[10px] px-4 py-3 text-foreground hover:bg-sunken', selected?.name === branch.name && 'bg-soft')}><span className="flex gap-2"><Mono className="min-w-0 break-all">{branch.name}</Mono>{branch.protected ? <Badge variant="outline">protected</Badge> : null}</span><Mono className="break-all text-xs text-muted-foreground">{branch.hash}</Mono></Link>)}
+        <Eyebrow className="px-4 pt-5">Tags</Eyebrow>{data.tags.map((tag) => <div key={tag.name} className="flex flex-col px-4 py-2"><Mono>{tag.name}</Mono><Mono className="text-xs text-muted-foreground">{tag.hash}</Mono></div>)}
+      </section>
+      {!selected || !target ? <EmptyState title="No configured branches" className="m-6">No protected environment ref was returned by the API.</EmptyState> : <section className="min-w-0 flex-1 overflow-y-auto p-5 lg:p-7">
+        <div className="flex flex-wrap items-start gap-3 border-b border-line pb-5"><div className="mr-auto min-w-0"><h2 className="m-0 break-all font-mono text-xl">{selected.name}</h2><Mono className="block max-w-full break-all text-xs text-muted-foreground">{selected.hash}</Mono></div>{!selected.protected ? <><Button variant="outline" disabled={busy} onClick={() => window.confirm(`Rebase ${selected.name} at ${selected.hash} onto ${target.name} at ${target.hash}?`) && run(() => rebaseBranch({ data: { env, branch: selected.name, target: target.name, sourceHash: selected.hash, targetHash: target.hash, confirmed: true, idempotencyKey: operationKey(env, 'rebase', `${selected.name}@${selected.hash}<-${target.name}@${target.hash}`) } }), refresh)}><RefreshCwIcon /> Rebase</Button><Link to="/branches" search={{ env, branch: selected.name, dialog: 'merge' }} className={buttonVariants()}><GitMergeIcon /> Merge</Link><Button variant="destructive" disabled={busy} onClick={() => window.confirm(`Delete ${selected.name} at ${selected.hash}?`) && run(() => deleteBranch({ data: { env, branch: selected.name, expectedHash: selected.hash, confirmed: true, idempotencyKey: operationKey(env, 'delete', `${selected.name}@${selected.hash}`) } }), refresh)}><Trash2Icon /> Delete</Button></> : null}</div>
+        {!detail ? <p className="text-sm text-muted-foreground">Loading branch data…</p> : <div className="grid gap-7 pt-5 lg:grid-cols-2">
+          <div><Eyebrow>Comparison with {target.name}</Eyebrow><p className="text-sm">Ahead: {detail.comparison.ahead ?? 'unknown'} · Behind: {detail.comparison.behind ?? 'unknown'} · Merge base: {detail.comparison.merge_base ?? 'unknown'}</p><Eyebrow className="mt-6">Changes{detail.diff.truncated ? ' (first 500)' : ''}</Eyebrow>{detail.diff.items.length ? <ul className="m-0 list-none p-0">{detail.diff.items.map((change) => <li key={change.key} className="border-b border-line-soft py-2 text-sm"><Badge variant="outline">{change.status}</Badge> <Mono>{change.key}</Mono><div className="text-xs text-muted-foreground">{change.from_content_id ?? 'none'} → {change.to_content_id ?? 'none'}</div></li>)}</ul> : <EmptyState title="No table changes" className="mt-2">The API returned no changes against {target.name}.</EmptyState>}</div>
+          <div className="min-w-0"><Eyebrow>Commit history{detail.commits.next_cursor ? ' (first 100)' : ''}</Eyebrow>{detail.commits.items.length ? detail.commits.items.map((commit) => <div key={commit.hash} className="min-w-0 border-b border-line-soft py-2"><Mono className="block break-all text-xs text-branch">{commit.hash}</Mono><div className="break-words text-sm">{commit.message ?? 'No commit message'}</div><div className="break-all text-xs text-muted-foreground">{commit.author ?? commit.committer ?? 'Unknown author'} · {commit.committed_at ?? 'Unknown time'} · parents: {commit.parent_hashes.length ? commit.parent_hashes.join(', ') : 'none'}</div></div>) : <EmptyState title="No commit history" className="mt-2">No commits were returned.</EmptyState>}</div>
+        </div>}
+        {error && dialog !== 'merge' ? <p className="text-sm text-bad-text" role="alert">{error}</p> : null}
+      </section>}
     </div>
-  )
+    <NewBranchDialog open={dialog === 'new-branch'} env={env} refs={[...data.branches, ...data.tags]} busy={busy} error={error} onClose={close} onCreate={(name, fromRef) => run(() => createBranch({ data: { env, name, fromRef, confirmed: true, idempotencyKey: operationKey(env, 'create', `${name}<-${fromRef}`) } }), refresh)} />
+    {selected && target && !selected.protected ? <MergeDialog key={`${env}:${selected.name}:${selected.hash}:${target.name}:${target.hash}`} open={dialog === 'merge'} branch={selected} target={target} busy={busy} error={error} checks={checks} trial={trial} onClose={close} onMessageChange={() => { setChecks(undefined); setTrial(undefined) }} onChecks={() => run(checkBranch)} onTrial={(message) => run(async () => setTrial(await trialMerge({ data: { env, branch: selected.name, target: target.name, sourceHash: selected.hash, targetHash: target.hash, message, confirmed: true, idempotencyKey: operationKey(env, 'trial', `${selected.name}@${selected.hash}->${target.name}@${target.hash}:${message}`) } })))} onMerge={(message, signatureTargetVersion) => run(() => signAndMerge({ data: { env, branch: selected.name, target: target.name, sourceHash: selected.hash, targetHash: target.hash, message, signatureTargetVersion, confirmed: true, idempotencyKey: operationKey(env, 'flow', signatureTargetVersion), signatureKey: operationKey(env, 'signature', `${signatureTargetVersion}:${message}`), mergeKey: operationKey(env, 'merge', `${signatureTargetVersion}:${message}`) } }), refresh)} /> : null}
+  </>
 }

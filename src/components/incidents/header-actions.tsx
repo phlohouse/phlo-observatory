@@ -1,122 +1,38 @@
 import * as React from 'react'
-import { BellIcon, BellOffIcon, DownloadIcon, EllipsisIcon, LinkIcon, RotateCcwIcon } from 'lucide-react'
-import { Avatar } from '@/components/ui/avatar'
+import { useRouter } from '@tanstack/react-router'
+import { BellIcon, BellOffIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Popover, PopoverContent, PopoverTrigger } from '@/components/ui/menu'
-import type { Incident } from '@/lib/data/types'
-import type { ResolvedDetail } from '@/lib/data/fixtures/incidents'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/menu'
+import { Textarea } from '@/components/ui/input'
+import { clearIncidentOperationKey, incidentOperationKey, resolveIncident, setIncidentSubscription, updateIncident, type IncidentRecord } from '@/lib/data/api/incidents'
 
-function copyLink() {
-  try {
-    void navigator.clipboard.writeText(window.location.href)
-  } catch {
-    /* clipboard not available */
+export function IncidentActions({ env, incident }: { env: 'prod' | 'staging'; incident: IncidentRecord }) {
+  const router = useRouter()
+  const [subscribed, setSubscribed] = React.useState<boolean>()
+  const [pending, setPending] = React.useState(false)
+  const [error, setError] = React.useState<string>()
+  const [comment, setComment] = React.useState('')
+  async function run(action: () => Promise<unknown>) {
+    setPending(true); setError(undefined)
+    try { await action(); await router.invalidate() }
+    catch (caught) { setError(caught instanceof Error ? caught.message : 'Action failed.') }
+    finally { setPending(false) }
   }
-}
-
-/** Header actions for an open incident: who's on it, subscribe, more. */
-export function OpenIncidentActions({ incident }: { incident: Incident }) {
-  const [subscribed, setSubscribed] = React.useState(true)
-  const [copied, setCopied] = React.useState(false)
-  return (
-    <>
-      <div className="hidden sm:flex" aria-label={`People on this incident: ${incident.owner}, QC Analytics`}>
-        <Avatar initials="GP" size="lg" />
-        <Avatar initials="QC" size="lg" tone="teal" className="-ml-2" />
-      </div>
-      <Button variant="outline" aria-pressed={subscribed} onClick={() => setSubscribed((s) => !s)} className="h-10 lg:h-8">
-        {subscribed ? <BellIcon /> : <BellOffIcon />}
-        {subscribed ? 'Subscribed' : 'Subscribe'}
-      </Button>
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          aria-label="More actions"
-          className="inline-flex size-10 cursor-pointer items-center justify-center rounded-lg border border-border bg-raised text-text-3 hover:bg-soft lg:size-8"
-        >
-          <EllipsisIcon className="size-4" />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem
-            onClick={() => {
-              copyLink()
-              setCopied(true)
-            }}
-          >
-            <LinkIcon className="size-3.5" /> {copied ? 'Link copied' : 'Copy link'}
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setSubscribed((s) => !s)}>
-            {subscribed ? <BellOffIcon className="size-3.5" /> : <BellIcon className="size-3.5" />}
-            {subscribed ? 'Mute notifications' : 'Subscribe'}
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </>
-  )
-}
-
-function postMortemMarkdown(incident: Incident, d: ResolvedDetail) {
-  const lines = [
-    `# #${incident.id} ${incident.headline}`,
-    '',
-    d.summary,
-    '',
-    ...d.facts.map((f) => `- **${f.key}:** ${f.value}`),
-    ...d.stats.map((s) => `- **${s.label}:** ${s.value}`),
-    '',
-    ...d.postmortem.sections.flatMap((s) => [`## ${s.title}`, '', s.text, '']),
-    '## Follow-ups',
-    '',
-    ...d.followUps.map((f) => `- [${f.done ? 'x' : ' '}] ${f.label} (${f.who})`),
-    '',
-  ]
-  return lines.join('\n')
-}
-
-/** Header actions for a resolved incident: export the post-mortem, or reopen (with a confirm). */
-export function ResolvedIncidentActions({ incident, detail }: { incident: Incident; detail: ResolvedDetail }) {
-  const [open, setOpen] = React.useState(false)
-  const [reopened, setReopened] = React.useState(false)
-
-  const exportPostMortem = () => {
-    const blob = new Blob([postMortemMarkdown(incident, detail)], { type: 'text/markdown' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `incident-${incident.id}-post-mortem.md`
-    a.click()
-    URL.revokeObjectURL(url)
-  }
-
-  return (
-    <>
-      <Button variant="outline" onClick={exportPostMortem} className="h-10 lg:h-8">
-        <DownloadIcon /> Export post-mortem
-      </Button>
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger render={<Button variant="outline" className="h-10 lg:h-8" disabled={reopened} />}>
-          <RotateCcwIcon /> {reopened ? 'Reopen requested' : 'Reopen'}
-        </PopoverTrigger>
-        <PopoverContent align="end" className="flex w-[300px] flex-col gap-3 p-4">
-          <div className="text-sm font-medium">Reopen #{incident.id}?</div>
-          <p className="m-0 text-[13px] leading-snug text-muted-foreground">
-            It goes back to Investigating and {incident.owner} is notified. The post-mortem stays attached.
-          </p>
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" size="sm" onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
-            <Button
-              size="sm"
-              onClick={() => {
-                setReopened(true)
-                setOpen(false)
-              }}
-            >
-              Reopen
-            </Button>
-          </div>
-        </PopoverContent>
-      </Popover>
-    </>
-  )
+  const updateStatus = (status: 'open' | 'acknowledged') => run(() => updateIncident({ data: { env, id: incident.id, version: incident.version, idempotency_key: incidentOperationKey(env, incident.id, 'status', `${incident.version}:${status}`), update: { status } } }))
+  return <>
+    <Button variant="outline" disabled={pending} aria-pressed={subscribed} onClick={() => run(async () => {
+      const next = subscribed !== true
+      const result = await setIncidentSubscription({ data: { env, id: incident.id, subscribed: next, idempotency_key: incidentOperationKey(env, incident.id, 'subscription', String(next)) } })
+      clearIncidentOperationKey(env, incident.id, 'subscription', String(next))
+      setSubscribed(result.subscribed)
+    })}>{subscribed === true ? <BellIcon /> : subscribed === false ? <BellOffIcon /> : <BellIcon />}{subscribed === undefined ? 'Subscription unknown · Subscribe' : subscribed ? 'Subscribed' : 'Not subscribed · Subscribe'}</Button>
+    {incident.status === 'open' ? <Button disabled={pending} onClick={() => updateStatus('acknowledged')}>Acknowledge</Button> : null}
+    {incident.status === 'resolved' ? <Button disabled={pending} onClick={() => updateStatus('open')}>Reopen</Button> : null}
+    {incident.status === 'acknowledged' ? <Popover><PopoverTrigger render={<Button disabled={pending} />}>Resolve…</PopoverTrigger><PopoverContent align="end" className="flex w-[340px] flex-col gap-3 p-4">
+      <label className="text-sm font-medium">Resolution comment<Textarea className="mt-2" rows={3} value={comment} onChange={(event) => setComment(event.target.value)} /></label>
+      <p className="m-0 text-xs text-muted-foreground">Resolution creates an action-bound electronic signature. Recent MFA is required.</p>
+      <Button disabled={!comment.trim() || pending} onClick={() => run(() => resolveIncident({ data: { env, id: incident.id, version: incident.version, comment, idempotency_key: incidentOperationKey(env, incident.id, 'resolve', `${incident.version}:${comment.trim()}`) } }))}>Sign and resolve</Button>
+    </PopoverContent></Popover> : null}
+    {error ? <span role="alert" className="max-w-56 text-xs text-bad-text">{error}</span> : null}
+  </>
 }
